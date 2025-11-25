@@ -10,6 +10,11 @@ import { allowedOrigins, API_BASE_URL } from './config/config.js';
 import './config/passport.js';
 import { swaggerUi, specs } from './config/swagger.js';
 
+// Debug Swagger import
+console.log('Swagger config imported');
+console.log('Specs type:', typeof specs);
+console.log('Specs keys:', specs ? Object.keys(specs) : 'undefined');
+
 const app = express();
 const port = process.env.PORT || 3001;
 
