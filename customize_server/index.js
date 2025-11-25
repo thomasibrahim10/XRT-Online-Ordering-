@@ -54,22 +54,19 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
 });
 
-// Swagger documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'XRT API Documentation',
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-    filter: true,
-    showExtensions: true,
-    showCommonExtensions: true,
-    docExpansion: 'none',
-    defaultModelsExpandDepth: 2,
-    defaultModelExpandDepth: 2
-  }
-}));
+// Serve static files from public directory
+app.use(express.static('public'));
+
+// Swagger JSON specification endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
+
+// Custom Swagger UI route
+app.get('/api-docs', (req, res) => {
+  res.sendFile('public/swagger.html', { root: '.' });
+});
 
 // API information endpoint
 app.get('/api-info', (req, res) => {

@@ -272,6 +272,38 @@ export const login = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/refresh-token:
+ *   post:
+ *     summary: Refresh access token using refresh token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ */
 export const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -342,6 +374,26 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Logout user and clear cookies
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ */
 export const logout = (req, res) => {
   res.cookie('jwt', 'loggedout', {
     expires: new Date(Date.now() + 10 * 1000),
@@ -350,6 +402,38 @@ export const logout = (req, res) => {
   res.status(200).json({ status: 'success' });
 };
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request password reset email
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *     responses:
+ *       200:
+ *         description: Password reset email sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Password reset email sent
+ */
 export const forgotPassword = async (req, res, next) => {
   try {
     // 1) Get user based on POSTed email
@@ -413,6 +497,47 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/reset-password/{token}:
+ *   patch:
+ *     summary: Reset password using token
+ *     tags: [Authentication]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Password reset token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 description: New password
+ *               confirmPassword:
+ *                 type: string
+ *                 description: Confirm new password
+ *     responses:
+ *       200:
+ *         description: Password reset successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 token:
+ *                   type: string
+ */
 export const resetPassword = async (req, res, next) => {
   try {
     // 1) Get user based on the token
@@ -465,6 +590,45 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/update-password:
+ *   patch:
+ *     summary: Update user password (requires authentication)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Current password
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 description: New password
+ *               confirmPassword:
+ *                 type: string
+ *                 description: Confirm new password
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 token:
+ *                   type: string
+ */
 export const updatePassword = async (req, res, next) => {
   try {
     // 1) Get user from collection
@@ -566,6 +730,39 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Admin functions
+/**
+ * @swagger
+ * /auth/users/{id}/approve:
+ *   patch:
+ *     summary: Approve a user account (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User approved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ */
 export const approveUser = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -595,6 +792,51 @@ export const approveUser = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/users/{id}/ban:
+ *   patch:
+ *     summary: Ban or unban a user (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isBanned:
+ *                 type: boolean
+ *                 description: Ban status
+ *               banReason:
+ *                 type: string
+ *                 description: Reason for banning
+ *     responses:
+ *       200:
+ *         description: User ban status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ */
 export const banUser = async (req, res) => {
   try {
     const { isBanned, banReason } = req.body;
@@ -626,6 +868,27 @@ export const banUser = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/users/{id}:
+ *   delete:
+ *     summary: Delete a user (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       204:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
 export const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -650,6 +913,50 @@ export const deleteUser = async (req, res) => {
 };
 
 // Permission management functions
+/**
+ * @swagger
+ * /auth/users/{id}/permissions:
+ *   patch:
+ *     summary: Update user permissions (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               permissions:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Array of permission strings
+ *     responses:
+ *       200:
+ *         description: User permissions updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ */
 export const updateUserPermissions = async (req, res) => {
   try {
     const { permissions } = req.body;
@@ -688,6 +995,42 @@ export const updateUserPermissions = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/users/{id}/permissions:
+ *   get:
+ *     summary: Get user permissions (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User permissions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     permissions:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     role:
+ *                       type: string
+ */
 export const getUserPermissions = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('permissions role');
@@ -714,6 +1057,34 @@ export const getUserPermissions = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /auth/permissions:
+ *   get:
+ *     summary: Get all available permissions (Admin only)
+ *     tags: [User Management]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All available permissions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     permissions:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       description: Array of all available permissions
+ */
 export const getAllPermissions = async (req, res) => {
   try {
     const allPermissions = [

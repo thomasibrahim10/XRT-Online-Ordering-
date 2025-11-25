@@ -80,6 +80,37 @@ import { Role, User } from '../models/User.js';
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+/**
+ * @swagger
+ * /roles:
+ *   post:
+ *     summary: Create a new custom role
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateRoleRequest'
+ *     responses:
+ *       201:
+ *         description: Role created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     role:
+ *                       $ref: '#/components/schemas/Role'
+ */
 export const createRole = async (req, res) => {
   try {
     const { name, displayName, description, permissions } = req.body;
@@ -116,6 +147,33 @@ export const createRole = async (req, res) => {
 };
 
 // Get all roles
+/**
+ * @swagger
+ * /roles:
+ *   get:
+ *     summary: Get all roles
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of roles retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     roles:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Role'
+ */
 export const getAllRoles = async (req, res) => {
   try {
     const roles = await Role.find({ isSystem: { $ne: true } })
@@ -137,6 +195,38 @@ export const getAllRoles = async (req, res) => {
 };
 
 // Get role by ID
+/**
+ * @swagger
+ * /roles/{id}:
+ *   get:
+ *     summary: Get role by ID
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Role ID
+ *     responses:
+ *       200:
+ *         description: Role retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     role:
+ *                       $ref: '#/components/schemas/Role'
+ */
 export const getRoleById = async (req, res) => {
   try {
     const role = await Role.findById(req.params.id)
@@ -164,6 +254,56 @@ export const getRoleById = async (req, res) => {
 };
 
 // Update role
+/**
+ * @swagger
+ * /roles/{id}:
+ *   patch:
+ *     summary: Update role
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Role ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 description: Human-readable role name
+ *               description:
+ *                 type: string
+ *                 description: Role description
+ *               permissions:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of permissions
+ *     responses:
+ *       200:
+ *         description: Role updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     role:
+ *                       $ref: '#/components/schemas/Role'
+ */
 export const updateRole = async (req, res) => {
   try {
     const { displayName, description, permissions } = req.body;
@@ -204,6 +344,29 @@ export const updateRole = async (req, res) => {
 };
 
 // Delete role
+/**
+ * @swagger
+ * /roles/{id}:
+ *   delete:
+ *     summary: Delete role
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Role ID
+ *     responses:
+ *       204:
+ *         description: Role deleted successfully
+ *       404:
+ *         description: Role not found
+ *       400:
+ *         description: Cannot delete system role or role assigned to users
+ */
 export const deleteRole = async (req, res) => {
   try {
     const role = await Role.findById(req.params.id);
@@ -247,6 +410,48 @@ export const deleteRole = async (req, res) => {
 };
 
 // Assign role to user
+/**
+ * @swagger
+ * /roles/users/{id}/assign:
+ *   patch:
+ *     summary: Assign role to user
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               roleId:
+ *                 type: string
+ *                 description: Role ID to assign
+ *     responses:
+ *       200:
+ *         description: Role assigned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ */
 export const assignRoleToUser = async (req, res) => {
   try {
     const { roleId } = req.body;
@@ -290,6 +495,38 @@ export const assignRoleToUser = async (req, res) => {
 };
 
 // Remove role from user
+/**
+ * @swagger
+ * /roles/users/{id}/remove:
+ *   patch:
+ *     summary: Remove role from user
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Role removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ */
 export const removeRoleFromUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -322,6 +559,40 @@ export const removeRoleFromUser = async (req, res) => {
 };
 
 // Get users with specific role
+/**
+ * @swagger
+ * /roles/users/{roleId}:
+ *   get:
+ *     summary: Get users with specific role
+ *     tags: [Role Management]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: roleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Role ID
+ *     responses:
+ *       200:
+ *         description: Users with role retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ */
 export const getUsersWithRole = async (req, res) => {
   try {
     const { roleId } = req.params;
