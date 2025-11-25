@@ -19,7 +19,7 @@ const options = {
         description: 'Development environment'
       },
       {
-        url: 'https://api.xrt.com/v1',
+        url: 'https://xrt-online-ordering.vercel.app/api/v1',
         description: 'Production server'
       }
     ],

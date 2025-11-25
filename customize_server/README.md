@@ -43,8 +43,8 @@ Enterprise-grade authentication and user management system with role-based acces
    ```
 
 5. **Access API documentation**
-   - Open: http://localhost:3001/api-docs
-   - API Info: http://localhost:3001/api-info
+   - Open: http://xrt-online-ordering.vercel.app/api-docs
+   - API Info: http://xrt-online-ordering.vercel.app/api-info
 
 ## 📚 API Documentation
 

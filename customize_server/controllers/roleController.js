@@ -1,5 +1,4 @@
 import { Role, User } from '../models/User.js';
-import { catchAsync } from '../utils/catchAsync.js';
 
 // Create a new custom role
 /**

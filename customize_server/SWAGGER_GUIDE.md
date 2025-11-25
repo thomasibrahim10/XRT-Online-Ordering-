@@ -6,9 +6,9 @@ The XRT Customized System includes comprehensive API documentation for seamless 
 
 ### 📍 Access Points
 
-1. **API Documentation**: `http://localhost:3001/api-docs`
-2. **API Info**: `http://localhost:3001/api-info`
-3. **Base API**: `http://localhost:3001/api/v1`
+1. **API Documentation**: `http://xrt-online-ordering.vercel.app/api-docs`
+2. **API Info**: `http://xrt-online-ordering.vercel.app/api-info`
+3. **Base API**: `http://xrt-online-ordering.vercel.app/api/v1`
 
 ## 🎯 Features
 
@@ -137,7 +137,7 @@ For production deployment, update server URLs in `config/swagger.js`:
 ```javascript
 servers: [
   {
-    url: 'https://api.yourcompany.com/v1',
+    url: 'https://xrt-online-ordering.vercel.app/api/v1',
     description: 'Production API Server'
   }
 ]
@@ -162,7 +162,7 @@ The API documentation provides:
 
 ## 🎯 Implementation Steps
 
-1. **Access documentation** at `http://localhost:3001/api-docs`
+1. **Access documentation** at `http://xrt-online-ordering.vercel.app/api-docs`
 2. **Test authentication flow** using interactive features
 3. **Configure custom roles** via role management
 4. **Validate user permissions** across different roles
