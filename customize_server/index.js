@@ -58,7 +58,17 @@ app.get('/', (req, res) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'XRT API Documentation'
+  customSiteTitle: 'XRT API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    showExtensions: true,
+    showCommonExtensions: true,
+    docExpansion: 'none',
+    defaultModelsExpandDepth: 2,
+    defaultModelExpandDepth: 2
+  }
 }));
 
 // API information endpoint
