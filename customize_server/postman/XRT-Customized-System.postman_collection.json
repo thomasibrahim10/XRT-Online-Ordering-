@@ -35,6 +35,21 @@
       "key": "roleId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "businessId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "locationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -1141,6 +1156,493 @@
         }
       ],
       "description": "Role management endpoints for creating and managing custom roles"
+    },
+    {
+      "name": "👥 Customer Management",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('customerId', response.data.customer._id);",
+                  "    pm.collectionVariables.set('businessId', response.data.customer.business_id);",
+                  "    pm.collectionVariables.set('locationId', response.data.customer.location_id);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Customer created successfully\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customer');",
+                  "    pm.expect(response.data.customer).to.have.property('name');",
+                  "    pm.expect(response.data.customer).to.have.property('email');",
+                  "    pm.expect(response.data.customer).to.have.property('phoneNumber');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"business_id\": \"507f1f77bcf86cd799439011\",\n  \"location_id\": \"507f1f77bcf86cd799439012\",\n  \"rewards\": 100,\n  \"preferences\": {\n    \"dietary\": [\"vegetarian\"],\n    \"allergies\": [\"nuts\"],\n    \"favoriteItems\": [\"Pizza\", \"Burger\"],\n    \"specialInstructions\": \"No onions please\"\n  },\n  \"addresses\": [\n    {\n      \"type\": \"home\",\n      \"street\": \"123 Main St\",\n      \"city\": \"New York\",\n      \"state\": \"NY\",\n      \"zipCode\": \"10001\",\n      \"country\": \"USA\",\n      \"isDefault\": true\n    }\n  ],\n  \"notes\": \"VIP customer, prefers delivery\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Customers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Customers array returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customers');",
+                  "    pm.expect(response.data.customers).to.be.an('array');",
+                  "    pm.expect(response).to.have.property('results');",
+                  "    pm.expect(response).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Customer data returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customer');",
+                  "    pm.expect(response.data.customer).to.have.property('name');",
+                  "    pm.expect(response.data.customer).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "{{customerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Customer updated successfully\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customer');",
+                  "    pm.expect(response.data.customer).to.have.property('name');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Smith\",\n  \"rewards\": 150,\n  \"notes\": \"Updated notes for customer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "{{customerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Customer (Soft Delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "{{customerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Top Customers by Rewards",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Top customers returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customers');",
+                  "    pm.expect(response.data.customers).to.be.an('array');",
+                  "    pm.expect(response).to.have.property('results');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/top-rewards?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "top-rewards"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customers by Business ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Business customers returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customers');",
+                  "    pm.expect(response.data.customers).to.be.an('array');",
+                  "    pm.expect(response).to.have.property('results');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/business/{{businessId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "business", "{{businessId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customers by Location ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Location customers returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customers');",
+                  "    pm.expect(response.data.customers).to.be.an('array');",
+                  "    pm.expect(response).to.have.property('results');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/location/{{locationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "location", "{{locationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Customers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Search results returned\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customers');",
+                  "    pm.expect(response.data.customers).to.be.an('array');",
+                  "    pm.expect(response).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers?search=john&page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "john"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Rewards Points",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Rewards added successfully\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customer');",
+                  "    pm.expect(response.data.customer).to.have.property('rewards');",
+                  "    pm.expect(response.data.customer.rewards).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"points\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}/rewards/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "{{customerId}}", "rewards", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Redeem Rewards Points",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Rewards redeemed successfully\", function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('customer');",
+                  "    pm.expect(response.data.customer).to.have.property('rewards');",
+                  "    pm.expect(response.data.customer.rewards).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"points\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customers/{{customerId}}/rewards/redeem",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customers", "{{customerId}}", "rewards", "redeem"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Customer management endpoints for CRUD operations, rewards management, and filtering"
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "name": "xrt-customize-server",
-  "version": "1.0.0",
+  "version": "1`.0.0",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "jest",
     "lint": "eslint .",
     "format": "prettier --write ."

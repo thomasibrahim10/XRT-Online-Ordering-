@@ -5,6 +5,7 @@ import cors from 'cors';
 import passport from 'passport';
 import authRoutes from './routes/auth.js';
 import roleRoutes from './routes/roles.js';
+import customerRoutes from './routes/customers.js';
 import { connectDB } from './config/database.js';
 import { allowedOrigins, API_BASE_URL } from './config/config.js';
 import './config/passport.js';
@@ -53,6 +54,7 @@ connectDB().then(() => {
 // Routes
 app.use(`${API_BASE_URL}/auth`, authRoutes);
 app.use(`${API_BASE_URL}/roles`, roleRoutes);
+app.use(`${API_BASE_URL}/customers`, customerRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -131,7 +133,8 @@ app.get('/api-info', (req, res) => {
     documentation: `${req.protocol}://${req.get('host')}/api-docs`,
     endpoints: {
       auth: `${req.protocol}://${req.get('host')}${API_BASE_URL}/auth`,
-      roles: `${req.protocol}://${req.get('host')}${API_BASE_URL}/roles`
+      roles: `${req.protocol}://${req.get('host')}${API_BASE_URL}/roles`,
+      customers: `${req.protocol}://${req.get('host')}${API_BASE_URL}/customers`
     },
     features: [
       'JWT Authentication',
