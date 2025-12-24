@@ -40,6 +40,14 @@ const nextConfig = {
       'react/jsx-dev-runtime': jsxDevRuntimePath,
     };
 
+    // Fix for react-quill CSS import - resolve to quill package
+    try {
+      const quillCssPath = require.resolve('quill/dist/quill.snow.css');
+      config.resolve.alias['react-quill/dist/quill.snow.css'] = quillCssPath;
+    } catch (e) {
+      // quill might not be installed yet, will be resolved after npm install
+    }
+
     // Use webpack's NormalModuleReplacementPlugin to handle react/jsx-runtime imports
     // This ensures ESM modules can resolve the jsx-runtime correctly
     config.plugins.push(
@@ -52,6 +60,25 @@ const nextConfig = {
         jsxDevRuntimePath
       )
     );
+
+    // Fix for react-quill CSS import path - redirect to quill package
+    try {
+      const quillCssPath = require.resolve('quill/dist/quill.snow.css');
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^react-quill\/dist\/quill\.snow\.css$/,
+          quillCssPath
+        )
+      );
+    } catch (e) {
+      // If quill is not installed, add a plugin that will resolve it during build
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^react-quill\/dist\/quill\.snow\.css$/,
+          'quill/dist/quill.snow.css'
+        )
+      );
+    }
 
     return config;
   },
