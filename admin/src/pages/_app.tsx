@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app';
 import 'react-toastify/dist/ReactToastify.css';
+import 'quill/dist/quill.snow.css';
 import '@/assets/css/main.css';
 import { UIProvider } from '@/contexts/ui.context';
 import { SettingsProvider } from '@/contexts/settings.context';

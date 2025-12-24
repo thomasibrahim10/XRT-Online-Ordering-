@@ -10,7 +10,7 @@ import ReactQuill from 'react-quill';
 // @ts-ignore
 import quillEmoji from 'react-quill-emoji';
 import 'react-quill-emoji/dist/quill-emoji.css';
-import 'react-quill/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
 import { twMerge } from 'tailwind-merge';
 import Loader from '@/components/ui/loader/loader';
 import TooltipLabel from '@/components/ui/tooltip-label';
