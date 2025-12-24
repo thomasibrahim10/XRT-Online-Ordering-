@@ -41,23 +41,9 @@ const nextConfig = {
     };
 
     // Fix for react-quill CSS import - resolve to quill package
-    // Use resolve.alias to redirect the import
-    const path = require('path');
-    const fs = require('fs');
-    
-    // Try multiple possible paths for quill CSS
-    const possiblePaths = [
-      path.resolve(process.cwd(), 'node_modules', 'quill', 'dist', 'quill.snow.css'),
-      path.resolve(process.cwd(), 'node_modules', 'react-quill', 'node_modules', 'quill', 'dist', 'quill.snow.css'),
-    ];
-    
-    let quillCssPath = possiblePaths.find(p => fs.existsSync(p));
-    if (!quillCssPath) {
-      // Fallback to relative path
-      quillCssPath = 'quill/dist/quill.snow.css';
-    }
-    
-    config.resolve.alias['react-quill/dist/quill.snow.css'] = quillCssPath;
+    // Add alias for the CSS import - this is the primary fix
+    // Use a relative path that webpack can resolve
+    config.resolve.alias['react-quill/dist/quill.snow.css'] = 'quill/dist/quill.snow.css';
 
     // Use webpack's NormalModuleReplacementPlugin to handle react/jsx-runtime imports
     // This ensures ESM modules can resolve the jsx-runtime correctly
