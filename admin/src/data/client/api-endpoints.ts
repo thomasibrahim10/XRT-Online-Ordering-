@@ -8,7 +8,7 @@ export const API_ENDPOINTS = {
   FORGET_PASSWORD: 'auth/forgot-password',
   RESET_PASSWORD: 'auth/reset-password',
   CHANGE_PASSWORD: 'auth/update-password',
-  
+
   // User management endpoints
   USERS: 'auth/users',
   USER_APPROVE: 'auth/users/:id/approve',
@@ -17,7 +17,7 @@ export const API_ENDPOINTS = {
   USER_PERMISSIONS: 'auth/users/:id/permissions',
   ALL_PERMISSIONS: 'auth/permissions',
   ROLES: 'roles',
-  
+
   // Business endpoints
   BUSINESSES: 'businesses',
   BUSINESS_CREATE: 'businesses',
@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
   BUSINESS_DEACTIVATE: 'businesses/:id/deactivate',
   BUSINESS_BY_OWNER: 'businesses/owner/:ownerId',
   BUSINESS_UPDATE_OWNER: 'businesses/:id/owner',
-  
+
   // Location endpoints
   LOCATIONS: 'locations',
   LOCATION_CREATE: 'locations',
@@ -37,7 +37,7 @@ export const API_ENDPOINTS = {
   LOCATION_DEACTIVATE: 'locations/:id/deactivate',
   LOCATION_NEARBY: 'locations/nearby',
   LOCATIONS_BY_BUSINESS: 'locations/business/:businessId',
-  
+
   // Customer endpoints
   CUSTOMERS: 'customers',
   CUSTOMER_CREATE: 'customers',
