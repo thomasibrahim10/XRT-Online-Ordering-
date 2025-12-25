@@ -10,7 +10,7 @@ import { getAuthCredentials, setAuthCredentials } from '@/utils/auth-utils';
 // Environment variable should be set in Vercel, but we provide a fallback
 // If NEXT_PUBLIC_REST_API_ENDPOINT is missing, it will use the fallback below
 const Axios = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_REST_API_ENDPOINT || 'http://localhost:3001/api/v1',
   timeout: 10000, // Reduced to 10 seconds for faster feedback
   headers: {
     'Content-Type': 'application/json',
@@ -57,9 +57,9 @@ Axios.interceptors.response.use(
 
       if (refreshToken) {
         try {
+          const apiBaseUrl = process.env.NEXT_PUBLIC_REST_API_ENDPOINT || 'http://localhost:3001/api/v1';
           const { data } = await axios.post(
-            process.env.NEXT_PUBLIC_REST_API_ENDPOINT +
-            API_ENDPOINTS.REFRESH_TOKEN,
+            `${apiBaseUrl}/${API_ENDPOINTS.REFRESH_TOKEN}`,
             { refreshToken },
           );
 
@@ -146,8 +146,8 @@ export class HttpClient {
     return response.data;
   }
 
-  static async put<T>(url: string, data: unknown) {
-    const response = await Axios.put<T>(url, data);
+  static async put<T>(url: string, data: unknown, options?: any) {
+    const response = await Axios.put<T>(url, data, options);
     return response.data;
   }
 

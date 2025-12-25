@@ -24,6 +24,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ItemProps } from '@/types';
 import { useModalAction } from '../ui/modal/modal.context';
 import { EditIcon } from '@/components/icons/edit';
+import { Routes } from '@/config/routes';
 import { Config } from '@/config';
 import { formatSlug } from '@/utils/use-slug';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
@@ -117,16 +118,16 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
     //@ts-ignore
     defaultValues: initialValues
       ? {
-          ...initialValues,
-          icon: initialValues?.icon
-            ? tagIcons.find(
-                (singleIcon) => singleIcon.value === initialValues?.icon!,
-              )
-            : '',
-          ...(isNewTranslation && {
-            type: null,
-          }),
-        }
+        ...initialValues,
+        icon: initialValues?.icon
+          ? tagIcons.find(
+            (singleIcon) => singleIcon.value === initialValues?.icon!,
+          )
+          : '',
+        ...(isNewTranslation && {
+          type: null,
+        }),
+      }
       : defaultValues,
     //@ts-ignore
     resolver: yupResolver(tagValidationSchema),
@@ -211,11 +212,10 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
       <div className="flex flex-wrap my-5 sm:my-8">
         <Description
           title={t('form:input-label-description')}
-          details={`${
-            initialValues
-              ? t('form:item-description-edit')
-              : t('form:item-description-add')
-          } ${t('form:tag-description-helper-text')}`}
+          details={`${initialValues
+            ? t('form:item-description-edit')
+            : t('form:item-description-add')
+            } ${t('form:tag-description-helper-text')}`}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5 "
         />
 
@@ -287,16 +287,14 @@ export default function CreateOrUpdateTagForm({ initialValues }: IProps) {
       </div>
       <StickyFooterPanel className="z-0">
         <div className="text-end">
-          {initialValues && (
-            <Button
-              variant="outline"
-              onClick={router.back}
-              className="text-sm me-4 md:text-base"
-              type="button"
-            >
-              {t('form:button-label-back')}
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => router.push(Routes.tag.list)}
+            className="text-sm me-4 md:text-base"
+            type="button"
+          >
+            {t('form:button-label-back')}
+          </Button>
 
           <Button
             loading={creating || updating}

@@ -48,12 +48,14 @@ export default function Modal({ open, onClose, children }: any) {
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
+          {/* Using inert instead of aria-hidden to avoid focus issues */}
           <span
             className={cn(
               'inline-block h-screen',
               searchModal ? 'mt-16 align-top' : 'align-middle',
             )}
             aria-hidden="true"
+            style={{ pointerEvents: 'none' }}
           >
             &#8203;
           </span>

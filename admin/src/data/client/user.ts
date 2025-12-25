@@ -23,8 +23,10 @@ import { API_ENDPOINTS } from './api-endpoints';
 import { HttpClient } from './http-client';
 
 export const userClient = {
-  me: () => {
-    return HttpClient.get<User>(API_ENDPOINTS.ME);
+  me: async () => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.ME);
+    // Handle backend response format: { success: true, data: { user: {...} } }
+    return response?.data?.user || response?.data || response;
   },
   login: (variables: LoginInput) => {
     return HttpClient.post<AuthResponse>(API_ENDPOINTS.LOGIN, variables);
@@ -90,22 +92,25 @@ export const userClient = {
     );
   },
 
-  fetchUsers: ({ name, ...params }: Partial<UserQueryOptions>) => {
-    return HttpClient.get<UserPaginator>(API_ENDPOINTS.USERS, {
-      searchJoin: 'and',
+  fetchUsers: async ({ name, ...params }: Partial<UserQueryOptions>) => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.USERS, {
       ...params,
-      search: HttpClient.formatSearchParams({ name }),
+      search: name ? `name:${name}` : undefined,
     });
+    // Handle backend response format: { success: true, data: { users: [...], paginatorInfo: {...} } }
+    return response?.data || response;
   },
-  fetchAdmins: ({ ...params }: Partial<UserQueryOptions>) => {
-    return HttpClient.get<UserPaginator>(API_ENDPOINTS.USERS, {
-      searchJoin: 'and',
+  fetchAdmins: async ({ ...params }: Partial<UserQueryOptions>) => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.USERS, {
+      ...params,
       role: 'admin',
-      ...params,
     });
+    return response?.data || response;
   },
-  fetchUser: ({ id }: { id: string }) => {
-    return HttpClient.get<User>(`${API_ENDPOINTS.USERS}/${id}`);
+  fetchUser: async ({ id }: { id: string }) => {
+    const response = await HttpClient.get<any>(`${API_ENDPOINTS.USERS}/${id}`);
+    // Handle backend response format: { success: true, data: { user: {...} } }
+    return response?.data?.user || response?.data || response;
   },
   resendVerificationEmail: () => {
     return HttpClient.post<any>(API_ENDPOINTS.SEND_VERIFICATION_EMAIL, {});
@@ -113,20 +118,20 @@ export const userClient = {
   updateEmail: ({ email }: { email: string }) => {
     return HttpClient.patch<any>(API_ENDPOINTS.UPDATE_EMAIL, { email });
   },
-  fetchVendors: ({ is_active, ...params }: Partial<UserQueryOptions>) => {
-    return HttpClient.get<UserPaginator>(API_ENDPOINTS.USERS, {
-      searchJoin: 'and',
-      role: 'vendor',
+  fetchVendors: async ({ is_active, ...params }: Partial<UserQueryOptions>) => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.USERS, {
+      ...params,
+      role: 'manager', // Backend uses 'manager' for staff/vendors
       is_active,
-      ...params,
     });
+    return response?.data || response;
   },
-  fetchCustomers: ({ ...params }: Partial<UserQueryOptions>) => {
-    return HttpClient.get<UserPaginator>(API_ENDPOINTS.USERS, {
-      searchJoin: 'and',
-      role: 'client',
+  fetchCustomers: async ({ ...params }: Partial<UserQueryOptions>) => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.USERS, {
       ...params,
+      role: 'client',
     });
+    return response?.data || response;
   },
   getMyStaffs: ({
     is_active,

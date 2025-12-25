@@ -135,7 +135,7 @@ export const Routes = {
   },
   adminList: '/users/admins',
   vendorList: '/users/vendors',
-  pendingVendorList: '/users/vendors/pending',
+  pendingVendorList: '/uمsers/vendors/pending',
   customerList: '/users/customer',
   myStaffs: '/users/my-staffs',
   vendorStaffs: '/users/vendor-staffs',

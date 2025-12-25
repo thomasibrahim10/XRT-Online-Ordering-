@@ -16,6 +16,7 @@ import {
 } from '@/data/attributes';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { attributeValidationSchema } from '@/components/attribute/attribute.validation-schema';
+import { Routes } from '@/config/routes';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 
 type FormValues = {
@@ -113,11 +114,10 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
         <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
           <Description
             title={t('common:attribute')}
-            details={`${
-              initialValues
-                ? t('form:item-description-update')
-                : t('form:item-description-add')
-            } ${t('form:form-description-attribute-name')}`}
+            details={`${initialValues
+              ? t('form:item-description-update')
+              : t('form:item-description-add')
+              } ${t('form:form-description-attribute-name')}`}
             className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
           />
 
@@ -135,11 +135,10 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
         <div className="flex flex-wrap my-5 sm:my-8">
           <Description
             title={t('common:attribute-values')}
-            details={`${
-              initialValues
-                ? t('form:item-description-update')
-                : t('form:item-description-add')
-            } ${t('form:form-description-attribute-value')}`}
+            details={`${initialValues
+              ? t('form:item-description-update')
+              : t('form:item-description-add')
+              } ${t('form:form-description-attribute-value')}`}
             className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
           />
 
@@ -193,16 +192,20 @@ export default function CreateOrUpdateAttributeForm({ initialValues }: IProps) {
 
         <StickyFooterPanel className="z-0">
           <div className="text-end">
-            {initialValues && (
-              <Button
-                variant="outline"
-                onClick={router.back}
-                className="text-sm me-4 md:text-base"
-                type="button"
-              >
-                {t('form:button-label-back')}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push(
+                  router.query.shop
+                    ? `/${router.query.shop}${Routes.attribute.list}`
+                    : Routes.attribute.list,
+                )
+              }
+              className="text-sm me-4 md:text-base"
+              type="button"
+            >
+              {t('form:button-label-back')}
+            </Button>
 
             <Button
               loading={creating || updating}

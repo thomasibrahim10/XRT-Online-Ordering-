@@ -53,7 +53,7 @@ export function getAuthCredentials(context?: any): {
   if (authCred) {
     return JSON.parse(authCred);
   }
-  return { token: null, permissions: null, role: null };
+  return { token: null, permissions: null, role: null, refreshToken: null };
 }
 
 export function parseSSRCookie(context: any) {
@@ -85,6 +85,27 @@ export function hasAccess(
   }
 
   return _allowedRoles.includes(_userRole);
+}
+
+export function hasPermission(
+  _allowedPermissions: string[],
+  _userPermissions: string[] | undefined | null,
+): boolean {
+  if (
+    !_allowedPermissions ||
+    !Array.isArray(_allowedPermissions) ||
+    !_allowedPermissions.length
+  ) {
+    return true;
+  }
+
+  if (!_userPermissions || !Array.isArray(_userPermissions)) {
+    return false;
+  }
+
+  return _allowedPermissions.some((permission) =>
+    _userPermissions.includes(permission)
+  );
 }
 
 export function isAuthenticated(_cookies: any) {

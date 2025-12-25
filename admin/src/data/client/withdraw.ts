@@ -11,21 +11,39 @@ import { crudFactory } from './curd-factory';
 import { HttpClient } from './http-client';
 
 export const withdrawClient = {
-  ...crudFactory<Withdraw, QueryOptions, CreateWithdrawInput>(
-    API_ENDPOINTS.WITHDRAWS
-  ),
-  get({ id }: { id: string }) {
-    return HttpClient.get<Withdraw>(`${API_ENDPOINTS.WITHDRAWS}/${id}`);
+  get: async ({ id }: { id: string }) => {
+    const response = await HttpClient.get<any>(`${API_ENDPOINTS.WITHDRAWS}/${id}`);
+    // Handle backend response format: { success: true, data: { withdraw: {...} } }
+    return response?.data?.withdraw || response?.data || response;
   },
-  paginated: ({ shop_id, ...params }: Partial<WithdrawQueryOptions>) => {
-    return HttpClient.get<WithdrawPaginator>(API_ENDPOINTS.WITHDRAWS, {
-      shop_id,
-      searchJoin: 'and',
+  paginated: async ({ shop_id, business_id, ...params }: Partial<WithdrawQueryOptions>) => {
+    const response = await HttpClient.get<any>(API_ENDPOINTS.WITHDRAWS, {
       ...params,
-      search: HttpClient.formatSearchParams({ shop_id }),
+      business_id: business_id || shop_id,
     });
+    // Handle backend response format: { success: true, data: { withdraws: [...], paginatorInfo: {...} } }
+    return response?.data || response;
   },
-  approve(data: ApproveWithdrawInput) {
-    return HttpClient.post<Withdraw>(API_ENDPOINTS.APPROVE_WITHDRAW, data);
+  create: async (variables: CreateWithdrawInput) => {
+    const response = await HttpClient.post<any>(API_ENDPOINTS.WITHDRAWS, {
+      ...variables,
+      business_id: variables.shop_id,
+    });
+    return response?.data?.withdraw || response?.data || response;
+  },
+  update: async ({ id, ...input }: Partial<CreateWithdrawInput> & { id: string }) => {
+    const response = await HttpClient.patch<any>(`${API_ENDPOINTS.WITHDRAWS}/${id}`, input);
+    return response?.data?.withdraw || response?.data || response;
+  },
+  delete: async ({ id }: { id: string }) => {
+    const response = await HttpClient.delete<any>(`${API_ENDPOINTS.WITHDRAWS}/${id}`);
+    return response?.data || response;
+  },
+  approve: async (data: ApproveWithdrawInput) => {
+    const response = await HttpClient.post<any>(
+      `${API_ENDPOINTS.WITHDRAWS}/${data.id}/approve`,
+      { status: data.status, note: data.note }
+    );
+    return response?.data?.withdraw || response?.data || response;
   },
 };

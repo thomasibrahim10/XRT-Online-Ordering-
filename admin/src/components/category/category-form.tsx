@@ -1,196 +1,108 @@
 import Input from '@/components/ui/input';
-import {
-  Control,
-  FieldErrors,
-  useForm,
-  useFormState,
-  useWatch,
-} from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import TextArea from '@/components/ui/text-area';
 import Label from '@/components/ui/label';
 import Card from '@/components/common/card';
 import Description from '@/components/ui/description';
-import * as categoriesIcon from '@/components/icons/category';
-import { EditIcon } from '@/components/icons/edit';
-import { getIcon } from '@/utils/get-icon';
 import { useRouter } from 'next/router';
-import { Config } from '@/config';
 import ValidationError from '@/components/ui/form-validation-error';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Category, ItemProps } from '@/types';
-import { categoryIcons } from './category-icons';
+import { Routes } from '@/config/routes';
+import { Config } from '@/config';
 import { useTranslation } from 'next-i18next';
 import FileInput from '@/components/ui/file-input';
 import SelectInput from '@/components/ui/select-input';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { categoryValidationSchema } from './category-validation-schema';
 import {
-  useCategoriesQuery,
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
 } from '@/data/category';
-import { useTypesQuery } from '@/data/type';
 import { useSettingsQuery } from '@/data/settings';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import OpenAIButton from '@/components/openAI/openAI.button';
-import { join, split } from 'lodash';
-import { formatSlug } from '@/utils/use-slug';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import { CategoryDetailSuggestion } from '@/components/category/category-ai-prompt';
+import SwitchInput from '@/components/ui/switch-input';
+import edit from '@/pages/[shop]/edit';
 
-export const updatedIcons = categoryIcons.map((item: any) => {
-  item.label = (
-    <div className="flex items-center space-s-5">
-      <span className="flex items-center justify-center w-5 h-5">
-        {getIcon({
-          iconList: categoriesIcon,
-          iconName: item.value,
-          className: 'max-h-full max-w-full',
-        })}
-      </span>
-      <span>{item.label}</span>
-    </div>
-  );
-  return item;
-});
 
-function SelectTypes({
-  control,
-  errors,
-}: {
-  control: Control<FormValues>;
-  errors: FieldErrors;
-}) {
-  const { locale } = useRouter();
-  const { t } = useTranslation();
-  const { types, loading } = useTypesQuery({ language: locale });
-  return (
-    <div className="mb-5">
-      <Label>{t('form:input-label-types')}</Label>
-      <SelectInput
-        name="type"
-        control={control as any}
-        getOptionLabel={(option: any) => option.name}
-        getOptionValue={(option: any) => option.slug}
-        options={types as any}
-        isLoading={loading}
-      />
-      <ValidationError message={t(errors.type?.message)} />
-    </div>
-  );
-}
-
-function SelectCategories({
-  control,
-  setValue,
-  initialValue,
-}: {
-  control: Control<FormValues>;
-  setValue: any;
-  initialValue?: Category;
-}) {
-  const { locale } = useRouter();
-  const { t } = useTranslation();
-  const type = useWatch({
-    control,
-    name: 'type',
-  });
-  const { dirtyFields } = useFormState({
-    control,
-  });
-  useEffect(() => {
-    if (type?.slug && dirtyFields?.type) {
-      setValue('parent', []);
-    }
-  }, [type?.slug]);
-  const { categories, loading } = useCategoriesQuery({
-    limit: 999,
-    type: type?.slug,
-    language: locale,
-    ...(Boolean(initialValue?.id) && { self: initialValue?.id }),
-  });
-  return (
-    <div>
-      <Label>{t('form:input-label-parent-category')}</Label>
-      <SelectInput
-        name="parent"
-        control={control as any}
-        getOptionLabel={(option: any) => option.name}
-        getOptionValue={(option: any) => option.id}
-        options={categories}
-        isClearable={true}
-        isLoading={loading}
-      />
-    </div>
-  );
-}
 
 type FormValues = {
   name: string;
-  slug: string;
-  details: string;
-  parent: any;
-  image: any;
-  icon: any;
-  type: any;
+  details?: string;
+  image?: any;
+  icon?: any;
+  kitchen_section_id: any;
+  sort_order: number;
+  is_active?: boolean;
 };
 
 const defaultValues = {
   image: [],
   name: '',
-  slug: '',
   details: '',
-  parent: '',
-  icon: '',
-  type: '',
+  icon: [],
+  kitchen_section_id: '',
+  sort_order: 0,
+  is_active: true,
 };
 
 type IProps = {
   initialValues?: Category | undefined;
 };
+
 export default function CreateOrUpdateCategoriesForm({
   initialValues,
 }: IProps) {
   const router = useRouter();
-  const { t } = useTranslation();
-
-  const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
+  const { t } = useTranslation(['common', 'form']);
 
   const isNewTranslation = router?.query?.action === 'translate';
-  const isSlugEditable =
-    router?.query?.action === 'edit' &&
-    router?.locale === Config.defaultLanguage;
+
+  // Helper for text fallback
+  const getFallback = (key: string, accessKey: string, fallback: string) => {
+    const val = t(accessKey);
+    return val === key || val === accessKey ? fallback : val;
+  };
+
+  const kitchenSectionOptions: { label: string; value: string }[] = [
+    { label: getFallback('kitchen-section-appetizers', 'common:kitchen-section-appetizers', 'Appetizers'), value: 'KS_001' },
+    { label: getFallback('kitchen-section-main-course', 'common:kitchen-section-main-course', 'Main Course'), value: 'KS_002' },
+    { label: getFallback('kitchen-section-desserts', 'common:kitchen-section-desserts', 'Desserts'), value: 'KS_003' },
+    { label: getFallback('kitchen-section-beverages', 'common:kitchen-section-beverages', 'Beverages'), value: 'KS_004' },
+  ];
+
   const {
     register,
     handleSubmit,
     control,
     setValue,
     watch,
-
     formState: { errors },
   } = useForm<FormValues>({
-    // shouldUnregister: true,
-    //@ts-ignore
     defaultValues: initialValues
       ? {
-          ...initialValues,
-          icon: initialValues?.icon
-            ? categoryIcons.find(
-                (singleIcon) => singleIcon.value === initialValues?.icon!,
-              )
-            : '',
-          ...(isNewTranslation && {
-            type: null,
-          }),
-        }
+        ...initialValues,
+        image: initialValues?.image
+          ? typeof initialValues.image === 'string'
+            ? [{ id: 1, thumbnail: initialValues.image, original: initialValues.image, file_name: (initialValues.image as any).split('/').pop() }]
+            : [initialValues.image]
+          : [],
+        icon: initialValues?.icon
+          ? typeof initialValues.icon === 'string'
+            ? [{ id: 1, thumbnail: initialValues.icon, original: initialValues.icon, file_name: initialValues.icon.split('/').pop() }]
+            : [initialValues.icon]
+          : [],
+        kitchen_section_id: kitchenSectionOptions.find((opt: any) => opt.value === initialValues.kitchen_section_id),
+      }
       : defaultValues,
-    //@ts-ignore
     resolver: yupResolver(categoryValidationSchema),
   });
 
   const { openModal } = useModalAction();
-  const slugAutoSuggest = formatSlug(watch('name'));
   const { locale } = router;
   const {
     // @ts-ignore
@@ -223,28 +135,56 @@ export default function CreateOrUpdateCategoriesForm({
     const input = {
       language: router.locale,
       name: values.name,
-      slug: values.slug,
       details: values.details,
-      image: {
-        thumbnail: values?.image?.thumbnail,
-        original: values?.image?.original,
-        id: values?.image?.id,
-      },
-      icon: values.icon?.value || '',
-      parent: values.parent?.id ?? null,
-      type_id: values.type?.id,
+      kitchen_section_id: values.kitchen_section_id?.value,
+      sort_order: Number(values.sort_order),
+      is_active: values.is_active,
+      business_id: 'biz_001',
     };
+
+    // Extract File objects if they exist in the values (returned as array from FileInput)
+    // If the Uploader already successfully uploaded to /attachments, it will be an object with id/thumbnail/original
+    const imageValue = Array.isArray(values.image) ? values.image[0] : values.image;
+    const iconValue = Array.isArray(values.icon) ? values.icon[0] : values.icon;
+
+    const imageFile = imageValue instanceof File ? imageValue : undefined;
+    const iconFile = iconValue instanceof File ? iconValue : undefined;
+
+    const payload: any = {
+      ...input,
+      image: imageFile,
+      icon: iconFile,
+    };
+
+    // If it's already uploaded (has id/thumbnail), pass the URL and ID in the body
+    if (!imageFile && imageValue?.original) {
+      payload.image = imageValue.original;
+      payload.image_public_id = imageValue.id;
+    }
+    if (!iconFile && iconValue?.original) {
+      payload.icon = iconValue.original;
+      payload.icon_public_id = iconValue.id;
+    }
+
+    // If we are updating and haven't provided a new file, we don't want to send the "existing" image object
+    // as it would be serialized to string incorrectly.
+    // However, if we want to preserve the existing image, we just don't send anything for 'image' in FormData.
+    // The backend won't update it if it's not provided in req.files and not in req.body.
+
+    console.log('--- CATEGORY SUBMIT PAYLOAD ---');
+    console.log(payload);
+    console.log('-------------------------------');
+
     if (
       !initialValues ||
-      !initialValues.translated_languages.includes(router.locale!)
+      !initialValues.translated_languages?.includes(router.locale!)
     ) {
       createCategory({
-        ...input,
-        ...(initialValues?.slug && { slug: initialValues.slug }),
+        ...payload,
       });
     } else {
       updateCategory({
-        ...input,
+        ...payload,
         id: initialValues.id!,
       });
     }
@@ -260,18 +200,36 @@ export default function CreateOrUpdateCategoriesForm({
         />
 
         <Card className="w-full sm:w-8/12 md:w-2/3">
-          <FileInput name="image" control={control as any} multiple={false} />
+          <FileInput name="image" control={control as any} multiple={false} section="categories" />
+        </Card>
+      </div>
+
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
+        <Description
+          title="Icon"
+          details="Upload an SVG icon for this category."
+          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
+        />
+
+        <Card className="w-full sm:w-8/12 md:w-2/3">
+          <FileInput
+            name="icon"
+            control={control as any}
+            multiple={false}
+            accept="image/svg+xml"
+            helperText="Upload SVG (Drag & drop or click)"
+            section="categories"
+          />
         </Card>
       </div>
 
       <div className="flex flex-wrap my-5 sm:my-8">
         <Description
           title={t('form:input-label-description')}
-          details={`${
-            initialValues
-              ? t('form:item-description-edit')
-              : t('form:item-description-add')
-          } ${t('form:category-description-helper-text')}`}
+          details={`${initialValues
+            ? t('form:item-description-edit')
+            : t('form:item-description-add')
+            } ${t('form:category-description-helper-text')}`}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5 "
         />
 
@@ -284,36 +242,7 @@ export default function CreateOrUpdateCategoriesForm({
             className="mb-5"
           />
 
-          {isSlugEditable ? (
-            <div className="relative mb-5">
-              <Input
-                label={t('form:input-label-slug')}
-                {...register('slug')}
-                error={t(errors.slug?.message!)}
-                variant="outline"
-                disabled={isSlugDisable}
-              />
-              <button
-                className="absolute top-[27px] right-px z-0 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
-                type="button"
-                title={t('common:text-edit')}
-                onClick={() => setIsSlugDisable(false)}
-              >
-                <EditIcon width={14} />
-              </button>
-            </div>
-          ) : (
-            <Input
-              label={t('form:input-label-slug')}
-              {...register('slug')}
-              value={slugAutoSuggest}
-              variant="outline"
-              className="mb-5"
-              disabled
-            />
-          )}
-
-          <div className="relative">
+          <div className="relative mb-5">
             {options?.useAi && (
               <OpenAIButton
                 title={t('form:button-label-description-ai')}
@@ -324,39 +253,46 @@ export default function CreateOrUpdateCategoriesForm({
               label={t('form:input-label-details')}
               {...register('details')}
               variant="outline"
-              className="mb-5"
             />
           </div>
 
           <div className="mb-5">
-            <Label>{t('form:input-label-select-icon')}</Label>
+            <Label>{getFallback('input-label-kitchen-section', 'form:input-label-kitchen-section', 'Kitchen Section')}</Label>
             <SelectInput
-              name="icon"
+              name="kitchen_section_id"
               control={control as any}
-              options={updatedIcons}
+              options={kitchenSectionOptions}
               isClearable={true}
             />
+            <ValidationError message={t(errors.kitchen_section_id?.message!)} />
           </div>
-          <SelectTypes control={control as any} errors={errors as any} />
-          <SelectCategories
-            control={control as any}
-            setValue={setValue}
-            initialValue={initialValues}
-          />
+
+          <div className="mb-5">
+            <Input
+              label="Sort Order"
+              {...register('sort_order')}
+              type="number"
+              variant="outline"
+              error={t(errors.sort_order?.message!)}
+            />
+          </div>
+
+          <div className="mb-5">
+            <SwitchInput name="is_active" control={control as any} label="Is Active?" />
+          </div>
+
         </Card>
       </div>
       <StickyFooterPanel className="z-0">
         <div className="text-end">
-          {initialValues && (
-            <Button
-              variant="outline"
-              onClick={router.back}
-              className="text-sm me-4 md:text-base"
-              type="button"
-            >
-              {t('form:button-label-back')}
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => router.push(Routes.category.list)}
+            className="text-sm me-4 md:text-base"
+            type="button"
+          >
+            {t('form:button-label-back')}
+          </Button>
 
           <Button
             loading={creating || updating}

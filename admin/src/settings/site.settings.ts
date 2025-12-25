@@ -153,6 +153,11 @@ export const siteSettings = {
         icon: 'ProductsIcon',
         childMenu: [
           {
+            href: Routes.category.list,
+            label: 'sidebar-nav-item-categories',
+            icon: 'CategoriesIcon',
+          },
+          {
             href: '',
             label: 'sidebar-nav-item-products',
             icon: 'ProductsIcon',
@@ -183,11 +188,6 @@ export const siteSettings = {
             href: Routes.productInventory,
             label: 'text-inventory',
             icon: 'InventoryIcon',
-          },
-          {
-            href: Routes.category.list,
-            label: 'sidebar-nav-item-categories',
-            icon: 'CategoriesIcon',
           },
           {
             href: Routes.tag.list,

@@ -10,8 +10,8 @@ import { SortOrder, Type } from '@/types';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Routes } from '@/config/routes';
-import TypeFilter from '@/components/category/type-filter';
-import { adminOnly } from '@/utils/auth-utils';
+import KitchenSectionFilter from '@/components/category/kitchen-section-filter';
+import { adminOnly, getAuthCredentials, hasPermission } from '@/utils/auth-utils';
 import { useCategoriesQuery } from '@/data/category';
 import { useRouter } from 'next/router';
 import { Config } from '@/config';
@@ -19,15 +19,15 @@ import PageHeading from '@/components/common/page-heading';
 export default function Categories() {
   const { locale } = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [type, setType] = useState('');
+  const [kitchenSection, setKitchenSection] = useState('');
   const [page, setPage] = useState(1);
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'form', 'table']);
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
   const { categories, paginatorInfo, loading, error } = useCategoriesQuery({
     limit: 20,
     page,
-    type,
+    kitchen_section_id: kitchenSection,
     name: searchTerm,
     orderBy,
     sortedBy,
@@ -61,15 +61,15 @@ export default function Categories() {
               placeholderText={t('form:input-placeholder-search-name')}
             />
 
-            <TypeFilter
+            <KitchenSectionFilter
               className="md:ms-6"
-              onTypeFilter={(type: Type) => {
-                setType(type?.slug!);
+              onKitchenSectionFilter={(option: any) => {
+                setKitchenSection(option?.value ?? '');
                 setPage(1);
               }}
             />
 
-            {locale === Config.defaultLanguage && (
+            {locale === Config.defaultLanguage && (getAuthCredentials().role === 'super_admin' || hasPermission(['categories:create'], getAuthCredentials().permissions)) && (
               <LinkButton
                 href={`${Routes.category.create}`}
                 className="h-12 w-full md:w-auto md:ms-6"
@@ -98,6 +98,7 @@ export default function Categories() {
 
 Categories.authenticate = {
   permissions: adminOnly,
+  allowedPermissions: ['categories:read'],
 };
 Categories.Layout = Layout;
 

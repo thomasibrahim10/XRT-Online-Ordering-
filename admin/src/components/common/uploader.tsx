@@ -29,24 +29,44 @@ export default function Uploader({
   maxSize,
   maxFiles,
   disabled,
+  accept,
+  section,
+  name,
 }: any) {
   const { t } = useTranslation();
   const [files, setFiles] = useState<Attachment[]>(getPreviewImage(value));
   const { mutate: upload, isLoading: loading } = useUploadMutation();
   const [error, setError] = useState<string | null>(null);
+
+  // Helper to convert HTML accept string to react-dropzone object
+  const resolveAccept = () => {
+    if (accept) {
+      // If specific SVG mime type
+      if (accept === 'image/svg+xml') {
+        return {
+          'image/svg+xml': ['.svg'],
+        };
+      }
+      // Provide a generic fallback for other strings if needed, or pass as is if it's already an object
+      return typeof accept === 'string' ? { [accept]: [] } : accept;
+    }
+
+    // Default legacy logic
+    if (!acceptFile) {
+      return {
+        'image/*': ['.jpg', '.jpeg', '.png', '.webp'],
+      };
+    }
+    return { ...ACCEPTED_FILE_TYPES };
+  };
+
   const { getRootProps, getInputProps } = useDropzone({
-    ...(!acceptFile
-      ? {
-          accept: {
-            'image/*': ['.jpg', '.jpeg', '.png', '.webp'],
-          },
-        }
-      : { ...ACCEPTED_FILE_TYPES }),
+    accept: resolveAccept(),
     multiple,
     onDrop: async (acceptedFiles) => {
       if (acceptedFiles.length) {
         upload(
-          acceptedFiles, // it will be an array of uploaded attachments
+          { files: acceptedFiles, section, field: name }, // Pass name as field to identify 'icon'
           {
             onSuccess: (data: any) => {
               // Process Digital File Name section
@@ -110,6 +130,7 @@ export default function Uploader({
       'png',
       'eps',
       'raw',
+      'svg',
     ];
     // let filename, fileType, isImage;
     if (file && file.id) {
@@ -140,23 +161,41 @@ export default function Uploader({
         >
           {/* {file?.thumbnail && isImage ? ( */}
           {isImage ? (
-            // <div className="flex items-center justify-center w-16 h-16 min-w-0 overflow-hidden">
-            //   <Image
-            //     src={file.thumbnail}
-            //     width={56}
-            //     height={56}
-            //     alt="uploaded image"
-            //   />
-            // </div>
-            <figure className="relative flex items-center justify-center h-16 w-28 aspect-square">
-              <Image
-                src={file.thumbnail}
-                alt={filename}
-                fill
-                sizes="(max-width: 768px) 100vw"
-                className="object-cover"
-              />
-            </figure>
+            // Use regular img tag for SVG files or external URLs to avoid Next.js Image optimization issues
+            fileType === 'svg' || file.thumbnail?.includes('cloudinary') || file.thumbnail?.startsWith('http') ? (
+              <div className="flex items-center justify-center w-16 h-16 min-w-0 overflow-hidden">
+                <img
+                  src={file.thumbnail}
+                  alt={filename}
+                  className="h-full w-full object-contain"
+                  onError={(e) => {
+                    // Hide broken image if it fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    // Also hide parent container if image fails
+                    if (target.parentElement) {
+                      target.parentElement.style.display = 'none';
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <figure className="relative flex items-center justify-center h-16 w-28 aspect-square">
+                {/* Using regular img for non-SVG to avoid Next.js Image fetchPriority warning */}
+                <img
+                  src={file.thumbnail}
+                  alt={filename}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    // Hide broken image if it fails to load
+                    const target = e.target as HTMLImageElement;
+                    if (target.parentElement) {
+                      target.parentElement.style.display = 'none';
+                    }
+                  }}
+                />
+              </figure>
+            )
           ) : (
             <div className="flex flex-col items-center">
               <div className="flex items-center justify-center min-w-0 overflow-hidden h-14 w-14">

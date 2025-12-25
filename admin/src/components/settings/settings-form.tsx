@@ -251,6 +251,91 @@ export default function SettingsForm({
         </Card>
       </div>
 
+      {/* Hero Slider Section */}
+      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
+        <Description
+          title={t('Hero Slider')}
+          details={t('Manage homepage banner slides with images, titles, and buttons')}
+          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
+        />
+
+        <Card className="w-full sm:w-8/12 md:w-2/3">
+          {heroSlideFields.map((slide, index) => (
+            <div
+              key={slide.id}
+              className="py-5 border-b border-dashed border-border-200 last:border-b-0"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="font-semibold text-gray-700">
+                  {t('Slide')} {index + 1}
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => removeHeroSlide(index)}
+                  className="text-sm text-red-500 hover:text-red-700"
+                >
+                  {t('Remove')}
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <FileInput
+                  name={`heroSlides.${index}.bgImage`}
+                  control={control}
+                  multiple={false}
+                  label={t('Background Image')}
+                  toolTipText={t('Upload background image for this slide')}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label={t('Title')}
+                  toolTipText={t('Main heading for this slide')}
+                  {...register(`heroSlides.${index}.title`)}
+                  variant="outline"
+                />
+                <Input
+                  label={t('Subtitle')}
+                  toolTipText={t('Secondary text below the title')}
+                  {...register(`heroSlides.${index}.subtitle`)}
+                  variant="outline"
+                />
+                <Input
+                  label={t('Button Text')}
+                  toolTipText={t('Text displayed on the call-to-action button')}
+                  {...register(`heroSlides.${index}.btnText`)}
+                  variant="outline"
+                />
+                <Input
+                  label={t('Button Link')}
+                  toolTipText={t('URL the button links to')}
+                  {...register(`heroSlides.${index}.btnLink`)}
+                  variant="outline"
+                />
+              </div>
+            </div>
+          ))}
+
+          <Button
+            type="button"
+            onClick={() =>
+              appendHeroSlide({
+                bgImage: undefined,
+                title: '',
+                subtitle: '',
+                btnText: '',
+                btnLink: '',
+              })
+            }
+            className="w-full sm:w-auto mt-4"
+            variant="outline"
+          >
+            {t('Add New Slide')}
+          </Button>
+        </Card>
+      </div>
+
       <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
         <Description
           title={t('form:form-title-information')}
@@ -455,90 +540,7 @@ export default function SettingsForm({
         </Card>
       </div>
 
-      {/* Hero Slider Section */}
-      <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
-        <Description
-          title={t('Hero Slider')}
-          details={t('Manage homepage banner slides with images, titles, and buttons')}
-          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-        />
 
-        <Card className="w-full sm:w-8/12 md:w-2/3">
-          {heroSlideFields.map((slide, index) => (
-            <div
-              key={slide.id}
-              className="py-5 border-b border-dashed border-border-200 last:border-b-0"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="font-semibold text-gray-700">
-                  {t('Slide')} {index + 1}
-                </h4>
-                <button
-                  type="button"
-                  onClick={() => removeHeroSlide(index)}
-                  className="text-sm text-red-500 hover:text-red-700"
-                >
-                  {t('Remove')}
-                </button>
-              </div>
-
-              <div className="mb-4">
-                <FileInput
-                  name={`heroSlides.${index}.bgImage`}
-                  control={control}
-                  multiple={false}
-                  label={t('Background Image')}
-                  toolTipText={t('Upload background image for this slide')}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label={t('Title')}
-                  toolTipText={t('Main heading for this slide')}
-                  {...register(`heroSlides.${index}.title`)}
-                  variant="outline"
-                />
-                <Input
-                  label={t('Subtitle')}
-                  toolTipText={t('Secondary text below the title')}
-                  {...register(`heroSlides.${index}.subtitle`)}
-                  variant="outline"
-                />
-                <Input
-                  label={t('Button Text')}
-                  toolTipText={t('Text displayed on the call-to-action button')}
-                  {...register(`heroSlides.${index}.btnText`)}
-                  variant="outline"
-                />
-                <Input
-                  label={t('Button Link')}
-                  toolTipText={t('URL the button links to')}
-                  {...register(`heroSlides.${index}.btnLink`)}
-                  variant="outline"
-                />
-              </div>
-            </div>
-          ))}
-
-          <Button
-            type="button"
-            onClick={() =>
-              appendHeroSlide({
-                bgImage: undefined,
-                title: '',
-                subtitle: '',
-                btnText: '',
-                btnLink: '',
-              })
-            }
-            className="w-full sm:w-auto mt-4"
-            variant="outline"
-          >
-            {t('Add New Slide')}
-          </Button>
-        </Card>
-      </div>
 
 
       <div className="text-end">

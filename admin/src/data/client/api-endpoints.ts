@@ -18,7 +18,7 @@ export const API_ENDPOINTS = {
   ALL_PERMISSIONS: 'auth/permissions',
   ROLES: 'roles',
 
-  // Business endpoints
+  // Business endpoints (shops in frontend)
   BUSINESSES: 'businesses',
   BUSINESS_CREATE: 'businesses',
   BUSINESS_UPDATE: 'businesses/:id',
@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
   BUSINESS_DEACTIVATE: 'businesses/:id/deactivate',
   BUSINESS_BY_OWNER: 'businesses/owner/:ownerId',
   BUSINESS_UPDATE_OWNER: 'businesses/:id/owner',
+  SHOPS: 'businesses', // Alias for businesses
 
   // Location endpoints
   LOCATIONS: 'locations',
@@ -85,11 +86,10 @@ export const API_ENDPOINTS = {
 
   // Additional placeholder endpoints
   AUTHORS: 'authors',
-  SHOPS: 'shops',
   TAGS: 'tags',
   COUPONS: 'coupons',
-  TAX: 'tax',
-  SHIPPING: 'shipping',
+  TAXES: 'taxes',
+  SHIPPINGS: 'shippings',
   MANUFACTURERS: 'manufacturers',
   GROUPS: 'groups',
   QUESTIONS: 'questions',

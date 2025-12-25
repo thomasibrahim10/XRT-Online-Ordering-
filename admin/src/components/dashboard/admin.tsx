@@ -141,11 +141,18 @@ export default function Dashboard() {
   );
 
   let salesByYear: number[] = Array.from({ length: 12 }, (_) => 0);
-  if (!!data?.totalYearSaleByMonth?.length) {
-    salesByYear = data.totalYearSaleByMonth.map((item: any) =>
-      item.total.toFixed(2),
-    );
+  if (data?.totalYearSaleByMonth && Array.isArray(data.totalYearSaleByMonth)) {
+    // Map the monthly data, ensuring we don't exceed 12 months and provide a fallback for NaN
+    data.totalYearSaleByMonth.forEach((item: any, index: number) => {
+      if (index < 12) {
+        const total = item?.total ?? item?.value ?? 0;
+        const value = typeof total === 'number' ? total : parseFloat(String(total || '0'));
+        salesByYear[index] = isNaN(value) || !isFinite(value) ? 0 : Math.max(0, value);
+      }
+    });
   }
+  // Ensure all values are valid numbers (no NaN, null, or undefined)
+  salesByYear = salesByYear.map((val) => (typeof val === 'number' && !isNaN(val) && isFinite(val) ? val : 0));
 
   function handleSearch({ searchText }: { searchText: string }) {
     setSearchTerm(searchText);
@@ -186,13 +193,18 @@ export default function Dashboard() {
 
   // Transform order status data from array to object format
   const transformOrderStatusData = (orderStatusArray: any[] | undefined) => {
-    if (!orderStatusArray) return {};
+    if (!orderStatusArray || !Array.isArray(orderStatusArray)) return {};
 
     return orderStatusArray.reduce((acc, item) => {
-      const statusKey = item.status.replace('-', '');
-      acc[statusKey] = item.count;
+      if (item && item.status) {
+        let statusKey = item.status.replace('-', '').toLowerCase();
+        if (statusKey === 'completed') statusKey = 'complete';
+        if (statusKey === 'cancelled') statusKey = 'cancelled';
+        const count = parseInt(item.count);
+        acc[statusKey] = isNaN(count) ? 0 : count;
+      }
       return acc;
-    }, {} as TodayTotalOrderByStatus);
+    }, {} as any);
   };
 
   if (

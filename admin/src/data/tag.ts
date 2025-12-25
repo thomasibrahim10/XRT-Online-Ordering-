@@ -47,18 +47,18 @@ export const useUpdateTagMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(tagClient.update, {
-    onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.tag.list}`
-        : Routes.tag.list;
-      await router.push(
-        `${generateRedirectUrl}/${data?.slug}/edit`,
-        undefined,
-        {
-          locale: Config.defaultLanguage,
+    onSuccess: async (data, variables) => {
+      const updatedTag = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.TYPES, { language: router.locale }],
+        (old: any) => {
+          return { data: updatedTag };
         }
       );
       toast.success(t('common:successfully-updated'));
+      router.push(Routes.tag.list, undefined, {
+        locale: Config.defaultLanguage,
+      });
     },
     // onSuccess: () => {
     //   toast.success(t('common:successfully-updated'));

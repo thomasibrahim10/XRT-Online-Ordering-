@@ -101,7 +101,12 @@ const BarChart = ({
     series: [
       {
         type: 'column',
-        data: series,
+        data: Array.isArray(series) 
+          ? series.map((val: any) => {
+              const num = typeof val === 'number' ? val : parseFloat(String(val || '0'));
+              return isNaN(num) || !isFinite(num) ? 0 : Math.max(0, num);
+            })
+          : [],
       },
     ],
   };

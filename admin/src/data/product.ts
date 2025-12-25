@@ -49,18 +49,21 @@ export const useUpdateProductMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation(productClient.update, {
-    onSuccess: async (data) => {
+    onSuccess: async (data, variables) => {
+      const updatedProduct = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.PRODUCTS, { slug: variables.slug, language: router.locale }],
+        (old: any) => {
+          return { data: updatedProduct };
+        }
+      );
+      toast.success(t('common:successfully-updated'));
       const generateRedirectUrl = router.query.shop
         ? `/${router.query.shop}${Routes.product.list}`
         : Routes.product.list;
-      await router.push(
-        `${generateRedirectUrl}/${data?.slug}/edit`,
-        undefined,
-        {
-          locale: Config.defaultLanguage,
-        },
-      );
-      toast.success(t('common:successfully-updated'));
+      await Router.push(generateRedirectUrl, undefined, {
+        locale: Config.defaultLanguage,
+      });
     },
     // Always refetch after error or success:
     onSettled: () => {

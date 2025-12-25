@@ -97,6 +97,8 @@
   "input-label-rejected": "مرفوض",
   "input-label-select-icon": "حدد أيقونة",
   "input-label-details": "تفاصيل",
+  "input-label-kitchen-section": "قسم المطبخ",
+  "input-placeholder-kitchen-section-filter": "تصفية حسب قسم المطبخ",
   "input-label-offering-campaign": "حدد نوع العرض المطبق في هذه الحملة",
   "input-label-offering-campaign-filter-option": "حدد خيار تصفية المنتجات.",
   "input-label-offering-campaign-choose-products": "اختر المنتجات",

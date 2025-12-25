@@ -16,6 +16,7 @@ export default function UpdateCategoriesPage() {
     isLoading: loading,
     error,
   } = useCategoryQuery({
+    id: query.categorySlug as string,
     slug: query.categorySlug as string,
     language:
       query.action!.toString() === 'edit' ? locale! : Config.defaultLanguage,

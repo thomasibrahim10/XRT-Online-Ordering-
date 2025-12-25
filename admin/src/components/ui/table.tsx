@@ -13,14 +13,15 @@ let isSuppressionActive = false;
 
 const suppressTableWarnings = () => {
   if (isSuppressionActive) return;
-  
+
   originalConsoleError = console.error;
   console.error = (...args) => {
     // Suppress defaultProps warning from rc-table
     if (
-      typeof args[0] === 'string' && 
+      typeof args[0] === 'string' &&
       (args[0].includes('defaultProps will be removed from function components') ||
-       args[0].includes('Support for defaultProps will be removed'))
+        args[0].includes('Support for defaultProps will be removed') ||
+        args[0].includes('fetchPriority'))
     ) {
       return;
     }
@@ -40,7 +41,7 @@ const Table: React.FC<TableProps> = (props) => {
       }
     };
   }, []);
-  
+
   return <RcTable {...props} />;
 };
 

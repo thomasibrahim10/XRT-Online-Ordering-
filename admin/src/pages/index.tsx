@@ -25,7 +25,8 @@ export default function Dashboard({
   userRole: string;
 }) {
   const { data: userData, isLoading: userLoading } = useMeQuery();
-  const user = (userData as any)?.data?.user || userData;
+  // Handle backend response format: { success: true, data: { user: {...} } }
+  const user = (userData as any)?.data?.user || (userData as any)?.data || userData;
 
   // Only use dashboard loading hook if user is authenticated
   // This prevents the loader from showing on initial app load before login

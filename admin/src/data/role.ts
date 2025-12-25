@@ -22,18 +22,23 @@ export const useRolesQuery = (params: Partial<QueryOptionsType>) => {
     },
   );
 
+  // Handle backend response format: { success: true, data: { roles: [...], paginatorInfo: {...} } }
+  const responseData = (data as any)?.data || data;
+  const roles = responseData?.roles ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? {
+    total: roles.length,
+    currentPage: 1,
+    lastPage: 1,
+    hasMorePages: false,
+    perPage: 10,
+    count: roles.length,
+    firstItem: 1,
+    lastItem: roles.length,
+  };
+
   return {
-    roles: (data as any)?.data?.roles ?? [],
-    paginatorInfo: {
-      total: (data as any)?.data?.roles?.length ?? 0,
-      currentPage: 1,
-      lastPage: 1,
-      hasMorePages: false,
-      perPage: (data as any)?.data?.roles?.length ?? 10,
-      count: (data as any)?.data?.roles?.length ?? 0,
-      firstItem: 1,
-      lastItem: (data as any)?.data?.roles?.length ?? 0,
-    },
+    roles: Array.isArray(roles) ? roles : [],
+    paginatorInfo,
     loading: isLoading,
     error,
   };
@@ -45,6 +50,10 @@ export const useRoleQuery = ({ id }: { id: string }) => {
     () => roleClient.fetchRole({ id }),
     {
       enabled: Boolean(id) && id !== 'undefined',
+      select: (data: any) => {
+        // Handle backend response format: { success: true, data: { role: {...} } }
+        return data?.data?.role || data?.data || data;
+      },
     },
   );
 };
@@ -73,7 +82,6 @@ export const useUpdateRoleMutation = () => {
   return useMutation(roleClient.update, {
     onSuccess: () => {
       toast.success(t('common:successfully-updated'));
-      router.push(Routes.role.list);
     },
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.ROLES);

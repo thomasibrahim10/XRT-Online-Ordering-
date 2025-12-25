@@ -1,9 +1,11 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { getAuthCredentials, hasAccess } from './auth-utils';
+import { getAuthCredentials, hasAccess, hasPermission } from './auth-utils';
 import Loader from '@/components/ui/loader/loader';
 import AccessDeniedPage from '@/components/common/access-denied';
 import { Routes } from '@/config/routes';
+
+import { SUPER_ADMIN } from './constants';
 
 const PrivateRoute: React.FC<{
   authProps: any;
@@ -11,29 +13,38 @@ const PrivateRoute: React.FC<{
 }> = ({ children, authProps }) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const router = useRouter();
-  const { token, role } = getAuthCredentials();
+  const { token, role, permissions } = getAuthCredentials();
   const isUser = !!token;
-  const hasPermission =
+
+  const hasRoleAccess =
     Array.isArray(authProps.permissions) &&
     !!authProps.permissions?.length &&
     hasAccess(authProps.permissions, role);
+
+  const hasPermissionAccess =
+    role === SUPER_ADMIN ||
+    (authProps.allowedPermissions
+      ? hasPermission(authProps.allowedPermissions, permissions)
+      : true);
+
+  const isAuthorized = (authProps.permissions ? hasRoleAccess : true) && hasPermissionAccess;
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
   React.useEffect(() => {
-    if (isMounted && !isUser) router.replace(Routes.login); // If not authenticated, force log in
+    if (isMounted && !isUser) router.replace(Routes.login);
   }, [isUser, isMounted]);
 
   if (!isMounted) {
     return <Loader showText={false} />;
   }
 
-  if (isUser && hasPermission) {
+  if (isUser && isAuthorized) {
     return <>{children}</>;
   }
-  if (isUser && !hasPermission) {
+  if (isUser && !isAuthorized) {
     return <AccessDeniedPage />;
   }
   return <Loader showText={false} />;

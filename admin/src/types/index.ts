@@ -241,7 +241,6 @@ export interface CreateTypeInput {
 export interface Category {
   id: string;
   name: string;
-  slug: string;
   translated_languages: string[];
   parent?: number;
   children: Category[];
@@ -252,6 +251,8 @@ export interface Category {
   products: Product[];
   created_at: string;
   updated_at: string;
+  kitchen_section_id?: string;
+  is_active?: boolean;
 }
 
 export interface Attribute {
@@ -928,8 +929,11 @@ export interface CreateCategoryInput {
   type_id?: string;
   parent?: number;
   details?: string;
-  image?: AttachmentInput;
-  icon?: string;
+  image?: any;
+  icon?: any;
+  kitchen_section_id?: string;
+  sort_order?: number;
+  is_active?: boolean;
 }
 
 export interface CreateWithdrawInput {
@@ -1850,6 +1854,8 @@ export interface CategoryQueryOptions extends QueryOptions {
   name: string;
   parent: number | null;
   self: string;
+  business_id?: string;
+  kitchen_section_id?: string;
 }
 
 export interface ConversationQueryOptions extends QueryOptions {

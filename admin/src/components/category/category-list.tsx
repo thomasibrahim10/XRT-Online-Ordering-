@@ -3,16 +3,22 @@ import { Table } from '@/components/ui/table';
 import { getIcon } from '@/utils/get-icon';
 import * as categoriesIcon from '@/components/icons/category';
 import { SortOrder } from '@/types';
-import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 import { useIsRTL } from '@/utils/locals';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TitleWithSort from '@/components/ui/title-with-sort';
 import { Category, MappedPaginatorInfo } from '@/types';
 import { Routes } from '@/config/routes';
-import LanguageSwitcher from '@/components/ui/lang-action/action';
 import { NoDataFound } from '@/components/icons/no-data-found';
 import { siteSettings } from '@/settings/site.settings';
+import { getAuthCredentials, hasPermission } from '@/utils/auth-utils';
+import { Switch } from '@headlessui/react';
+import { EditIcon } from '@/components/icons/edit';
+import { TrashIcon } from '@/components/icons/trash';
+import Link from '@/components/ui/link';
+import { useModalAction, useModalState } from '@/components/ui/modal/modal.context';
+import { useRouter } from 'next/router';
+
 
 export type IProps = {
   categories: Category[] | undefined;
@@ -28,8 +34,20 @@ const CategoryList = ({
   onSort,
   onOrder,
 }: IProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'form', 'table']);
+  const { openModal } = useModalAction();
+  const { isOpen } = useModalState();
+  const { locale } = useRouter();
   const rowExpandable = (record: any) => record.children?.length;
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setDeletingId(null);
+      setTogglingId(null);
+    }
+  }, [isOpen]);
   const { alignLeft, alignRight } = useIsRTL();
   const [sortingObj, setSortingObj] = useState<{
     sort: SortOrder;
@@ -56,14 +74,6 @@ const CategoryList = ({
 
   const columns = [
     {
-      title: t('table:table-item-id'),
-      dataIndex: 'id',
-      key: 'id',
-      align: alignLeft,
-      width: 120,
-      render: (id: number) => `#${t('table:table-item-id')}: ${id}`,
-    },
-    {
       title: (
         <TitleWithSort
           title={t('table:table-item-title')}
@@ -77,41 +87,53 @@ const CategoryList = ({
       dataIndex: 'name',
       key: 'name',
       align: alignLeft,
-      width: 180,
+      width: 150,
       onHeaderCell: () => onHeaderClick('name'),
-      render: (name: string, { image }: { image: any }) => {
-        return (
-          <div className="flex items-center">
-            <div className="relative aspect-square h-10 w-10 shrink-0 overflow-hidden rounded border border-border-200/80 bg-gray-100 me-2.5">
-              <Image
-                src={image?.thumbnail ?? siteSettings.product.placeholder}
-                alt={name}
-                fill
-                priority={true}
-                sizes="(max-width: 768px) 100vw"
-              />
-            </div>
-            <span className="truncate font-medium">{name}</span>
-          </div>
-        );
-      },
     },
     {
-      title: t('table:table-item-details'),
-      dataIndex: 'details',
-      key: 'details',
-      ellipsis: true,
+      title: t('table:table-item-image'),
+      dataIndex: 'image',
+      key: 'image',
       align: alignLeft,
-      width: 200,
+      width: 80,
+      render: (image: any, { name }: { name: string }) => (
+        <div className="relative aspect-square h-10 w-10 shrink-0 overflow-hidden rounded border border-border-200/80 bg-gray-100">
+          <img
+            src={typeof image === 'string' ? image : image?.thumbnail ?? siteSettings.product.placeholder}
+            alt={name}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      ),
     },
     {
       title: t('table:table-item-icon'),
       dataIndex: 'icon',
       key: 'icon',
       align: 'center',
-      width: 120,
+      width: 80,
       render: (icon: string) => {
         if (!icon) return null;
+        if (icon.startsWith('http') || icon.startsWith('/') || icon.includes('cloudinary')) {
+          return (
+            <div className="relative h-5 w-5 mx-auto">
+              <img
+                src={icon}
+                alt="category-icon"
+                className="h-full w-full object-contain"
+                onError={(e) => {
+                  // Silently handle broken images - hide the element
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  // Also hide parent container if image fails
+                  if (target.parentElement) {
+                    target.parentElement.style.display = 'none';
+                  }
+                }}
+              />
+            </div>
+          );
+        }
         return (
           <span className="flex items-center justify-center">
             {getIcon({
@@ -124,51 +146,94 @@ const CategoryList = ({
       },
     },
     {
-      title: (
-        <TitleWithSort
-          title={t('table:table-item-slug')}
-          ascending={
-            sortingObj.sort === SortOrder.Asc && sortingObj.column === 'slug'
-          }
-          isActive={sortingObj.column === 'slug'}
-        />
-      ),
-      className: 'cursor-pointer',
-      dataIndex: 'slug',
-      key: 'slug',
-      align: alignLeft,
-      width: 150,
-      onHeaderCell: () => onHeaderClick('slug'),
-    },
-    {
-      title: t('table:table-item-group'),
-      dataIndex: 'type',
-      key: 'type',
+      title: t('form:input-label-kitchen-section') === 'input-label-kitchen-section' ? 'Kitchen Section' : t('form:input-label-kitchen-section'),
+      dataIndex: 'kitchen_section_id',
+      key: 'kitchen_section_id',
       align: 'center',
       width: 120,
-      render: (type: any) => (
-        <div
-          className="overflow-hidden truncate whitespace-nowrap"
-          title={type?.name}
-        >
-          {type?.name}
-        </div>
-      ),
+      render: (id: string) => {
+        if (!id) return null;
+        // Hard fallbacks to ensure text is always displayed even if translation fails
+        const getFallback = (key: string, accessKey: string, fallback: string) => {
+          const val = t(accessKey);
+          return val === key || val === accessKey ? fallback : val;
+        };
+
+        const sections: any = {
+          'KS_001': getFallback('kitchen-section-appetizers', 'common:kitchen-section-appetizers', 'Appetizers'),
+          'KS_002': getFallback('kitchen-section-main-course', 'common:kitchen-section-main-course', 'Main Course'),
+          'KS_003': getFallback('kitchen-section-desserts', 'common:kitchen-section-desserts', 'Desserts'),
+          'KS_004': getFallback('kitchen-section-beverages', 'common:kitchen-section-beverages', 'Beverages')
+        };
+        // If it's one of our predefined IDs, use the map
+        if (sections[id]) return sections[id];
+
+        // Dynamic fallback: clean string if translation fails
+        const translated = t(`common:${id}`);
+        if (translated !== `common:${id}` && translated !== id) return translated;
+
+        // Final fallback: prettify the ID/Key
+        return id.replace('kitchen-section-', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
     },
     {
       title: t('table:table-item-actions'),
-      dataIndex: 'slug',
       key: 'actions',
       align: alignRight,
-      width: 120,
-      render: (slug: string, record: Category) => (
-        <LanguageSwitcher
-          slug={slug}
-          record={record}
-          deleteModalView="DELETE_CATEGORY"
-          routes={Routes?.category}
-        />
-      ),
+      width: 150,
+      render: (record: Category) => {
+        const { permissions, role } = getAuthCredentials();
+        const canUpdate = role === 'super_admin' || hasPermission(['categories:update'], permissions);
+        const canDelete = role === 'super_admin' || hasPermission(['categories:delete'], permissions);
+
+        if (!canUpdate && !canDelete) return null;
+
+        return (
+          <div className="inline-flex items-center gap-3">
+            {canUpdate && (
+              <div title={t('common:text-status')}>
+                <Switch
+                  checked={record?.is_active}
+                  onChange={() => {
+                    setTogglingId(record.id);
+                    openModal('TOGGLE_CATEGORY_STATUS', record);
+                  }}
+                  className={`${record?.is_active ? 'bg-accent' : 'bg-gray-300'
+                    } relative inline-flex h-6 w-11 items-center rounded-full focus:outline-none`}
+                >
+                  <span className="sr-only">Toggle Status</span>
+                  <span
+                    className={`${record?.is_active ? 'translate-x-6' : 'translate-x-1'
+                      } inline-block h-4 w-4 transform rounded-full bg-light transition-transform`}
+                  />
+                </Switch>
+              </div>
+            )}
+
+            {canUpdate && (
+              <Link
+                href={Routes.category.edit(record.id, locale!)}
+                className="text-base transition duration-200 hover:text-heading"
+                title={t('common:text-edit')}
+              >
+                <EditIcon width={16} />
+              </Link>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => {
+                  setDeletingId(record.id);
+                  openModal('DELETE_CATEGORY', record.id);
+                }}
+                className="text-red-500 transition duration-200 hover:text-red-600 focus:outline-none"
+                title={t('common:text-delete')}
+              >
+                <TrashIcon width={16} />
+              </button>
+            )}
+          </div>
+        );
+      },
     },
   ];
 
@@ -194,6 +259,13 @@ const CategoryList = ({
             expandedRowRender: () => ' ',
             rowExpandable: rowExpandable,
           }}
+          rowClassName={(record: any) =>
+            record.id === deletingId
+              ? 'animate-pulse bg-red-100/30'
+              : record.id === togglingId
+                ? 'animate-pulse bg-accent/10'
+                : ''
+          }
         />
       </div>
 

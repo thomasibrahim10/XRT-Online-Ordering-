@@ -34,10 +34,17 @@ export const useCreateAttributeMutation = () => {
 
 export const useUpdateAttributeMutation = () => {
   const { t } = useTranslation();
+  const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(attributeClient.update, {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       toast.success(t('common:successfully-updated'));
+      const generateRedirectUrl = router.query.shop
+        ? `/${router.query.shop}${Routes.attribute.list}`
+        : Routes.attribute.list;
+      Router.push(generateRedirectUrl, undefined, {
+        locale: Config.defaultLanguage,
+      });
     },
     // Always refetch after error or success:
     onSettled: () => {

@@ -417,8 +417,8 @@ export default function CreateOrUpdateProductForm({
             <Description
               title={t('form:item-description')}
               details={`${initialValues
-                  ? t('form:item-description-edit')
-                  : t('form:item-description-add')
+                ? t('form:item-description-edit')
+                : t('form:item-description-add')
                 } ${t('form:product-description-help-text')}`}
               className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
             />
@@ -580,18 +580,22 @@ export default function CreateOrUpdateProductForm({
                 initialValues ? 'justify-between' : 'justify-end',
               )}
             >
-              {initialValues && (
-                <Button
-                  variant="custom"
-                  onClick={router.back}
-                  className="!px-0 text-sm !text-body me-4 hover:!text-accent focus:ring-0 md:text-base"
-                  type="button"
-                  size="medium"
-                >
-                  <LongArrowPrev className="w-4 h-5 me-2" />
-                  {t('form:button-label-back')}
-                </Button>
-              )}
+              <Button
+                variant="custom"
+                onClick={() =>
+                  router.push(
+                    router.query.shop
+                      ? `/${router.query.shop}${Routes.product.list}`
+                      : Routes.product.list,
+                  )
+                }
+                className="!px-0 text-sm !text-body me-4 hover:!text-accent focus:ring-0 md:text-base"
+                type="button"
+                size="medium"
+              >
+                <LongArrowPrev className="w-4 h-5 me-2" />
+                {t('form:button-label-back')}
+              </Button>
               <div className="flex items-center">
                 {showPreviewButton && (
                   <Link

@@ -107,7 +107,7 @@ const WithdrawTable = ({
               src={shop.logo?.thumbnail ?? siteSettings.product.placeholder}
               alt={shop?.name ?? 'Shop Name'}
               fill
-              priority={true}
+              unoptimized
               sizes="(max-width: 768px) 100vw"
             />
           </div>

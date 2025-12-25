@@ -56,15 +56,12 @@ export const useUpdateManufacturerMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(manufacturerClient.update, {
-    onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.manufacturer.list}`
-        : Routes.manufacturer.list;
-      await router.push(
-        `${generateRedirectUrl}/${data?.slug}/edit`,
-        undefined,
-        {
-          locale: Config.defaultLanguage,
+    onSuccess: async (data, variables) => {
+      const updatedManufacturer = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.MANUFACTURERS, { slug: variables.slug, language: router.locale }],
+        (old: any) => {
+          return { data: updatedManufacturer };
         }
       );
       toast.success(t('common:successfully-updated'));

@@ -101,7 +101,7 @@ const ProductInventoryList = ({
               src={image?.thumbnail ?? siteSettings.product.placeholder}
               alt={name}
               fill
-              priority={true}
+              unoptimized
               sizes="(max-width: 768px) 100vw"
             />
           </div>

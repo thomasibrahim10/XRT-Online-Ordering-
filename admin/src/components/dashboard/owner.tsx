@@ -111,10 +111,17 @@ const OwnerShopLayout = () => {
   };
   let salesByYear: number[] = Array.from({ length: 12 }, (_) => 0);
   if (!!data?.totalYearSaleByMonth?.length) {
-    salesByYear = data.totalYearSaleByMonth.map((item: any) =>
-      item.total.toFixed(2),
-    );
+    salesByYear = data.totalYearSaleByMonth.map((item: any, index: number) => {
+      if (index < 12) {
+        const total = item?.total ?? item?.value ?? 0;
+        const value = typeof total === 'number' ? total : parseFloat(String(total || '0'));
+        return isNaN(value) || !isFinite(value) ? 0 : Math.max(0, value);
+      }
+      return 0;
+    });
   }
+  // Ensure all values are valid numbers (no NaN, null, or undefined)
+  salesByYear = salesByYear.map((val) => (typeof val === 'number' && !isNaN(val) && isFinite(val) ? val : 0));
 
   const timeFrame = [
     { name: t('text-today'), day: 1 },

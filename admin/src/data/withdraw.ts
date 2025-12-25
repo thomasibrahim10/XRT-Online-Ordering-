@@ -68,9 +68,14 @@ export const useWithdrawsQuery = (
     }
   );
 
+  // Handle backend response format: { success: true, data: { withdraws: [...], paginatorInfo: {...} } }
+  const responseData = (data as any)?.data || data;
+  const withdraws = responseData?.withdraws ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? mapPaginatorData(data);
+
   return {
-    withdraws: data?.data ?? [],
-    paginatorInfo: mapPaginatorData(data),
+    withdraws: Array.isArray(withdraws) ? withdraws : [],
+    paginatorInfo,
     error,
     loading: isLoading,
   };

@@ -87,9 +87,9 @@ export default function ProductStockPage() {
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
               className="w-full"
-              onCategoryFilter={({ slug }: { slug: string }) => {
+              onCategoryFilter={({ id }: { id: string }) => {
                 setPage(1);
-                setCategory(slug);
+                setCategory(id);
               }}
               onTypeFilter={({ slug }: { slug: string }) => {
                 setType(slug);

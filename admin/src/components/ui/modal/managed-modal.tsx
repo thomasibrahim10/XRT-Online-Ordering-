@@ -182,6 +182,9 @@ const CreateAdminView = dynamic(
 const AdminPermissionsView = dynamic(
   () => import('@/components/admin/admin-permissions-view'),
 );
+const CategoryToggleView = dynamic(
+  () => import('@/components/category/category-toggle-view'),
+);
 
 function renderModal(view: MODAL_VIEWS | undefined, data: any) {
   switch (view) {
@@ -193,6 +196,8 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <AttributeDeleteView />;
     case 'DELETE_CATEGORY':
       return <CategoryDeleteView />;
+    case 'TOGGLE_CATEGORY_STATUS':
+      return <CategoryToggleView />;
     case 'DELETE_TAX':
       return <TaxDeleteView />;
     case 'DELETE_ROLE':

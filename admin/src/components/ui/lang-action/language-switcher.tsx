@@ -27,6 +27,7 @@ export type LanguageSwitcherProps = {
   couponApproveButton?: boolean;
   isShop?: boolean;
   shopSlug?: string;
+  isUpdate?: boolean;
 };
 
 const LanguageSwitcher = ({
@@ -40,6 +41,7 @@ const LanguageSwitcher = ({
   shopSlug,
   isCouponApprove,
   couponApproveButton,
+  isUpdate,
 }: LanguageSwitcherProps) => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -81,9 +83,11 @@ const LanguageSwitcher = ({
       <ActionButtons
         id={record?.id}
         editUrl={
-          isShop
-            ? routes.editWithoutLang(slug, shopSlug)
-            : routes.editWithoutLang(slug)
+          isUpdate === undefined || isUpdate
+            ? isShop
+              ? routes.editWithoutLang(slug, shopSlug)
+              : routes.editWithoutLang(slug)
+            : undefined
         }
         previewUrl={preview}
         deleteModalView={deleteModalView}

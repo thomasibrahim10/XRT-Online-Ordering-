@@ -1,25 +1,102 @@
-# 🚀 XRT Customized System
+# 🚀 XRT Customized System API
 
-Enterprise-grade authentication and user management system with role-based access control.
+Enterprise-grade REST API built with **Clean Architecture**, **TypeScript**, and **Node.js + Express + MongoDB**. Features comprehensive authentication, user management, business management, and role-based access control.
+
+## 🏗️ Architecture
+
+This project follows **Clean Architecture** principles with strict separation of concerns:
+
+```
+src/
+├── domain/              # Business logic (framework-agnostic)
+│   ├── entities/        # Domain entities
+│   ├── repositories/    # Repository interfaces
+│   ├── services/        # Service interfaces
+│   └── usecases/        # Business use cases
+├── application/         # Express layer
+│   ├── controllers/    # HTTP request handlers
+│   ├── routes/         # Express routes
+│   └── middlewares/    # Auth, validation, etc.
+├── infrastructure/      # External services
+│   ├── database/       # Mongoose models & connection
+│   ├── repositories/   # Repository implementations
+│   ├── auth/           # JWT service
+│   ├── cloudinary/     # Image storage
+│   └── services/       # Email service
+└── shared/              # Shared utilities
+    ├── config/         # Environment config
+    ├── constants/      # Constants & enums
+    ├── errors/         # Error classes
+    └── utils/          # Utilities
+```
+
+### Architecture Principles
+
+✅ **Domain Layer**: No Express, Mongoose, or external service imports  
+✅ **Infrastructure Layer**: Implements domain interfaces only  
+✅ **Controllers**: Thin, delegate to use cases  
+✅ **Use Cases**: All business logic  
+✅ **Repositories**: Only layer touching Mongoose  
+✅ **RBAC**: Centralized in middlewares  
 
 ## 📋 Features
 
-- 🔐 **JWT Authentication** - Secure token-based authentication
-- 👥 **User Management** - Complete user lifecycle management
-- 🏢 **Multi-Business Support** - Manage multiple restaurant businesses
-- ⚙️ **Business Settings** - Configure operating hours, delivery, and dynamic fee structure (Service Fee & Fixed/Percentage Tips)
-- 🎭 **Role-Based Access Control** - Flexible permission system
-- 📚 **API Documentation** - Interactive Swagger documentation
-- 🔧 **Admin Dashboard** - Comprehensive admin tools
-- 🛡️ **Security First** - Built-in security best practices
+### 🔐 Authentication & Security
+- **JWT Authentication** - Access & refresh token system
+- **Password Hashing** - bcrypt with salt rounds
+- **Account Management** - Approval, banning, activation
+- **Password Reset** - OTP-based password recovery
+- **Session Management** - Secure token storage
+- **Rate Limiting** - Protection against brute force
+- **CORS Protection** - Configurable origins
+- **Input Sanitization** - MongoDB injection protection
+- **Helmet Security** - HTTP headers security
+
+### 👥 User Management
+- **Complete CRUD** - Create, read, update, delete users
+- **User Approval System** - Admin approval workflow
+- **Ban/Unban Users** - Account status management
+- **Permission Management** - Granular permission system
+- **Role Assignment** - Multiple role support
+- **User Search & Filtering** - Advanced querying
+- **Pagination** - Efficient data retrieval
+
+### 🏢 Business Management
+- **Multi-Business Support** - Manage multiple businesses
+- **Business CRUD** - Full business lifecycle
+- **Business Settings** - Operating hours, delivery, fees
+- **Business Isolation** - Data separation by business
+- **Owner Management** - Business ownership tracking
+
+### 🎭 Role-Based Access Control (RBAC)
+- **Built-in Roles**: `super_admin`, `admin`, `manager`, `client`, `user`
+- **Custom Roles** - Create roles with specific permissions
+- **Permission System** - 30+ granular permissions
+- **Role Hierarchy** - Super admin bypass
+- **Permission Checking** - Middleware-based authorization
+
+### 📦 Category Management
+- **Category CRUD** - Full category management
+- **Image Upload** - Cloudinary integration
+- **Business-Scoped** - Categories per business
+
+### 🔧 Additional Features
+- **TypeScript** - Full type safety
+- **API Documentation** - Swagger/OpenAPI
+- **Error Handling** - Centralized error management
+- **Logging** - Structured logging
+- **Email Service** - Nodemailer integration
+- **Database Seeding** - Scripts for initial data
+- **Health Checks** - Server status endpoint
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- MongoDB
-- npm or yarn
+- **Node.js** 18+ (v24.12.0 recommended)
+- **MongoDB** 5.0+ (local or cloud)
+- **npm** or **yarn**
+- **TypeScript** 5.3+
 
 ### Installation
 
@@ -38,74 +115,152 @@ Enterprise-grade authentication and user management system with role-based acces
 
 3. **Set up environment variables**
 
-   ```bash
-   node setup-env.js
+   Create a `.env` file in the root directory:
+
+   ```env
+   # Database
+   MONGODB_URI=mongodb://localhost:27017/xrt-customized
+
+   # JWT Secrets (minimum 32 characters)
+   JWT_SECRET=your_jwt_secret_key_minimum_32_characters_long
+   REFRESH_TOKEN_SECRET=your_refresh_token_secret_key_minimum_32_characters
+
+   # Token Expiration
+   ACCESS_TOKEN_EXPIRE=15m
+   REFRESH_TOKEN_EXPIRE=7d
+   JWT_EXPIRE=30d
+   JWT_COOKIE_EXPIRE=30
+
+   # Server
+   PORT=3001
+   NODE_ENV=development
+   API_BASE_URL=/api/v1
+
+   # CORS
+   CORS_ORIGIN=http://localhost:3000,http://localhost:3001,http://localhost:3002
+
+   # Email (Optional - for password reset)
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USERNAME=your_email@gmail.com
+   EMAIL_PASSWORD=your_app_password
+   EMAIL_FROM=noreply@yourcompany.com
+   EMAIL_FROM_NAME=XRT System
+
+   # Cloudinary (Optional - for image uploads)
+   CLOUDINARY_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
    ```
 
-4. **Start the server**
+4. **Seed initial data (optional)**
+
+   ```bash
+   # Create super admin
+   npm run seed:admin
+
+   # Seed businesses
+   npm run seed:businesses
+
+   # Seed customers (after Customer module refactoring)
+   npm run seed:customers
+   ```
+
+5. **Start the development server**
 
    ```bash
    npm run dev
    ```
 
-5. **Access API documentation**
-   - Open: http://xrt-online-ordering.vercel.app/api-docs
-   - API Info: http://xrt-online-ordering.vercel.app/api-info
+6. **Access API**
+
+   - **API Base**: `http://localhost:3001/api/v1`
+   - **Health Check**: `http://localhost:3001/health`
+   - **API Info**: `http://localhost:3001/api/v1/`
+   - **Swagger Docs**: `http://localhost:3001/api-docs` (if configured)
 
 ## 📚 API Documentation
 
+### Base URL
+
+```
+Development: http://localhost:3001/api/v1
+Production: https://xrt-online-ordering.vercel.app/api/v1
+```
+
 ### Authentication Endpoints
 
-| Method | Endpoint                | Description             |
-| ------ | ----------------------- | ----------------------- |
-| POST   | `/auth/register`        | Create new user account |
-| POST   | `/auth/login`           | User authentication     |
-| POST   | `/auth/refresh-token`   | Refresh access token    |
-| POST   | `/auth/forgot-password` | Password recovery       |
+| Method | Endpoint                | Description                    | Auth Required |
+| ------ | ----------------------- | ------------------------------ | ------------- |
+| POST   | `/auth/register`        | Register new user              | ❌            |
+| POST   | `/auth/login`           | User login                     | ❌            |
+| POST   | `/auth/refresh-token`   | Refresh access token           | ❌            |
+| POST   | `/auth/forgot-password` | Request password reset OTP     | ❌            |
+| POST   | `/auth/verify-reset-token` | Verify reset token            | ❌            |
+| POST   | `/auth/reset-password` | Reset password with OTP         | ❌            |
+| GET    | `/auth/me`              | Get current user profile        | ✅            |
+| PATCH  | `/auth/update-password` | Update user password           | ✅            |
+| POST   | `/auth/logout`          | Logout user                    | ✅            |
 
-### User Management Endpoints
+### User Management Endpoints (Admin)
 
-| Method | Endpoint                      | Description          | Auth Required |
-| ------ | ----------------------------- | -------------------- | ------------- |
-| GET    | `/auth/users`                 | List all users       | ✅            |
-| PATCH  | `/auth/users/:id/approve`     | Approve user account | ✅            |
-| PATCH  | `/auth/users/:id/ban`         | Ban/unban user       | ✅            |
-| PATCH  | `/auth/users/:id/permissions` | Update permissions   | ✅            |
-
-### Role Management Endpoints
-
-| Method | Endpoint                  | Description         | Auth Required |
-| ------ | ------------------------- | ------------------- | ------------- |
-| GET    | `/roles`                  | List all roles      | ✅            |
-| POST   | `/roles`                  | Create new role     | ✅            |
-| PATCH  | `/roles/:id`              | Update role         | ✅            |
-| DELETE | `/roles/:id`              | Delete role         | ✅            |
-| PATCH  | `/roles/users/:id/assign` | Assign role to user | ✅            |
+| Method | Endpoint                      | Description              | Permission Required |
+| ------ | ----------------------------- | ------------------------ | ------------------- |
+| GET    | `/auth/users`                 | List all users           | `users:read`        |
+| POST   | `/auth/users`                 | Create new user          | `users:create`      |
+| GET    | `/auth/users/:id`              | Get user details         | `users:read`        |
+| PATCH  | `/auth/users/:id`              | Update user              | `users:update`      |
+| DELETE | `/auth/users/:id`              | Delete user              | `users:delete`      |
+| PATCH  | `/auth/users/:id/approve`      | Approve user account     | `users:approve`     |
+| PATCH  | `/auth/users/:id/ban`          | Ban/unban user           | `users:ban`         |
+| PATCH  | `/auth/users/:id/permissions`  | Update user permissions  | `users:update`      |
+| GET    | `/auth/users/:id/permissions` | Get user permissions     | `users:read`        |
+| GET    | `/auth/permissions`            | List all permissions     | `users:read`        |
 
 ### Business Management Endpoints
 
-| Method | Endpoint             | Description              | Auth Required |
-| ------ | -------------------- | ------------------------ | ------------- |
-| GET    | `/businesses`        | List user's businesses   | ✅            |
-| POST   | `/businesses`        | Create new business      | ✅            |
-| GET    | `/businesses/:id`    | Get business details     | ✅            |
-| PATCH  | `/businesses/:id`    | Update business          | ✅            |
-| GET    | `/business-settings` | Get business settings    | ✅            |
-| PATCH  | `/business-settings` | Update business settings | ✅            |
+| Method | Endpoint          | Description            | Auth Required |
+| ------ | ----------------- | ---------------------- | ------------- |
+| GET    | `/businesses`     | List user's businesses | ✅            |
+| POST   | `/businesses`     | Create new business    | ✅            |
+| GET    | `/businesses/:id` | Get business details   | ✅            |
+| PATCH  | `/businesses/:id` | Update business        | ✅            |
+
+### Category Management Endpoints
+
+| Method | Endpoint            | Description          | Auth Required | Role Required      |
+| ------ | ------------------- | -------------------- | ------------- | ------------------ |
+| GET    | `/admin/categories` | List all categories  | ✅            | Any authenticated  |
+| POST   | `/admin/categories` | Create category      | ✅            | `admin` or `super_admin` |
+| PUT    | `/admin/categories/:id` | Update category  | ✅            | `admin` or `super_admin` |
+| DELETE | `/admin/categories/:id` | Delete category  | ✅            | `admin` or `super_admin` |
 
 ## 🔐 Authentication Flow
 
-### 1. Create Super Admin
+### 1. Register User
 
 ```bash
 curl -X POST http://localhost:3001/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "System Administrator",
-    "email": "admin@yourcompany.com",
+    "name": "John Doe",
+    "email": "john@example.com",
     "password": "secure_password_123",
-    "role": "super_admin"
+    "role": "client"
   }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Registration successful",
+  "data": {
+    "user": { ... },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
 ```
 
 ### 2. Login
@@ -114,92 +269,83 @@ curl -X POST http://localhost:3001/api/v1/auth/register \
 curl -X POST http://localhost:3001/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@yourcompany.com",
+    "email": "john@example.com",
     "password": "secure_password_123"
   }'
 ```
 
-### 3. Use Token
+### 3. Use Protected Endpoints
 
 ```bash
-curl -X GET http://localhost:3001/api/v1/auth/users \
+curl -X GET http://localhost:3001/api/v1/auth/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-## 🎭 Role System
+### 4. Refresh Token
+
+```bash
+curl -X POST http://localhost:3001/api/v1/auth/refresh-token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "YOUR_REFRESH_TOKEN"
+  }'
+```
+
+## 🎭 Role-Based Access Control
 
 ### Built-in Roles
 
-- **super_admin** - Full system access
-- **admin** - Administrative access
-- **manager** - Management access
-- **client** - Standard user access
-- **user** - Limited access
-
-### Custom Roles
-
-Create custom roles with specific permissions:
-
-```json
-{
-  "name": "content-manager",
-  "displayName": "Content Manager",
-  "description": "Can manage content but not users",
-  "permissions": ["content:read", "content:create", "content:update"]
-}
-```
+| Role         | Description                    | Default Permissions                    |
+| ------------ | ------------------------------ | -------------------------------------- |
+| `super_admin` | Full system access             | All permissions                        |
+| `admin`      | Administrative access          | Most admin permissions                 |
+| `manager`    | Management access              | Business management permissions        |
+| `client`     | Standard business user         | Profile & content read                 |
+| `user`       | Limited access                 | Profile only                           |
 
 ### Available Permissions
 
-- **users:read** - View user information
-- **users:create** - Create new users
-- **users:update** - Update user data
-- **users:delete** - Delete users
-- **users:approve** - Approve user accounts
-- **users:ban** - Ban/unban users
-- **roles:read** - View roles
-- **roles:create** - Create roles
-- **roles:update** - Update roles
-- **roles:delete** - Delete roles
-- **content:read** - View content
-- **content:create** - Create content
-- **content:update** - Update content
-- **content:delete** - Delete content
-- **system:read** - View system information
-- **system:update** - Update system settings
+#### User Management
+- `users:read` - View user information
+- `users:create` - Create new users
+- `users:update` - Update user data
+- `users:delete` - Delete users
+- `users:approve` - Approve user accounts
+- `users:ban` - Ban/unban users
 
-## 🔧 Configuration
+#### Content Management
+- `content:read` - View content
+- `content:create` - Create content
+- `content:update` - Update content
+- `content:delete` - Delete content
+- `content:publish` - Publish content
 
-### Environment Variables
+#### System
+- `system:read` - View system information
+- `system:update` - Update system settings
+- `system:backup` - System backup
+- `system:logs` - View system logs
 
-```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/xrt-customized
+#### Profile
+- `profile:read` - View profile
+- `profile:update` - Update profile
 
-# JWT Secrets
-JWT_SECRET=your_jwt_secret_key_minimum_32_characters
-REFRESH_TOKEN_SECRET=your_refresh_token_secret_key_minimum_32_characters
+#### Admin
+- `admin:dashboard` - Access admin dashboard
+- `admin:settings` - Manage settings
+- `admin:analytics` - View analytics
 
-# Token Expiration
-ACCESS_TOKEN_EXPIRE=15m
-REFRESH_TOKEN_EXPIRE=7d
-JWT_EXPIRE=30d
+#### Roles
+- `roles:read` - View roles
+- `roles:create` - Create roles
+- `roles:update` - Update roles
+- `roles:delete` - Delete roles
 
-# Server
-PORT=3001
-NODE_ENV=development
-
-# CORS
-CORS_ORIGIN=http://localhost:3000,http://localhost:3001
-
-# Email (Optional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USERNAME=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
-EMAIL_FROM=noreply@yourcompany.com
-EMAIL_FROM_NAME=XRT System
-```
+#### Withdraws
+- `withdraws:read` - View withdrawals
+- `withdraws:create` - Create withdrawal
+- `withdraws:update` - Update withdrawal
+- `withdraws:delete` - Delete withdrawal
 
 ## 🛠️ Development
 
@@ -207,79 +353,189 @@ EMAIL_FROM_NAME=XRT System
 
 ```
 customize_server/
-├── config/
-│   ├── database.js      # Database configuration
-│   ├── config.js        # App configuration
-│   ├── passport.js      # Passport authentication
-│   └── swagger.js       # API documentation
-├── controllers/
-│   ├── authController.js # Authentication logic
-│   └── roleController.js # Role management logic
-├── middleware/
-│   ├── auth.js          # Authentication middleware
-│   └── permissions.js   # Permission middleware
-├── models/
-│   └── User.js          # User and role schemas
-├── routes/
-│   ├── auth.js          # Authentication routes
-│   ├── businesses.js    # Business routes
-│   ├── businessSettings.js # Business settings routes
-│   └── roles.js         # Role management routes
-├── utils/
-│   ├── catchAsync.js    # Async error handler
-│   └── email.js         # Email utilities
-├── postman/
-│   └── XRT-Customized-System.postman_collection.json
-├── SWAGGER_GUIDE.md     # API documentation guide
-└── README.md            # This file
+├── src/
+│   ├── domain/                    # Business logic layer
+│   │   ├── entities/              # Domain entities
+│   │   │   ├── User.ts
+│   │   │   ├── Business.ts
+│   │   │   ├── BusinessSettings.ts
+│   │   │   └── Category.ts
+│   │   ├── repositories/          # Repository interfaces
+│   │   │   ├── IUserRepository.ts
+│   │   │   ├── IBusinessRepository.ts
+│   │   │   └── ICategoryRepository.ts
+│   │   ├── services/              # Service interfaces
+│   │   │   ├── IEmailService.ts
+│   │   │   └── IImageStorage.ts
+│   │   └── usecases/             # Business use cases
+│   │       ├── auth/
+│   │       ├── users/
+│   │       ├── businesses/
+│   │       └── categories/
+│   ├── application/               # Application layer
+│   │   ├── controllers/           # HTTP controllers
+│   │   │   ├── AuthController.ts
+│   │   │   ├── BusinessController.ts
+│   │   │   └── CategoryController.ts
+│   │   ├── routes/                # Express routes
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── business.routes.ts
+│   │   │   └── category.routes.ts
+│   │   └── middlewares/           # Express middlewares
+│   │       ├── auth.ts            # Authentication
+│   │       ├── authorize.ts       # Authorization
+│   │       └── upload.ts          # File upload
+│   ├── infrastructure/            # Infrastructure layer
+│   │   ├── database/
+│   │   │   ├── connection.ts      # MongoDB connection
+│   │   │   └── models/            # Mongoose models
+│   │   ├── repositories/          # Repository implementations
+│   │   ├── auth/                  # JWT service
+│   │   ├── cloudinary/            # Image storage
+│   │   └── services/               # Service implementations
+│   ├── shared/                    # Shared utilities
+│   │   ├── config/                # Configuration
+│   │   ├── constants/             # Constants & enums
+│   │   ├── errors/                # Error classes
+│   │   └── utils/                 # Utilities
+│   └── server.ts                  # Application entry point
+├── config/                        # Configuration files
+│   ├── passport.ts                # Passport strategies
+│   └── swagger.ts                 # Swagger/OpenAPI config
+├── scripts/                       # Database seeding scripts
+│   ├── seedSuperAdmin.ts
+│   ├── seedBusinesses.ts
+│   └── seedCustomers.ts
+├── postman/                       # Postman collection
+├── public/                        # Static files
+├── views/                         # Email templates
+├── package.json
+├── tsconfig.json
+└── nodemon.json
 ```
 
-### Scripts
+### Available Scripts
 
 ```bash
-# Start development server
-npm run dev
+# Development
+npm run dev              # Start development server with hot reload
 
-# Start production server
-npm start
+# Production
+npm start                # Start production server
+npm run build            # Build TypeScript to JavaScript
 
-# Setup environment
-node setup-env.js
+# Database Seeding
+npm run seed:admin       # Create super admin user
+npm run seed:businesses  # Seed sample businesses
+npm run seed:customers   # Seed sample customers
+
+# Code Quality
+npm run lint             # Run ESLint
+npm run format           # Format code with Prettier
+npm run type-check       # Type check without building
 ```
 
-## 📱 Postman Collection
+### TypeScript Configuration
 
-Import the provided Postman collection for easy API testing:
+The project uses TypeScript with ESM modules. Key configuration:
 
-1. Open Postman
-2. Click "Import"
-3. Select `postman/XRT-Customized-System.postman_collection.json`
-4. Update environment variables:
-   - `baseUrl`: http://localhost:3001
-   - `accessToken`: Get from login response
-   - `refreshToken`: Get from login response
+- **Module System**: ESNext (ES Modules)
+- **Target**: ES2020
+- **Module Resolution**: Node
+- **Strict Mode**: Enabled
+- **Source**: `src/` directory
+- **Output**: `dist/` directory
+
+## 📱 API Response Format
+
+All API responses follow a consistent format:
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    // Response data
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "message": "Error message describing what went wrong"
+}
+```
+
+### Paginated Response
+
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully",
+  "data": {
+    "users": [...],
+    "paginatorInfo": {
+      "total": 100,
+      "currentPage": 1,
+      "lastPage": 10,
+      "perPage": 10,
+      "count": 10
+    }
+  }
+}
+```
 
 ## 🔒 Security Features
 
-- **JWT Authentication** with access and refresh tokens
-- **Password Hashing** using bcrypt
-- **Rate Limiting** on sensitive endpoints
-- **CORS Protection** with configurable origins
-- **Input Validation** on all endpoints
-- **Permission-Based Access Control**
-- **Account Status Management** (active/inactive/banned)
-- **Secure Password Reset** flow
+- ✅ **JWT Authentication** - Access & refresh token system
+- ✅ **Password Hashing** - bcrypt with 10 salt rounds
+- ✅ **Rate Limiting** - 100 requests per 15 minutes per IP
+- ✅ **CORS Protection** - Configurable allowed origins
+- ✅ **Input Sanitization** - MongoDB injection protection
+- ✅ **Helmet Security** - HTTP security headers
+- ✅ **Permission-Based Access** - Granular permission system
+- ✅ **Account Status Management** - Active/inactive/banned
+- ✅ **Secure Password Reset** - OTP-based flow
+- ✅ **Token Expiration** - Short-lived access tokens
 
 ## 🌐 Production Deployment
 
 ### Environment Setup
 
 1. **Set NODE_ENV to production**
+   ```env
+   NODE_ENV=production
+   ```
+
 2. **Use strong JWT secrets** (minimum 32 characters)
+   ```env
+   JWT_SECRET=your_very_long_and_secure_secret_key_minimum_32_characters
+   REFRESH_TOKEN_SECRET=your_very_long_and_secure_refresh_secret_key_minimum_32_characters
+   ```
+
 3. **Configure MongoDB with authentication**
+   ```env
+   MONGODB_URI=mongodb://username:password@host:port/database?authSource=admin
+   ```
+
 4. **Set up reverse proxy** (nginx/Apache)
 5. **Enable HTTPS** with SSL certificates
 6. **Configure email service** for production
+
+### Build for Production
+
+```bash
+# Build TypeScript
+npm run build
+
+# Start production server
+npm start
+```
 
 ### Docker Deployment
 
@@ -289,6 +545,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
+RUN npm run build
 EXPOSE 3001
 CMD ["npm", "start"]
 ```
@@ -296,24 +553,60 @@ CMD ["npm", "start"]
 ## 📊 Monitoring & Logging
 
 ### Development Mode
-
-- Detailed error messages
+- Detailed error messages with stack traces
 - Request/response logging
-- Database query logging
+- Database query logging (if enabled)
 
 ### Production Mode
-
 - Error tracking only
 - Performance monitoring
 - Security event logging
 
+## 🧪 Testing
+
+### Manual Testing
+
+Use the provided Postman collection:
+1. Import `postman/XRT-Customized-System.postman_collection.json`
+2. Set environment variables:
+   - `baseUrl`: `http://localhost:3001/api/v1`
+   - `accessToken`: Get from login response
+   - `refreshToken`: Get from login response
+
+### API Testing
+
+```bash
+# Health check
+curl http://localhost:3001/health
+
+# Register user
+curl -X POST http://localhost:3001/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","password":"password123","role":"client"}'
+
+# Login
+curl -X POST http://localhost:3001/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password123"}'
+```
+
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Follow Clean Architecture principles
 4. Add tests if applicable
-5. Submit a pull request
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Code Style
+
+- Use TypeScript for all new code
+- Follow Clean Architecture structure
+- Use async/await for async operations
+- Use centralized error handling
+- Add JSDoc comments for public APIs
 
 ## 📄 License
 
@@ -323,10 +616,20 @@ This project is licensed under the MIT License.
 
 For support and questions:
 
-- Email: dev@xrt.com
-- Documentation: http://localhost:3001/api-docs
-- API Info: http://localhost:3001/api-info
+- **Email**: support@xrt.com
+- **API Documentation**: `http://localhost:3001/api-docs`
+- **API Info**: `http://localhost:3001/api/v1/`
+- **Health Check**: `http://localhost:3001/health`
 
 ---
+
+## 🎯 Key Highlights
+
+✨ **Clean Architecture** - Maintainable, testable, scalable  
+✨ **TypeScript** - Full type safety  
+✨ **RBAC** - Granular permission system  
+✨ **JWT Auth** - Secure token-based authentication  
+✨ **Multi-Business** - Support for multiple businesses  
+✨ **Production Ready** - Error handling, logging, security  
 
 🎉 **Built with enterprise-grade security and scalability in mind**

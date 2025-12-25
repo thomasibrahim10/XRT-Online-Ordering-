@@ -104,7 +104,7 @@ const QuestionList = ({
               }
               alt={product?.name}
               fill
-              priority={true}
+              unoptimized
               sizes="(max-width: 768px) 100vw"
             />
           </div>

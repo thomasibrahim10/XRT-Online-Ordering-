@@ -60,7 +60,8 @@ export type MODAL_VIEWS =
   | 'DELETE_ROLE'
   | 'ASSIGN_ROLE'
   | 'CREATE_ADMIN'
-  | 'ADMIN_PERMISSIONS_VIEW';
+  | 'ADMIN_PERMISSIONS_VIEW'
+  | 'TOGGLE_CATEGORY_STATUS';
 
 interface State {
   view?: MODAL_VIEWS;

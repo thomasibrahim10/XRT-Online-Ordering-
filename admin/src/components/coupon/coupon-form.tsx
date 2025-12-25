@@ -8,6 +8,7 @@ import Card from '@/components/common/card';
 import Label from '@/components/ui/label';
 import Radio from '@/components/ui/radio/radio';
 import { useRouter } from 'next/router';
+import { Routes } from '@/config/routes';
 import ValidationError from '@/components/ui/form-validation-error';
 import { useSettings } from '@/contexts/settings.context';
 import { useTranslation } from 'next-i18next';
@@ -186,8 +187,8 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
         <Description
           title={t('form:input-label-description')}
           details={`${initialValues
-              ? t('form:item-description-edit')
-              : t('form:item-description-add')
+            ? t('form:item-description-edit')
+            : t('form:item-description-add')
             } ${t('form:coupon-form-info-help-text')}`}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5 "
         />
@@ -314,16 +315,14 @@ export default function CreateOrUpdateCouponForm({ initialValues }: IProps) {
       </div>
       <StickyFooterPanel className="z-0">
         <div className="text-end">
-          {initialValues && (
-            <Button
-              variant="outline"
-              onClick={router.back}
-              className="me-4"
-              type="button"
-            >
-              {t('form:button-label-back')}
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => router.push(Routes.coupon.list)}
+            className="me-4"
+            type="button"
+          >
+            {t('form:button-label-back')}
+          </Button>
 
           <Button
             loading={creating || updating}

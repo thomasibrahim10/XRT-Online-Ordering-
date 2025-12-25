@@ -62,15 +62,12 @@ export const useUpdateRefundPolicyMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(RefundPolicyClient.update, {
-    onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.refundPolicies.list}`
-        : Routes.refundPolicies.list;
-      await router.push(
-        `${generateRedirectUrl}/${data?.slug!}/edit`,
-        undefined,
-        {
-          locale: Config.defaultLanguage,
+    onSuccess: async (data, variables) => {
+      const updatedPolicy = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.REFUND_POLICIES, { slug: variables.slug, language: router.locale }],
+        (old: any) => {
+          return { data: updatedPolicy };
         }
       );
       toast.success(t('common:successfully-updated'));

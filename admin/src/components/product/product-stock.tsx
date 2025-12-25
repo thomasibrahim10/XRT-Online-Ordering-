@@ -87,7 +87,7 @@ const LowStockProduct = ({
               alt={item.name}
               src={item.image?.thumbnail ?? siteSettings.product.placeholder}
               fill
-              priority={true}
+              unoptimized
               sizes="(max-width: 768px) 100vw"
             />
           </div>
@@ -130,7 +130,7 @@ const LowStockProduct = ({
               src={shop?.logo?.thumbnail ?? siteSettings.product.placeholder}
               alt={shop?.name ?? 'Shop Name'}
               fill
-              priority={true}
+              unoptimized
               sizes="(max-width: 768px) 100vw"
             />
           </div>

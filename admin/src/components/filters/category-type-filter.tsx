@@ -100,7 +100,7 @@ export default function CategoryTypeFilter({
           <Select
             options={categories}
             getOptionLabel={(option: any) => option.name}
-            getOptionValue={(option: any) => option.slug}
+            getOptionValue={(option: any) => option.id}
             placeholder={t('common:filter-by-category-placeholder')}
             isLoading={categoryLoading}
             onChange={onCategoryFilter}

@@ -16,6 +16,8 @@ interface FileInputProps {
   label?: string;
   required?: boolean;
   error?: string;
+  accept?: string; // New prop for custom accept types
+  section?: string; // New prop for folder organization
 }
 
 const FileInput = ({
@@ -31,6 +33,8 @@ const FileInput = ({
   toolTipText,
   required,
   error,
+  accept,
+  section,
 }: FileInputProps) => {
   return (
     <>
@@ -53,6 +57,8 @@ const FileInput = ({
             helperText={helperText}
             maxSize={maxSize}
             disabled={disabled}
+            accept={accept}
+            section={section}
           />
         )}
       />

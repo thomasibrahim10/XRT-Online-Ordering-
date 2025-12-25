@@ -53,11 +53,13 @@ const LoginForm = () => {
       },
       {
         onSuccess: (data: any) => {
-          // Handle customize_server response format: { status: 'success', accessToken, refreshToken, data: { user } }
-          if (data?.accessToken && data?.data?.user) {
-            const token = data.accessToken;
-            const refreshToken = data.refreshToken;
-            const user = data.data.user;
+          // Handle customize_server response format: { success: true, message: '...', data: { user, accessToken, refreshToken } }
+          const responseData = data?.data || data;
+          const token = responseData?.accessToken;
+          const refreshToken = responseData?.refreshToken;
+          const user = responseData?.user;
+
+          if (token && refreshToken && user) {
             const permissions = user.permissions || [];
             const role = user.role || '';
 
@@ -76,6 +78,7 @@ const LoginForm = () => {
             toast.error(errorMsg);
           } else {
             // Handle case where response format is unexpected
+            console.error('Unexpected login response format:', data);
             const errorMsg = t('form:error-credential-wrong');
             setErrorMessage(errorMsg);
             toast.error(errorMsg);

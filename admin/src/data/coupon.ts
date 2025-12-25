@@ -54,14 +54,14 @@ export const useUpdateCouponMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation(couponClient.update, {
-    onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.coupon.list}`
-        : Routes.coupon.list;
-      await router.push(generateRedirectUrl, undefined, {
-        locale: Config.defaultLanguage,
-      });
-
+    onSuccess: async (data, variables) => {
+      const updatedCoupon = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.COUPONS, { code: variables.code, language: router.locale }],
+        (old: any) => {
+          return { data: updatedCoupon };
+        }
+      );
       toast.success(t('common:successfully-updated'));
     },
     // Always refetch after error or success:

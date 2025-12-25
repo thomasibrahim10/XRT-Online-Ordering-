@@ -63,11 +63,20 @@ export const useUpdateShopMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(shopClient.update, {
-    onSuccess: async (data) => {
-      await router.push(`/${data?.slug}/edit`, undefined, {
-        locale: Config.defaultLanguage,
-      });
+    onSuccess: async (data, variables) => {
+      const updatedShop = (data as any)?.data || data;
+      queryClient.setQueryData(
+        [API_ENDPOINTS.SHOPS, { slug: variables.slug }],
+        (old: any) => {
+          return { data: updatedShop };
+        }
+      );
       toast.success(t('common:successfully-updated'));
+      const { permissions } = getAuthCredentials();
+      if (hasAccess(adminOnly, permissions)) {
+        return router.push(Routes.adminMyShops);
+      }
+      router.push(Routes.dashboard);
     },
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.SHOPS);
@@ -90,15 +99,15 @@ export const useTransferShopOwnershipMutation = () => {
   });
 };
 
-export const useShopQuery = ({ slug }: { slug: string }, options?: any) => {
+export const useShopQuery = ({ slug, id }: { slug?: string; id?: string }, options?: any) => {
   return useQuery<Shop, Error>(
-    [API_ENDPOINTS.SHOPS, { slug }],
-    () => Promise.resolve(mockShop as Shop),
+    [API_ENDPOINTS.SHOPS, { slug, id }],
+    () => shopClient.get({ slug, id }),
     {
       ...options,
       retry: false,
       refetchOnWindowFocus: false,
-      enabled: !!slug,
+      enabled: !!(slug || id),
     }
   );
 };
@@ -106,37 +115,7 @@ export const useShopQuery = ({ slug }: { slug: string }, options?: any) => {
 export const useShopsQuery = (options: Partial<ShopQueryOptions>) => {
   const { data, error, isLoading } = useQuery<ShopPaginator, Error>(
     [API_ENDPOINTS.SHOPS, options],
-    () => Promise.resolve({
-      data: [
-        {
-          id: 1,
-          name: 'Tech Store',
-          owner: {
-            name: 'John Doe',
-            email: 'john@example.com'
-          },
-          status: 'active',
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 2,
-          name: 'Fashion Hub',
-          owner: {
-            name: 'Jane Smith',
-            email: 'jane@example.com'
-          },
-          status: 'active',
-          created_at: new Date().toISOString()
-        }
-      ],
-      paginatorInfo: {
-        currentPage: 1,
-        lastPage: 1,
-        total: 2,
-        perPage: 10,
-        hasMorePages: false,
-      }
-    }),
+    () => shopClient.paginated(options),
     {
       keepPreviousData: true,
       retry: false,
@@ -144,9 +123,13 @@ export const useShopsQuery = (options: Partial<ShopQueryOptions>) => {
     }
   );
 
+  // Handle backend response format
+  const shops = (data as any)?.data ?? [];
+  const paginatorInfo = (data as any)?.paginatorInfo ?? mapPaginatorData(data);
+
   return {
-    shops: data?.data ?? [],
-    paginatorInfo: mapPaginatorData(data),
+    shops: Array.isArray(shops) ? shops : [],
+    paginatorInfo,
     error,
     loading: isLoading,
   };

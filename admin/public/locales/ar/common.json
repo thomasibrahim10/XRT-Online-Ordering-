@@ -43,6 +43,11 @@
   "october": "اكتوبر",
   "november": "شهر نوفمبر",
   "december": "ديسمبر",
+  "kitchen-section-appetizers": "مقبلات",
+  "kitchen-section-main-course": "طبق رئيسي",
+  "kitchen-section-desserts": "حلويات",
+  "kitchen-section-beverages": "مشروبات",
+  "table-item-kitchen-section": "قسم المطبخ",
   "attribute": "يصف",
   "attribute-values": "قيم السمات",
   "pixel": "بكسل",
@@ -526,6 +531,5 @@
   "text-title-withdraw": "ينسحب",
   "text-title-description": "وصف",
   "text-image-uploading-message": "انتظر من فضلك! جارٍ تحميل الصورة",
-
   "text-pixel-dot": "بكسل."
 }

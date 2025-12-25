@@ -189,9 +189,8 @@ export const useLicenseKeyMutation = () => {
   return useMutation(userClient.addLicenseKey, {
     onSuccess: () => {
       toast.success(t('common:successfully-updated'));
-      setTimeout(() => {
-        router.reload();
-      }, 1000);
+      queryClient.invalidateQueries(API_ENDPOINTS.ME);
+      queryClient.invalidateQueries(API_ENDPOINTS.SETTINGS);
     },
     onError: () => {
       toast.error(t('common:PICKBAZAR_MESSAGE.INVALID_LICENSE_KEY'));
@@ -280,7 +279,10 @@ export const useUserQuery = ({ id }: { id: string }) => {
     () => userClient.fetchUser({ id }),
     {
       enabled: Boolean(id),
-      select: (data) => data?.data?.user,
+      select: (data) => {
+        // Handle backend response format: { success: true, data: { user: {...} } }
+        return data?.data?.user || data?.data || data;
+      },
     },
   );
 };
@@ -294,18 +296,23 @@ export const useUsersQuery = (params: Partial<QueryOptionsType>) => {
     },
   );
 
+  // Handle backend response format: { success: true, data: { users: [...], paginatorInfo: {...} } }
+  const responseData = (data as any)?.data || data;
+  const users = responseData?.users ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? {
+    total: users.length,
+    currentPage: 1,
+    lastPage: 1,
+    hasMorePages: false,
+    perPage: 10,
+    count: users.length,
+    firstItem: 1,
+    lastItem: users.length,
+  };
+
   return {
-    users: (data as any)?.data?.users ?? [],
-    paginatorInfo: (data as any)?.paginatorInfo ?? {
-      total: (data as any)?.results ?? 0,
-      currentPage: 1,
-      lastPage: 1,
-      hasMorePages: false,
-      perPage: (data as any)?.results ?? 10,
-      count: (data as any)?.results ?? 0,
-      firstItem: 1,
-      lastItem: (data as any)?.results ?? 0,
-    },
+    users,
+    paginatorInfo,
     loading: isLoading,
     error,
   };
@@ -320,18 +327,23 @@ export const useAdminsQuery = (params: Partial<QueryOptionsType>) => {
     },
   );
 
+  // Handle backend response format
+  const responseData = (data as any)?.data || data;
+  const admins = responseData?.users ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? {
+    total: admins.length,
+    currentPage: 1,
+    lastPage: 1,
+    hasMorePages: false,
+    perPage: 10,
+    count: admins.length,
+    firstItem: 1,
+    lastItem: admins.length,
+  };
+
   return {
-    admins: (data as any)?.data?.users ?? [],
-    paginatorInfo: {
-      total: (data as any)?.results ?? 0,
-      currentPage: 1,
-      lastPage: 1,
-      hasMorePages: false,
-      perPage: (data as any)?.results ?? 10,
-      count: (data as any)?.results ?? 0,
-      firstItem: 1,
-      lastItem: (data as any)?.results ?? 0,
-    },
+    admins,
+    paginatorInfo,
     loading: isLoading,
     error,
   };
@@ -346,18 +358,23 @@ export const useVendorsQuery = (params: Partial<UserQueryOptions>) => {
     },
   );
 
+  // Handle backend response format
+  const responseData = (data as any)?.data || data;
+  const vendors = responseData?.users ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? {
+    total: vendors.length,
+    currentPage: 1,
+    lastPage: 1,
+    hasMorePages: false,
+    perPage: 10,
+    count: vendors.length,
+    firstItem: 1,
+    lastItem: vendors.length,
+  };
+
   return {
-    vendors: (data as any)?.data?.users ?? [],
-    paginatorInfo: {
-      total: (data as any)?.results ?? 0,
-      currentPage: 1,
-      lastPage: 1,
-      hasMorePages: false,
-      perPage: (data as any)?.results ?? 10,
-      count: (data as any)?.results ?? 0,
-      firstItem: 1,
-      lastItem: (data as any)?.results ?? 0,
-    },
+    vendors,
+    paginatorInfo,
     loading: isLoading,
     error,
   };
@@ -372,18 +389,23 @@ export const useCustomersQuery = (params: Partial<UserQueryOptions>) => {
     },
   );
 
+  // Handle backend response format
+  const responseData = (data as any)?.data || data;
+  const customers = responseData?.users ?? [];
+  const paginatorInfo = responseData?.paginatorInfo ?? {
+    total: customers.length,
+    currentPage: 1,
+    lastPage: 1,
+    hasMorePages: false,
+    perPage: 10,
+    count: customers.length,
+    firstItem: 1,
+    lastItem: customers.length,
+  };
+
   return {
-    customers: (data as any)?.data?.users ?? [],
-    paginatorInfo: {
-      total: (data as any)?.results ?? 0,
-      currentPage: 1,
-      lastPage: 1,
-      hasMorePages: false,
-      perPage: (data as any)?.results ?? 10,
-      count: (data as any)?.results ?? 0,
-      firstItem: 1,
-      lastItem: (data as any)?.results ?? 0,
-    },
+    customers,
+    paginatorInfo,
     loading: isLoading,
     error,
   };

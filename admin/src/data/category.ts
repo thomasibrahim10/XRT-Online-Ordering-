@@ -25,6 +25,10 @@ export const useCreateCategoryMutation = () => {
       });
       toast.success(t('common:successfully-created'));
     },
+    onError: (error: any) => {
+      console.error('❌ Create Category Error:', error);
+      toast.error(error?.response?.data?.message || t('common:create-failed'));
+    },
     // Always refetch after error or success:
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.CATEGORIES);
@@ -52,37 +56,51 @@ export const useUpdateCategoryMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation(categoryClient.update, {
-    onSuccess: async (data) => {
-      const generateRedirectUrl = router.query.shop
-        ? `/${router.query.shop}${Routes.category.list}`
-        : Routes.category.list;
-      await router.push(
-        `${generateRedirectUrl}/${data?.slug}/edit`,
-        undefined,
-        {
-          locale: Config.defaultLanguage,
+    onSuccess: async (data, variables) => {
+      // Update the cache immediately with the returned data
+      const updatedCategory = (data as any)?.data || data;
+      // Update individual category query
+      queryClient.setQueryData(
+        [API_ENDPOINTS.CATEGORIES, { id: variables.id, language: router.locale }],
+        (old: any) => {
+          // Backend structure usually returns { data: Category } or just Category
+          // We try to match what useCategoryQuery expects
+          return { data: updatedCategory };
         }
       );
       toast.success(t('common:successfully-updated'));
+      router.push(Routes.category.list, undefined, {
+        locale: Config.defaultLanguage,
+      });
     },
-    // onSuccess: () => {
-    //   toast.success(t('common:successfully-updated'));
-    // },
-    // Always refetch after error or success:
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || t('common:update-failed'));
+    },
+    // Always refetch after error or success to ensure data consistency
     onSettled: () => {
       queryClient.invalidateQueries(API_ENDPOINTS.CATEGORIES);
     },
   });
 };
 
-export const useCategoryQuery = ({ slug, language }: GetParams) => {
+export const useCategoryQuery = ({ slug, id, language }: GetParams & { id?: string }) => {
   const { data, error, isLoading } = useQuery<Category, Error>(
-    [API_ENDPOINTS.CATEGORIES, { slug, language }],
-    () => categoryClient.get({ slug, language })
+    [API_ENDPOINTS.CATEGORIES, { slug, id, language }],
+    () => categoryClient.get({ slug, id, language }),
+    {
+      enabled: Boolean(id),
+    }
   );
 
+  // Handle backend response format
+  let category = (data as any)?.data || data;
+
+  if (category && category.description && !category.details) {
+    category = { ...category, details: category.description };
+  }
+
   return {
-    category: data,
+    category,
     error,
     isLoading,
   };
@@ -98,9 +116,13 @@ export const useCategoriesQuery = (options: Partial<CategoryQueryOptions>) => {
     }
   );
 
+  // Handle backend response format
+  const categories = (data as any)?.data ?? [];
+  const paginatorInfo = (data as any)?.paginatorInfo ?? mapPaginatorData(data);
+
   return {
-    categories: data?.data ?? [],
-    paginatorInfo: mapPaginatorData(data),
+    categories: Array.isArray(categories) ? categories : [],
+    paginatorInfo,
     error,
     loading: isLoading,
   };

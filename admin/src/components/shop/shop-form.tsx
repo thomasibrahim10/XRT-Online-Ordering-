@@ -739,8 +739,23 @@ const ShopForm = ({ initialValues }: { initialValues?: Shop }) => {
         <StickyFooterPanel className="z-0">
           <div className="mb-5 text-end">
             <Button
+              variant="outline"
+              onClick={() => {
+                const { permissions } = getAuthCredentials();
+                if (hasAccess(adminOnly, permissions)) {
+                  return router.push(Routes.adminMyShops);
+                }
+                router.push(Routes.dashboard);
+              }}
+              className="text-sm me-4 md:text-base"
+              type="button"
+            >
+              {t('form:button-label-back')}
+            </Button>
+            <Button
               loading={creating || updating}
               disabled={creating || updating}
+              className="text-sm md:text-base"
             >
               {initialValues
                 ? t('form:button-label-update')
