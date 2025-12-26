@@ -26,6 +26,7 @@ import { useShopQuery } from '@/data/shop';
 import cn from 'classnames';
 import ProductTagInput from '@/components/product/product-tag-input';
 import { Config } from '@/config';
+import { Routes } from '@/config/routes';
 import Alert from '@/components/ui/alert';
 import { useEffect, useMemo, useRef, useState, lazy } from 'react';
 import ProductAuthorInput from '@/components/product/product-author-input';

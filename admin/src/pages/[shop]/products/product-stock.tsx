@@ -7,7 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import ProductList from '@/components/product/product-list';
 import { useState } from 'react';
 import Search from '@/components/common/search';
-import { Category, SortOrder } from '@/types';
+import { Category, SortOrder, Type } from '@/types';
 import { useProductStockQuery } from '@/data/product';
 import { useRouter } from 'next/router';
 import CategoryTypeFilter from '@/components/filters/category-type-filter';
@@ -118,12 +118,12 @@ export default function VendorProductStockPage() {
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
               className="w-full"
-              onCategoryFilter={(categories: Category) => {
+              onCategoryFilter={(category: Category) => {
                 setPage(1);
-                setCategory(categories?.slug);
+                setCategory(category?.id);
               }}
-              onTypeFilter={(categories: Category) => {
-                setType(categories?.slug);
+              onTypeFilter={(type: Type) => {
+                setType(type?.slug!);
                 setPage(1);
               }}
               enableCategory

@@ -12,7 +12,7 @@ import { Routes } from '@/config/routes';
 import { useInActiveProductsQuery } from '@/data/product';
 import { useShopQuery } from '@/data/shop';
 import { useMeQuery } from '@/data/user';
-import { Category, SortOrder } from '@/types';
+import { Category, SortOrder, Type } from '@/types';
 import {
   adminOnly,
   adminOwnerAndStaffOnly,
@@ -115,12 +115,12 @@ export default function DraftProductPage() {
           <div className="mt-5 flex w-full flex-col border-t border-gray-200 pt-5 md:mt-8 md:flex-row md:items-center md:pt-8">
             <CategoryTypeFilter
               className="w-full"
-              onCategoryFilter={(categories: Category) => {
+              onCategoryFilter={(category: Category) => {
                 setPage(1);
-                setCategory(categories?.slug);
+                setCategory(category?.id);
               }}
-              onTypeFilter={(categories: Category) => {
-                setType(categories?.slug);
+              onTypeFilter={(type: Type) => {
+                setType(type?.slug!);
                 setPage(1);
               }}
               enableCategory
