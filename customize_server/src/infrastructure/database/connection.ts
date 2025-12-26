@@ -34,7 +34,7 @@ const setupEventHandlers = () => {
       setTimeout(connectDatabase, RETRY_DELAY);
     } else {
       logger.error('❌ Max reconnection attempts reached. Please check your MongoDB connection.');
-      process.exit(1);
+      // throw new Error('Max reconnection attempts reached');
     }
   });
 
@@ -49,16 +49,7 @@ const setupEventHandlers = () => {
     }
   });
 
-  process.on('SIGINT', async () => {
-    try {
-      await mongoose.connection.close();
-      logger.info('🔴 MongoDB connection closed (App terminated)');
-      process.exit(0);
-    } catch (err: any) {
-      logger.error(`Error closing MongoDB connection: ${err.message}`);
-      process.exit(1);
-    }
-  });
+  // SIGINT handler removed for serverless compatibility
 };
 
 export const connectDatabase = async (): Promise<void> => {
@@ -69,7 +60,7 @@ export const connectDatabase = async (): Promise<void> => {
 
   if (!env.MONGO_URI) {
     logger.error('❌ MONGO_URI is not defined in environment variables');
-    process.exit(1);
+    throw new Error('MONGO_URI is not defined');
   }
 
   try {
@@ -94,7 +85,7 @@ export const connectDatabase = async (): Promise<void> => {
           return connectWithRetry(attempt + 1);
         }
         logger.error(`❌ Failed to connect to MongoDB after multiple attempts: ${err.message}`);
-        process.exit(1);
+        throw new Error(`Failed to connect to MongoDB: ${err.message}`);
       }
     };
 
@@ -102,6 +93,6 @@ export const connectDatabase = async (): Promise<void> => {
     await connectWithRetry();
   } catch (error: any) {
     logger.error(`❌ MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    // Don't exit process, just log. The request will fail but the potential for recovery or better logging remains.
   }
 };
