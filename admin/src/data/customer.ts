@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { API_ENDPOINTS } from './client/api-endpoints';
-import { HttpClient } from './client/http-client';
 import { CustomerPaginator, Customer, MappedPaginatorInfo, SortOrder } from '@/types';
-import { userClient } from './client/user';
+import { customerClient } from './client/customer';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'next-i18next';
 
@@ -12,22 +11,24 @@ export const useCustomersQuery = ({
   search = '',
   orderBy = 'created_at',
   sortedBy = 'DESC' as const,
+  isActive,
 }: {
   limit?: number;
   page?: number;
   search?: string;
   orderBy?: string;
   sortedBy?: 'DESC' | 'ASC';
+  isActive?: boolean;
 }) => {
-  // Use users endpoint with role filter for clients
   const { data, error, isLoading } = useQuery<any, Error>(
-    [API_ENDPOINTS.USERS, { limit, page, search, orderBy, sortedBy, role: 'client' }],
-    () => userClient.fetchCustomers({
+    [API_ENDPOINTS.CUSTOMERS, { limit, page, search, orderBy, sortedBy, isActive }],
+    () => customerClient.fetchCustomers({
       limit,
       page,
       search,
       orderBy,
       sortedBy: sortedBy.toLowerCase() as SortOrder,
+      isActive,
     }),
     {
       keepPreviousData: true,
@@ -35,9 +36,9 @@ export const useCustomersQuery = ({
     },
   );
 
-  // Handle backend response format: { success: true, data: { users: [...], paginatorInfo: {...} } }
+  // Handle backend response format: { success: true, data: { customers: [...], paginatorInfo: {...} } }
   const responseData = data?.data || data;
-  const customers = responseData?.users ?? [];
+  const customers = responseData?.customers ?? [];
   const paginatorInfo = responseData?.paginatorInfo ?? {
     total: customers.length,
     currentPage: page,
@@ -50,9 +51,6 @@ export const useCustomersQuery = ({
   const transformedData: CustomerPaginator = {
     data: customers,
     total: paginatorInfo.total,
-    // page: paginatorInfo.currentPage,
-    // pages: paginatorInfo.lastPage,
-    // limit: paginatorInfo.perPage,
     current_page: paginatorInfo.currentPage,
     first_page_url: '',
     from: 0,
@@ -64,7 +62,6 @@ export const useCustomersQuery = ({
     per_page: paginatorInfo.perPage,
     prev_page_url: null,
     to: 0,
-    // hasMorePages: paginatorInfo.currentPage < paginatorInfo.lastPage,
   };
 
   return {
@@ -77,13 +74,13 @@ export const useCustomersQuery = ({
 
 export const useCustomerQuery = (id: string) => {
   return useQuery<Customer, Error>(
-    [API_ENDPOINTS.USERS, id],
-    () => userClient.fetchUser({ id }),
+    [API_ENDPOINTS.CUSTOMERS, id],
+    () => customerClient.fetchCustomer({ id }),
     {
       enabled: !!id,
       select: (data: any) => {
         // Handle backend response format
-        return data?.data?.user || data?.data || data;
+        return data?.data?.customer || data?.data || data;
       },
     },
   );
@@ -95,16 +92,12 @@ export const useCreateCustomerMutation = () => {
 
   return useMutation<any, Error, any>(
     (variables) => {
-      // Create user with client role
-      return userClient.createUser({
-        ...variables,
-        role: 'client',
-      });
+      return customerClient.create(variables);
     },
     {
       onSuccess: () => {
         toast.success(t('common:successfully-created'));
-        queryClient.invalidateQueries(API_ENDPOINTS.USERS);
+        queryClient.invalidateQueries(API_ENDPOINTS.CUSTOMERS);
       },
       onError: (error: any) => {
         toast.error(error?.response?.data?.message || t('common:create-failed'));
@@ -118,11 +111,11 @@ export const useUpdateCustomerMutation = () => {
   const { t } = useTranslation();
 
   return useMutation<any, Error, { id: string; variables: any }>(
-    ({ id, variables }) => userClient.update({ id, input: variables }),
+    ({ id, variables }) => customerClient.update({ id, input: variables }),
     {
       onSuccess: () => {
         toast.success(t('common:successfully-updated'));
-        queryClient.invalidateQueries(API_ENDPOINTS.USERS);
+        queryClient.invalidateQueries(API_ENDPOINTS.CUSTOMERS);
       },
       onError: (error: any) => {
         toast.error(error?.response?.data?.message || t('common:update-failed'));
@@ -137,13 +130,12 @@ export const useDeleteCustomerMutation = () => {
 
   return useMutation<any, Error, string>(
     (id) => {
-      // Use user delete endpoint
-      return HttpClient.delete<any>(`${API_ENDPOINTS.USERS}/${id}`);
+      return customerClient.delete(id);
     },
     {
       onSuccess: () => {
         toast.success(t('common:successfully-deleted'));
-        queryClient.invalidateQueries(API_ENDPOINTS.USERS);
+        queryClient.invalidateQueries(API_ENDPOINTS.CUSTOMERS);
       },
       onError: (error: any) => {
         toast.error(error?.response?.data?.message || t('common:delete-failed'));
@@ -159,20 +151,19 @@ export const useImportCustomersMutation = () => {
   return useMutation<
     any,
     Error,
-    { customers: any[]; business_id?: string; location_id?: string }
+    { customers: any[] }
   >(
     async (variables) => {
-      // Import customers by creating users with client role
-      // For now, create them one by one (can be optimized later)
+      // Import customers by creating them one by one (can be optimized later)
       const results = [];
       for (const customer of variables.customers) {
         try {
-          const result = await userClient.createUser({
+          const result = await customerClient.create({
             name: customer.name,
             email: customer.email,
-            password: 'TempPassword123!', // Generate or require password
-            role: 'client',
-            // Add other customer-specific fields
+            phoneNumber: customer.phoneNumber || '',
+            rewards: customer.rewards || 0,
+            notes: customer.notes,
           });
           results.push(result);
         } catch (error) {
@@ -183,7 +174,7 @@ export const useImportCustomersMutation = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(API_ENDPOINTS.USERS);
+        queryClient.invalidateQueries(API_ENDPOINTS.CUSTOMERS);
       },
       onError: (error: any) => {
         toast.error(error?.response?.data?.message || t('common:import-failed'));
@@ -198,24 +189,22 @@ export const useExportCustomersMutation = () => {
   return useMutation<
     any,
     Error,
-    { business_id?: string; location_id?: string; format?: string }
+    { format?: string }
   >(
     async (variables) => {
-      // Fetch all customers (users with client role)
-      const response = await userClient.fetchCustomers({
+      // Fetch all customers
+      const response = await customerClient.fetchCustomers({
         limit: 10000, // Get all
-        role: 'client',
       });
 
-      const customers = response?.users || [];
+      const customers = response?.customers || [];
 
       // Convert to CSV
-      const headers = ['Name', 'Email', 'Phone', 'Role', 'Created At'];
+      const headers = ['Name', 'Email', 'Phone', 'Created At'];
       const rows = customers.map((customer: any) => [
         customer.name || '',
         customer.email || '',
-        customer.phone || '',
-        customer.role || 'client',
+        customer.phoneNumber || '',
         customer.created_at || '',
       ]);
 
@@ -234,3 +223,4 @@ export const useExportCustomersMutation = () => {
     }
   );
 };
+

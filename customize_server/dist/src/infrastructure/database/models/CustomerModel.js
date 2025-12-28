@@ -33,90 +33,52 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ItemModel = void 0;
+exports.CustomerModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const ItemSchema = new mongoose_1.Schema({
+const CustomerSchema = new mongoose_1.Schema({
     business_id: {
-        type: String,
-        required: true,
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Business',
+        required: [true, 'Please provide a business ID'],
         index: true,
     },
     name: {
         type: String,
-        required: true,
+        required: [true, 'Please provide a name'],
         trim: true,
     },
-    description: {
+    email: {
         type: String,
+        required: [true, 'Please provide an email'],
+        lowercase: true,
+        trim: true,
+        index: true,
+    },
+    phoneNumber: {
+        type: String,
+        required: [true, 'Please provide a phone number'],
         trim: true,
     },
-    sort_order: {
+    rewards: {
         type: Number,
         default: 0,
     },
-    is_active: {
-        type: Boolean,
-        default: true,
-        index: true,
-    },
-    base_price: {
-        type: Number,
-        required: true,
-        default: 0,
-    },
-    category_id: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true,
-        index: true,
-    },
-    image: {
+    notes: {
         type: String,
+        trim: true,
     },
-    image_public_id: {
-        type: String,
-    },
-    is_available: {
+    isActive: {
         type: Boolean,
         default: true,
     },
-    is_signature: {
-        type: Boolean,
-        default: false,
-    },
-    max_per_order: {
-        type: Number,
-    },
-    is_sizeable: {
-        type: Boolean,
-        default: false,
-    },
-    is_customizable: {
-        type: Boolean,
-        default: false,
-    },
-    sizes: {
-        type: [
-            {
-                name: {
-                    type: String,
-                    required: true,
-                },
-                price: {
-                    type: Number,
-                    required: true,
-                },
-                is_default: {
-                    type: Boolean,
-                    default: false,
-                },
-            },
-        ],
-        default: [],
+    last_order_at: {
+        type: Date,
     },
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });
-ItemSchema.index({ business_id: 1, category_id: 1 });
-ItemSchema.index({ business_id: 1, name: 1 });
-exports.ItemModel = mongoose_1.default.model('Item', ItemSchema);
+// Indexes
+CustomerSchema.index({ business_id: 1 });
+CustomerSchema.index({ email: 1 });
+CustomerSchema.index({ business_id: 1, email: 1 });
+exports.CustomerModel = mongoose_1.default.model('Customer', CustomerSchema);

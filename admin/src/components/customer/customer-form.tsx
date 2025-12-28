@@ -17,10 +17,6 @@ import Button from '@/components/ui/button';
 import Card from '@/components/common/card';
 import Description from '@/components/ui/description';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
-import { useShopsQuery } from '@/data/shop';
-import { useLocationsQuery } from '@/data/location';
-import Select from '@/components/ui/select/select';
-import { Controller } from 'react-hook-form';
 import TextArea from '@/components/ui/text-area';
 import { FormValues, CustomerFormProps } from './types';
 import { defaultValues } from './constants';
@@ -33,12 +29,6 @@ const CustomerForm = ({ initialValues }: CustomerFormProps) => {
   const { mutate: updateCustomer, isLoading: updating } =
     useUpdateCustomerMutation();
 
-  const { shops: businesses, loading: loadingBusinesses } = useShopsQuery(
-    { limit: 100 },
-  );
-  const { data: locations, isLoading: loadingLocations } = useLocationsQuery({
-    limit: 100,
-  });
 
   const isNew = !initialValues;
   const isLoading = creating || updating;
@@ -47,9 +37,6 @@ const CustomerForm = ({ initialValues }: CustomerFormProps) => {
     register,
     handleSubmit,
     setError,
-    control,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: initialValues
@@ -57,10 +44,6 @@ const CustomerForm = ({ initialValues }: CustomerFormProps) => {
         name: initialValues.name,
         email: initialValues.email,
         phoneNumber: initialValues.phoneNumber,
-        business_id:
-          initialValues.business_id?._id || initialValues.business_id,
-        location_id:
-          initialValues.location_id?._id || initialValues.location_id,
         rewards: initialValues.rewards || 0,
         notes: initialValues.notes || '',
       }
@@ -69,28 +52,6 @@ const CustomerForm = ({ initialValues }: CustomerFormProps) => {
       isNew ? customerValidationSchema : customerUpdateValidationSchema,
     ),
   });
-
-  const selectedBusinessId = watch('business_id');
-
-  // Filter locations by selected business
-  const businessLocations =
-    locations?.filter(
-      (location: any) =>
-        location.business_id?._id === selectedBusinessId ||
-        location.business_id === selectedBusinessId,
-    ) || [];
-
-  const businessOptions =
-    businesses?.map((business: any) => ({
-      label: business.name,
-      value: business._id,
-    })) || [];
-
-  const locationOptions =
-    businessLocations.map((location: any) => ({
-      label: location.name,
-      value: location._id,
-    })) || [];
 
   async function onSubmit(values: any) {
     const input = {
@@ -178,68 +139,6 @@ const CustomerForm = ({ initialValues }: CustomerFormProps) => {
             error={t(errors.phoneNumber?.message!)}
             required
           />
-
-          <div className="mb-4">
-            <Label>{t('input-label-business')}</Label>
-            <Controller
-              name="business_id"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  isLoading={loadingBusinesses}
-                  options={businessOptions}
-                  isClearable={false}
-                  value={businessOptions.find(
-                    (option: any) => option.value === field.value,
-                  )}
-                  onChange={(selected: any) => {
-                    field.onChange(selected?.value);
-                    // Reset location when business changes
-                    setValue('location_id', '');
-                  }}
-                />
-              )}
-            />
-            {errors.business_id && (
-              <p className="mt-1 text-sm text-red-500">
-                {t(errors.business_id.message!)}
-              </p>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <Label>{t('input-label-location')}</Label>
-            <Controller
-              name="location_id"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  isLoading={loadingLocations}
-                  options={locationOptions}
-                  isClearable={false}
-                  isDisabled={!selectedBusinessId}
-                  value={locationOptions.find(
-                    (option: any) => option.value === field.value,
-                  )}
-                  placeholder={
-                    selectedBusinessId
-                      ? t('placeholder-select-location')
-                      : t('placeholder-select-business-first')
-                  }
-                  onChange={(selected: any) => {
-                    field.onChange(selected?.value);
-                  }}
-                />
-              )}
-            />
-            {errors.location_id && (
-              <p className="mt-1 text-sm text-red-500">
-                {t(errors.location_id.message!)}
-              </p>
-            )}
-          </div>
 
           <Input
             label={t('input-label-rewards')}

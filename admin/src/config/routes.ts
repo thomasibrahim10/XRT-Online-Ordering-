@@ -189,7 +189,7 @@ function routesFactory(endpoint: string) {
     edit: (slug: string, language: string, shop?: string) => {
       return shop
         ? `/${language}/${shop}${endpoint}/${slug}/edit`
-        : `${language}${endpoint}/${slug}/edit`;
+        : `/${language}${endpoint}/${slug}/edit`;
     },
     translate: (slug: string, language: string, shop?: string) => {
       return shop

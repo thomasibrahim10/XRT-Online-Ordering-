@@ -139,7 +139,7 @@ const ItemList = ({
             width: 100,
             render: (is_active: boolean) => (
                 <Badge
-                    text={is_active ? 'Active' : 'Inactive'}
+                    textKey={is_active ? 'common:text-active' : 'common:text-inactive'}
                     color={
                         !is_active
                             ? 'bg-yellow-400/10 text-yellow-500'
@@ -157,7 +157,7 @@ const ItemList = ({
             width: 120,
             render: (is_available: boolean) => (
                 <Badge
-                    text={is_available ? 'Available' : 'Unavailable'}
+                    textKey={is_available ? 'common:text-available' : 'common:text-unavailable'}
                     color={
                         !is_available
                             ? 'bg-red-400/10 text-red-500'

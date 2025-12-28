@@ -16,6 +16,7 @@ const role_routes_1 = __importDefault(require("./application/routes/role.routes"
 const withdraw_routes_1 = __importDefault(require("./application/routes/withdraw.routes"));
 const attachment_routes_1 = __importDefault(require("./application/routes/attachment.routes"));
 const item_routes_1 = __importDefault(require("./application/routes/item.routes"));
+const customer_routes_1 = __importDefault(require("./application/routes/customer.routes"));
 const mock_routes_1 = __importDefault(require("./application/routes/mock.routes"));
 const env_1 = require("./shared/config/env");
 const logger_1 = require("./shared/utils/logger");
@@ -78,6 +79,7 @@ app.use(`${env_1.env.API_BASE_URL}/roles`, role_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/withdraws`, withdraw_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/attachments`, attachment_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/items`, item_routes_1.default);
+app.use(`${env_1.env.API_BASE_URL}/customers`, customer_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}`, mock_routes_1.default);
 // 404 handler
 app.use((req, res) => {

@@ -1,3 +1,9 @@
+export interface ItemSize {
+    name: string;
+    price: number;
+    is_default: boolean;
+}
+
 export interface Item {
     id: string;
     business_id: string;
@@ -16,6 +22,9 @@ export interface Item {
     is_available: boolean;
     is_signature: boolean;
     max_per_order?: number;
+    is_sizeable?: boolean;
+    is_customizable?: boolean;
+    sizes?: ItemSize[];
     created_at: Date;
     updated_at: Date;
 }
@@ -33,6 +42,9 @@ export interface CreateItemDTO {
     is_available?: boolean;
     is_signature?: boolean;
     max_per_order?: number;
+    is_sizeable?: boolean;
+    is_customizable?: boolean;
+    sizes?: ItemSize[];
 }
 
 export interface UpdateItemDTO {
@@ -47,6 +59,9 @@ export interface UpdateItemDTO {
     is_available?: boolean;
     is_signature?: boolean;
     max_per_order?: number;
+    is_sizeable?: boolean;
+    is_customizable?: boolean;
+    sizes?: ItemSize[];
 }
 
 export interface ItemFilters {

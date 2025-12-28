@@ -59,6 +59,33 @@ const ItemSchema = new Schema<ItemDocument>(
         max_per_order: {
             type: Number,
         },
+        is_sizeable: {
+            type: Boolean,
+            default: false,
+        },
+        is_customizable: {
+            type: Boolean,
+            default: false,
+        },
+        sizes: {
+            type: [
+                {
+                    name: {
+                        type: String,
+                        required: true,
+                    },
+                    price: {
+                        type: Number,
+                        required: true,
+                    },
+                    is_default: {
+                        type: Boolean,
+                        default: false,
+                    },
+                },
+            ],
+            default: [],
+        },
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

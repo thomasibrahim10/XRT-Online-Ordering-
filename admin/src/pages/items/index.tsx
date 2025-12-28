@@ -77,7 +77,7 @@ export default function ItemsPage() {
             <Card className="mb-8 flex flex-col">
                 <div className="flex w-full flex-col items-center md:flex-row">
                     <div className="mb-4 md:mb-0 md:w-1/4">
-                        <PageHeading title="Items" />
+                        <PageHeading title={t('common:sidebar-nav-item-items')} />
                     </div>
 
                     <div className="flex w-full flex-col items-center ms-auto md:w-2/4">
@@ -164,8 +164,8 @@ export default function ItemsPage() {
                                 <Label>{t('form:input-label-availability')}</Label>
                                 <Select
                                     options={[
-                                        { value: true, label: 'Available' },
-                                        { value: false, label: 'Unavailable' },
+                                        { value: true, label: t('common:text-available') },
+                                        { value: false, label: t('common:text-unavailable') },
                                     ]}
                                     value={availability}
                                     name="is_available"

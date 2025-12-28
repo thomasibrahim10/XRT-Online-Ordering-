@@ -7,8 +7,6 @@ export type ImportRow = {
   phoneNumber: string;
   rewards?: number;
   notes?: string;
-  business_id?: string;
-  location_id?: string;
 };
 
 export type Business = {
@@ -27,7 +25,7 @@ export interface ImportPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: Omit<ImportRow, 'id'>[]) => void;
-  data: Omit<ImportRow, 'id' | 'business_id' | 'location_id'>[];
+  data: Omit<ImportRow, 'id'>[];
   businesses: Business[];
   locations: Location[];
   isLoading?: boolean;
@@ -49,8 +47,6 @@ export type FormValues = {
   name: string;
   email: string;
   phoneNumber: string;
-  business_id: string;
-  location_id: string;
   rewards?: number;
   notes?: string;
 };

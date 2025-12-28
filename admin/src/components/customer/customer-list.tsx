@@ -156,16 +156,20 @@ const CustomerList = ({
     },
     {
       title: "Actions",
-      dataIndex: '_id',
+      dataIndex: 'id',
       key: 'actions',
       align: 'right',
       width: 120,
-      render: function Render(id: string) {
+      render: function Render(_id: string | undefined, record: any) {
+        const customerId = record?._id || record?.id || _id;
+        if (!customerId) {
+          return null;
+        }
         return (
           <ActionButtons
-            id={id}
+            id={customerId}
             deleteModalView="DELETE_CUSTOMER"
-            editUrl={Routes.customer.edit(id, locale || 'en')}
+            editUrl={Routes.customer.edit(customerId, locale || 'en')}
           />
         );
       },
@@ -188,7 +192,7 @@ const CustomerList = ({
             </div>
           )}
           data={customers as any}
-          rowKey="_id"
+          rowKey={(record: any) => record._id || record.id || ''}
           scroll={{ x: 800 }}
         />
       </div>

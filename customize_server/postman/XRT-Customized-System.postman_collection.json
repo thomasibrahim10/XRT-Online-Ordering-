@@ -387,7 +387,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -487,7 +487,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -639,7 +639,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -685,7 +685,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -739,7 +739,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -925,7 +925,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1135,7 +1135,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1226,7 +1226,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1281,7 +1281,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1366,9 +1366,8 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    const response = pm.response.json();",
-                  "    pm.collectionVariables.set('customerId', response.data.customer._id);",
+                  "    pm.collectionVariables.set('customerId', response.data.customer._id || response.data.customer.id || response.data._id);",
                   "    pm.collectionVariables.set('businessId', response.data.customer.business_id);",
-                  "    pm.collectionVariables.set('locationId', response.data.customer.location_id);",
                   "}",
                   "",
                   "pm.test(\"Status code is 201\", function () {",
@@ -1401,7 +1400,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"business_id\": \"507f1f77bcf86cd799439011\",\n  \"location_id\": \"507f1f77bcf86cd799439012\",\n  \"rewards\": 100,\n  \"preferences\": {\n    \"dietary\": [\"vegetarian\"],\n    \"allergies\": [\"nuts\"],\n    \"favoriteItems\": [\"Pizza\", \"Burger\"],\n    \"specialInstructions\": \"No onions please\"\n  },\n  \"addresses\": [\n    {\n      \"type\": \"home\",\n      \"street\": \"123 Main St\",\n      \"city\": \"New York\",\n      \"state\": \"NY\",\n      \"zipCode\": \"10001\",\n      \"country\": \"USA\",\n      \"isDefault\": true\n    }\n  ],\n  \"notes\": \"VIP customer, prefers delivery\"\n}"
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"rewards\": 100,\n  \"notes\": \"VIP customer, prefers delivery\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/customers",
@@ -1432,8 +1431,7 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.data).to.have.property('customers');",
                   "    pm.expect(response.data.customers).to.be.an('array');",
-                  "    pm.expect(response).to.have.property('results');",
-                  "    pm.expect(response).to.have.property('total');",
+                  "    pm.expect(response.data).to.have.property('paginatorInfo');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1539,7 +1537,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1705,52 +1703,6 @@
           "response": []
         },
         {
-          "name": "Get Customers by Location ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Location customers returned\", function () {",
-                  "    const response = pm.response.json();",
-                  "    pm.expect(response.data).to.have.property('customers');",
-                  "    pm.expect(response.data.customers).to.be.an('array');",
-                  "    pm.expect(response).to.have.property('results');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminAccessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/customers/location/{{locationId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "customers",
-                "location",
-                "{{locationId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "Search Customers",
           "event": [
             {
@@ -1765,7 +1717,7 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.data).to.have.property('customers');",
                   "    pm.expect(response.data.customers).to.be.an('array');",
-                  "    pm.expect(response).to.have.property('total');",
+                  "    pm.expect(response.data).to.have.property('paginatorInfo');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -1831,7 +1783,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -1886,7 +1838,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2161,7 +2113,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2206,7 +2158,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2359,7 +2311,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2541,7 +2493,7 @@
         {
           "name": "Update Business",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2602,7 +2554,7 @@
         {
           "name": "Update Business Settings",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2878,7 +2830,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -2923,7 +2875,7 @@
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
@@ -3260,7 +3212,7 @@
         {
           "name": "Update Withdraw Status",
           "request": {
-            "method": "PATCH",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",

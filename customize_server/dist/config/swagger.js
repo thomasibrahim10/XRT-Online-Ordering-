@@ -195,20 +195,32 @@ All responses follow a consistent format:
                     is_available: { type: 'boolean', example: true },
                     is_signature: { type: 'boolean', example: false },
                     max_per_order: { type: 'integer', example: 10 },
+                    is_sizeable: { type: 'boolean', example: false },
+                    is_customizable: { type: 'boolean', example: false },
+                    sizes: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                name: { type: 'string', example: 'Large' },
+                                price: { type: 'number', example: 2.50 },
+                                is_default: { type: 'boolean', example: false },
+                            },
+                        },
+                    },
                     created_at: { type: 'string', format: 'date-time' },
                     updated_at: { type: 'string', format: 'date-time' },
                 },
             },
             Customer: {
                 type: 'object',
-                required: ['name', 'email', 'phoneNumber', 'business_id', 'location_id'],
+                required: ['name', 'email', 'phoneNumber'],
                 properties: {
                     _id: { type: 'string', example: '507f1f77bcf86cd799439011' },
                     name: { type: 'string', example: 'John Doe' },
                     email: { type: 'string', format: 'email', example: 'john@example.com' },
                     phoneNumber: { type: 'string', example: '+1234567890' },
-                    business_id: { type: 'string', example: '507f1f77bcf86cd799439011' },
-                    location_id: { type: 'string', example: '507f1f77bcf86cd799439012' },
+                    business_id: { type: 'string', example: '507f1f77bcf86cd799439011', description: 'Automatically set from current user\'s business' },
                     rewards: { type: 'number', example: 150 },
                     isActive: { type: 'boolean', example: true },
                     last_order_at: { type: 'string', format: 'date-time', example: '2023-12-01T10:30:00Z' },
@@ -1464,6 +1476,12 @@ All responses follow a consistent format:
                                     is_available: { type: 'boolean' },
                                     is_signature: { type: 'boolean' },
                                     max_per_order: { type: 'integer' },
+                                    is_sizeable: { type: 'boolean' },
+                                    is_customizable: { type: 'boolean' },
+                                    sizes: {
+                                        type: 'string',
+                                        description: 'JSON array of size objects: [{"name": "string", "price": number, "is_default": boolean}]',
+                                    },
                                 },
                             },
                         },
@@ -1533,6 +1551,12 @@ All responses follow a consistent format:
                                     is_available: { type: 'boolean' },
                                     is_signature: { type: 'boolean' },
                                     max_per_order: { type: 'integer' },
+                                    is_sizeable: { type: 'boolean' },
+                                    is_customizable: { type: 'boolean' },
+                                    sizes: {
+                                        type: 'string',
+                                        description: 'JSON array of size objects: [{"name": "string", "price": number, "is_default": boolean}]',
+                                    },
                                 },
                             },
                         },
@@ -2669,17 +2693,15 @@ All responses follow a consistent format:
                         'application/json': {
                             schema: {
                                 type: 'object',
-                                required: ['name', 'email', 'phoneNumber', 'business_id', 'location_id'],
+                                required: ['name', 'email', 'phoneNumber'],
                                 properties: {
                                     name: { type: 'string', example: 'John Doe' },
                                     email: { type: 'string', format: 'email', example: 'john@example.com' },
                                     phoneNumber: { type: 'string', example: '+1234567890' },
-                                    business_id: { type: 'string', example: '507f1f77bcf86cd799439011' },
-                                    location_id: { type: 'string', example: '507f1f77bcf86cd799439012' },
-                                    preferences: { type: 'object' },
-                                    addresses: { type: 'array' },
-                                    notes: { type: 'string' },
+                                    rewards: { type: 'number', example: 100 },
+                                    notes: { type: 'string', example: 'VIP customer, prefers delivery' },
                                 },
+                                description: 'business_id is automatically set from current user\'s business',
                             },
                         },
                     },
@@ -2713,7 +2735,7 @@ All responses follow a consistent format:
                         },
                     },
                     404: {
-                        description: 'Business or Location not found',
+                        description: 'Business not found',
                         content: {
                             'application/json': {
                                 schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -2731,13 +2753,13 @@ All responses follow a consistent format:
                         in: 'query',
                         name: 'business_id',
                         schema: { type: 'string' },
-                        description: 'Filter by business ID',
+                        description: 'Filter by business ID (automatically set for non-super-admins)',
                     },
                     {
                         in: 'query',
-                        name: 'location_id',
-                        schema: { type: 'string' },
-                        description: 'Filter by location ID',
+                        name: 'isActive',
+                        schema: { type: 'boolean' },
+                        description: 'Filter by active status',
                     },
                     {
                         in: 'query',
@@ -2767,16 +2789,22 @@ All responses follow a consistent format:
                                     type: 'object',
                                     properties: {
                                         status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        total: { type: 'integer' },
-                                        page: { type: 'integer' },
-                                        pages: { type: 'integer' },
                                         data: {
                                             type: 'object',
                                             properties: {
                                                 customers: {
                                                     type: 'array',
                                                     items: { $ref: '#/components/schemas/Customer' },
+                                                },
+                                                paginatorInfo: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        total: { type: 'integer', example: 100 },
+                                                        currentPage: { type: 'integer', example: 1 },
+                                                        lastPage: { type: 'integer', example: 10 },
+                                                        perPage: { type: 'integer', example: 10 },
+                                                        count: { type: 'integer', example: 10 },
+                                                    },
                                                 },
                                             },
                                         },
@@ -2832,7 +2860,7 @@ All responses follow a consistent format:
                     },
                 },
             },
-            patch: {
+            put: {
                 summary: 'Update a customer',
                 tags: ['Customers'],
                 security: [{ bearerAuth: [] }],
@@ -2855,12 +2883,9 @@ All responses follow a consistent format:
                                     name: { type: 'string' },
                                     email: { type: 'string', format: 'email' },
                                     phoneNumber: { type: 'string' },
-                                    business_id: { type: 'string' },
-                                    location_id: { type: 'string' },
                                     rewards: { type: 'number' },
-                                    preferences: { type: 'object' },
-                                    addresses: { type: 'array' },
                                     notes: { type: 'string' },
+                                    isActive: { type: 'boolean' },
                                 },
                             },
                         },

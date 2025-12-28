@@ -18,6 +18,7 @@ import roleRoutes from './application/routes/role.routes';
 import withdrawRoutes from './application/routes/withdraw.routes';
 import attachmentRoutes from './application/routes/attachment.routes';
 import itemRoutes from './application/routes/item.routes';
+import customerRoutes from './application/routes/customer.routes';
 import mockRoutes from './application/routes/mock.routes';
 import { env } from './shared/config/env';
 import { logger } from './shared/utils/logger';
@@ -88,6 +89,7 @@ app.use(`${env.API_BASE_URL}/roles`, roleRoutes);
 app.use(`${env.API_BASE_URL}/withdraws`, withdrawRoutes);
 app.use(`${env.API_BASE_URL}/attachments`, attachmentRoutes);
 app.use(`${env.API_BASE_URL}/items`, itemRoutes);
+app.use(`${env.API_BASE_URL}/customers`, customerRoutes);
 app.use(`${env.API_BASE_URL}`, mockRoutes);
 
 // 404 handler

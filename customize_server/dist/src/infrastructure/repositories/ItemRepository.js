@@ -44,6 +44,11 @@ class ItemRepository {
         return itemDoc ? this.toDomain(itemDoc) : null;
     }
     async findAll(filters) {
+        const page = filters.page || 1;
+        const limit = filters.limit || 10;
+        const skip = (page - 1) * limit;
+        const orderBy = filters.orderBy || 'created_at';
+        const sortedBy = filters.sortedBy === 'asc' ? 1 : -1;
         const query = {};
         if (filters.business_id) {
             query.business_id = filters.business_id;
@@ -60,11 +65,29 @@ class ItemRepository {
         if (filters.is_signature !== undefined) {
             query.is_signature = filters.is_signature;
         }
-        if (filters.search) {
-            query.name = { $regex: filters.search, $options: 'i' };
+        // Search by name or description
+        if (filters.search || filters.name) {
+            const searchTerm = filters.search || filters.name;
+            query.$or = [
+                { name: { $regex: searchTerm, $options: 'i' } },
+                { description: { $regex: searchTerm, $options: 'i' } },
+            ];
         }
-        const itemDocs = await ItemModel_1.ItemModel.find(query).sort({ sort_order: 1 }).populate('category_id');
-        return itemDocs.map((doc) => this.toDomain(doc));
+        const [itemDocs, total] = await Promise.all([
+            ItemModel_1.ItemModel.find(query)
+                .sort({ [orderBy]: sortedBy })
+                .skip(skip)
+                .limit(limit)
+                .populate('category_id'),
+            ItemModel_1.ItemModel.countDocuments(query),
+        ]);
+        return {
+            items: itemDocs.map((doc) => this.toDomain(doc)),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
     async update(id, business_id, itemData) {
         const itemDoc = await ItemModel_1.ItemModel.findOneAndUpdate({ _id: id, business_id }, itemData, {

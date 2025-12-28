@@ -43,6 +43,9 @@ export class ItemController {
             is_available,
             is_signature,
             max_per_order,
+            is_sizeable,
+            is_customizable,
+            sizes,
         } = req.body;
         const business_id = req.user?.business_id || req.body.business_id;
 
@@ -52,6 +55,16 @@ export class ItemController {
 
         if (!category_id) {
             throw new ValidationError('category_id is required');
+        }
+
+        // Parse sizes if it's a string (common in form data)
+        let parsedSizes = undefined;
+        if (sizes) {
+            try {
+                parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+            } catch (error) {
+                throw new ValidationError('Invalid sizes format. Expected JSON array.');
+            }
         }
 
         try {
@@ -69,6 +82,9 @@ export class ItemController {
                     is_available: is_available === 'true' || is_available === true,
                     is_signature: is_signature === 'true' || is_signature === true,
                     max_per_order: max_per_order ? parseInt(max_per_order as string) : undefined,
+                    is_sizeable: is_sizeable !== undefined ? (is_sizeable === 'true' || is_sizeable === true) : undefined,
+                    is_customizable: is_customizable !== undefined ? (is_customizable === 'true' || is_customizable === true) : undefined,
+                    sizes: parsedSizes,
                 },
                 req.files as { [fieldname: string]: Express.Multer.File[] }
             );
@@ -147,6 +163,9 @@ export class ItemController {
             is_available,
             is_signature,
             max_per_order,
+            is_sizeable,
+            is_customizable,
+            sizes,
         } = req.body;
         
         // Get business_id from user or request body
@@ -166,6 +185,16 @@ export class ItemController {
 
         if (!business_id) {
             throw new ValidationError('business_id is required');
+        }
+
+        // Parse sizes if it's a string (common in form data)
+        let parsedSizes = undefined;
+        if (sizes !== undefined) {
+            try {
+                parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
+            } catch (error) {
+                throw new ValidationError('Invalid sizes format. Expected JSON array.');
+            }
         }
 
         // Build update data object, only including fields that are actually provided
@@ -188,6 +217,13 @@ export class ItemController {
             updateData.is_signature = is_signature === 'true' || is_signature === true;
         }
         if (max_per_order !== undefined) updateData.max_per_order = parseInt(max_per_order as string);
+        if (is_sizeable !== undefined) {
+            updateData.is_sizeable = is_sizeable === 'true' || is_sizeable === true;
+        }
+        if (is_customizable !== undefined) {
+            updateData.is_customizable = is_customizable === 'true' || is_customizable === true;
+        }
+        if (parsedSizes !== undefined) updateData.sizes = parsedSizes;
 
         const item = await this.updateItemUseCase.execute(
             id,

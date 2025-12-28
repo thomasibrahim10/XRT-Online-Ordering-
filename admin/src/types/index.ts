@@ -2097,7 +2097,6 @@ export interface Customer {
   email: string;
   phoneNumber: string;
   business_id: string;
-  location_id: string;
   rewards: number;
   isActive: boolean;
   last_order_at: string | null;
@@ -2438,6 +2437,12 @@ export interface OrderStickerCardProps extends StickerCardProps {
   | 'withdrawn_amount';
 }
 
+export interface ItemSize {
+  name: string;
+  price: number;
+  is_default: boolean;
+}
+
 export interface Item {
   id: string;
   business_id: string;
@@ -2452,6 +2457,9 @@ export interface Item {
   is_available: boolean;
   is_signature: boolean;
   max_per_order?: number;
+  is_sizeable?: boolean;
+  is_customizable?: boolean;
+  sizes?: ItemSize[];
   created_at: string;
   updated_at: string;
 }
@@ -2461,13 +2469,16 @@ export interface CreateItemInput {
   description?: string;
   sort_order?: number;
   is_active?: boolean;
-  base_price: number;
+  base_price?: number;
   category_id: string;
   image?: AttachmentInput;
   is_available?: boolean;
   is_signature?: boolean;
   max_per_order?: number;
   business_id?: string;
+  is_sizeable?: boolean;
+  is_customizable?: boolean;
+  sizes?: ItemSize[];
 }
 
 export interface UpdateItemInput extends Partial<CreateItemInput> {
