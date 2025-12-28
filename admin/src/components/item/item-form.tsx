@@ -87,11 +87,37 @@ export default function CreateOrUpdateItemForm({
                 ...initialValues,
                 category: initialValues.category,
                 sizes: initialValues.sizes || [],
-                is_sizeable: initialValues.is_sizeable || false,
+                // If item has sizes, automatically set is_sizeable to true
+                is_sizeable: initialValues.is_sizeable || (initialValues.sizes?.length > 0) || false,
                 is_customizable: initialValues.is_customizable || false,
             }
             : defaultValues,
     });
+
+    // Reset form when initialValues change (e.g., after update)
+    useEffect(() => {
+        if (initialValues) {
+            const formValues = {
+                ...initialValues,
+                category: initialValues.category,
+                sizes: initialValues.sizes || [],
+                // If item has sizes, automatically set is_sizeable to true
+                is_sizeable: initialValues.is_sizeable || (initialValues.sizes?.length > 0) || false,
+                is_customizable: initialValues.is_customizable || false,
+            };
+            // Reset the form with new values
+            methods.reset(formValues, { 
+                keepDefaultValues: false,
+                keepValues: false,
+                keepDirty: false,
+                keepIsSubmitted: false,
+                keepTouched: false,
+                keepIsValid: false,
+                keepSubmitCount: false,
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialValues?.id, initialValues?.sizes?.length, initialValues?.is_sizeable, initialValues?.is_customizable, initialValues?.updated_at]);
 
     const {
         register,
@@ -129,6 +155,18 @@ export default function CreateOrUpdateItemForm({
             }
         }
     }, [isSizeable, sizes, setValue]);
+
+    // Auto-set is_sizeable to true if item has sizes when editing
+    // Also ensure sizes are preserved in the form
+    useEffect(() => {
+        if (initialValues) {
+            // If item has sizes, ensure is_sizeable is true
+            if (initialValues.sizes && initialValues.sizes.length > 0 && !isSizeable) {
+                setValue('is_sizeable', true, { shouldValidate: false });
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialValues?.id, initialValues?.sizes?.length, isSizeable]);
 
     // Handler to set default size (only one can be default)
     const handleDefaultSizeChange = (index: number) => {
@@ -185,7 +223,8 @@ export default function CreateOrUpdateItemForm({
             is_signature: values.is_signature,
             is_sizeable: values.is_sizeable ?? false,
             is_customizable: values.is_customizable ?? false,
-            sizes: values.sizes && values.sizes.length > 0 ? values.sizes : undefined,
+            // Always send sizes array when item is sizeable (validation ensures at least one size)
+            sizes: values.is_sizeable && values.sizes ? values.sizes : undefined,
             image: values.image,
             business_id: shopId,
         };

@@ -26,6 +26,9 @@ class ItemRepository {
             is_available: document.is_available,
             is_signature: document.is_signature,
             max_per_order: document.max_per_order,
+            is_sizeable: document.is_sizeable,
+            is_customizable: document.is_customizable,
+            sizes: document.sizes || [],
             created_at: document.created_at,
             updated_at: document.updated_at,
         };

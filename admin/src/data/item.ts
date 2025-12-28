@@ -49,7 +49,15 @@ export const useUpdateItemMutation = () => {
     const queryClient = useQueryClient();
     const router = useRouter();
     return useMutation(itemClient.updateItem, {
-        onSuccess: async () => {
+        onSuccess: async (data, variables) => {
+            const updatedItem = (data as any)?.data?.item || (data as any)?.data || data;
+            // Update the query cache with the updated item
+            queryClient.setQueryData(
+                [API_ENDPOINTS.ITEMS, { id: variables.id, language: router.locale }],
+                updatedItem
+            );
+            // Force refetch the item query to ensure we have the latest data
+            await queryClient.refetchQueries([API_ENDPOINTS.ITEMS, { id: variables.id }]);
             toast.success(t('common:successfully-updated'));
             // Don't redirect on update - let user stay on the page
         },
@@ -81,16 +89,22 @@ export const useDeleteItemMutation = () => {
     });
 };
 
-export const useItemQuery = ({ slug, id, language }: GetParams & { id?: string }) => {
-    const { data, error, isLoading } = useQuery<Item, Error>(
+export const useItemQuery = ({ slug, id, language }: GetParams & { id?: string }, options: any = {}) => {
+    const { data, error, isLoading, refetch } = useQuery<Item, Error>(
         [API_ENDPOINTS.ITEMS, { slug, id, language }],
         () => itemClient.get({ slug, id, language }),
+        {
+            refetchOnWindowFocus: false,
+            refetchOnMount: true,
+            ...options,
+        }
     );
 
     return {
         item: data,
         error,
         isLoading,
+        refetch,
     };
 };
 

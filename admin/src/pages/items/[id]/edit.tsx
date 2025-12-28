@@ -33,6 +33,9 @@ export default function EditItemPage() {
     const { item, isLoading: loading, error } = useItemQuery({
         id: id as string,
         language: locale!,
+    }, {
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
     });
 
     if (loading) return <Loader text={t('common:text-loading')} />;
@@ -53,7 +56,12 @@ export default function EditItemPage() {
                     {t('form:form-title-edit-item')}
                 </h1>
             </div>
-            <CreateOrUpdateItemForm initialValues={item} />
+            {item && (
+                <CreateOrUpdateItemForm 
+                    key={`item-${item.id}-${item.updated_at || Date.now()}`}
+                    initialValues={item} 
+                />
+            )}
         </>
     );
 }
