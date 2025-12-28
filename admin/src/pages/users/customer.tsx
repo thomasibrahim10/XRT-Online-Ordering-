@@ -183,7 +183,7 @@ export default function CustomersPage() {
 
   // Handle confirmed import from preview modal
   function handleConfirmImport(data: ImportRow[]) {
-    // Data now contains business_id and location_id per customer
+    // Data now contains business_id per customer (automatically set)
     importMutation.mutate({ customers: data } as any, {
       onSuccess: (response: any) => {
         toast.success(
@@ -204,7 +204,7 @@ export default function CustomersPage() {
     exportMutation.mutate(
       {
         format: 'csv',
-        // Removed business_id and location_id filters to export ALL customers
+        // Export all customers (business_id is automatically filtered by current user's business)
       },
       {
         onSuccess: async (response: any) => {
@@ -339,8 +339,6 @@ export default function CustomersPage() {
         }}
         onConfirm={handleConfirmImport}
         data={previewData as any}
-        businesses={shops || []}
-        locations={[]}
         isLoading={importMutation.isLoading}
       />
     </>

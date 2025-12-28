@@ -9,25 +9,11 @@ export type ImportRow = {
   notes?: string;
 };
 
-export type Business = {
-  _id: string;
-  name: string;
-};
-
-export type Location = {
-  _id: string;
-  branch_name?: string;
-  name?: string;
-  business_id: string | { _id: string };
-};
-
 export interface ImportPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: Omit<ImportRow, 'id'>[]) => void;
   data: Omit<ImportRow, 'id'>[];
-  businesses: Business[];
-  locations: Location[];
   isLoading?: boolean;
 }
 

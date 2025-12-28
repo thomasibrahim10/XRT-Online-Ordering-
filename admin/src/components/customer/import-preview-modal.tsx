@@ -4,7 +4,6 @@ import Button from '@/components/ui/button';
 import Modal from '@/components/ui/modal/modal';
 import { Table } from '@/components/ui/table';
 import Input from '@/components/ui/input';
-import Select from '@/components/ui/select/select';
 import { TrashIcon } from '@/components/icons/trash';
 import { CloseIcon } from '@/components/icons/close-icon';
 import {
@@ -78,112 +77,25 @@ const tableStyles = `
   }
 `;
 
-// Enhanced select styles to match improved input styling
-const selectStyles = {
-  control: (base: any, state: any) => ({
-    ...base,
-    minHeight: '44px',
-    height: '44px',
-    fontSize: '14px',
-    borderRadius: '12px',
-    borderColor: state.isFocused ? 'rgb(var(--color-accent))' : '#e5e7eb',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    boxShadow: state.isFocused
-      ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 3px rgba(var(--color-accent), 0.1)'
-      : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      borderColor: 'rgb(var(--color-accent))',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    },
-  }),
-  valueContainer: (base: any) => ({
-    ...base,
-    padding: '0 16px',
-    height: '42px',
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  input: (base: any) => ({
-    ...base,
-    margin: 0,
-    padding: 0,
-    height: '42px',
-    display: 'flex',
-    alignItems: 'center',
-  }),
-  indicatorsContainer: (base: any) => ({
-    ...base,
-    height: '42px',
-    alignItems: 'center',
-    paddingRight: '12px',
-  }),
-  option: (base: any, state: any) => ({
-    ...base,
-    fontSize: '14px',
-    padding: '8px 12px',
-    backgroundColor: state.isSelected
-      ? 'rgb(var(--color-accent))'
-      : state.isFocused
-        ? 'rgba(var(--color-accent), 0.1)'
-        : 'transparent',
-  }),
-  placeholder: (base: any) => ({
-    ...base,
-    fontSize: '14px',
-    color: '#9ca3af',
-  }),
-  singleValue: (base: any) => ({
-    ...base,
-    fontSize: '14px',
-  }),
-};
-
 const ImportPreviewModal = ({
   isOpen,
   onClose,
   onConfirm,
   data: initialData,
-  businesses = [],
-  locations = [],
   isLoading = false,
 }: ImportPreviewModalProps) => {
   const { t } = useTranslation();
   const [editableData, setEditableData] = useState<ImportRow[]>([]);
 
-  // Initialize data with default business/location
+  // Initialize data
   useEffect(() => {
-    const defaultBusiness = businesses[0]?._id || '';
-    const defaultLocation =
-      locations.find((l) => {
-        const bid =
-          typeof l.business_id === 'string'
-            ? l.business_id
-            : l.business_id?._id;
-        return bid === defaultBusiness;
-      })?._id || '';
-
     setEditableData(
       initialData.map((row, index) => ({
         ...row,
         id: `row-${index}`,
-        business_id: defaultBusiness,
-        location_id: defaultLocation,
       })),
     );
-  }, [initialData, businesses, locations]);
-
-  const getLocationsForBusiness = (businessId: string) => {
-    return (Array.isArray(locations) ? locations : []).filter((loc) => {
-      const bid =
-        typeof loc.business_id === 'string'
-          ? loc.business_id
-          : loc.business_id?._id;
-      return bid === businessId;
-    });
-  };
+  }, [initialData]);
 
   const handleCellChange = (
     rowId: string,
@@ -193,17 +105,6 @@ const ImportPreviewModal = ({
     setEditableData((prev) =>
       prev.map((row) => {
         if (row.id !== rowId) return row;
-
-        // If changing business, reset location to first available
-        if (field === 'business_id') {
-          const newLocations = getLocationsForBusiness(value as string);
-          return {
-            ...row,
-            business_id: value as string,
-            location_id: newLocations[0]?._id || '',
-          };
-        }
-
         return { ...row, [field]: value };
       }),
     );
@@ -214,9 +115,9 @@ const ImportPreviewModal = ({
   };
 
   const handleConfirm = () => {
-    // Check all rows have business and location
+    // Check all required fields are present
     const invalidRows = editableData.filter(
-      (row) => !row.business_id || !row.location_id,
+      (row) => !row.name || !row.email || !row.phoneNumber,
     );
     if (invalidRows.length > 0) {
       return;
@@ -225,13 +126,6 @@ const ImportPreviewModal = ({
     const cleanData = editableData.map(({ id, ...rest }) => rest);
     onConfirm(cleanData);
   };
-
-  const businessOptions = (Array.isArray(businesses) ? businesses : []).map(
-    (b) => ({
-      value: b._id,
-      label: b.name,
-    }),
-  );
 
   const columns = [
     {
@@ -293,59 +187,6 @@ const ImportPreviewModal = ({
       ),
     },
     {
-      title: 'Business',
-      dataIndex: 'business_id',
-      key: 'business_id',
-      width: 160,
-      render: (value: string, record: ImportRow) => (
-        <div className="cell-wrapper w-full">
-          <Select
-            name={`business-${record.id}`}
-            options={businessOptions}
-            value={businessOptions.find((o) => o.value === value)}
-            onChange={(option: any) =>
-              handleCellChange(record.id, 'business_id', option?.value || '')
-            }
-            className="w-full"
-            isClearable={false}
-            placeholder="Select"
-            styles={selectStyles}
-          />
-        </div>
-      ),
-    },
-    {
-      title: 'Location',
-      dataIndex: 'location_id',
-      key: 'location_id',
-      width: 160,
-      render: (value: string, record: ImportRow) => {
-        const locationOptions = getLocationsForBusiness(
-          record.business_id || '',
-        ).map((l) => ({
-          value: l._id,
-          label: l.branch_name || l.name || 'Unknown',
-        }));
-        return (
-          <div className="cell-wrapper w-full">
-            <Select
-              name={`location-${record.id}`}
-              options={locationOptions}
-              value={locationOptions.find((o) => o.value === value)}
-              onChange={(option: any) =>
-                handleCellChange(record.id, 'location_id', option?.value || '')
-              }
-              className="w-full"
-              isClearable={false}
-              isDisabled={!record.business_id}
-              placeholder="Select"
-              styles={selectStyles}
-            />
-          </div>
-        );
-      },
-    },
-    {
       title: 'Points',
       dataIndex: 'rewards',
       key: 'rewards',
@@ -390,22 +231,12 @@ const ImportPreviewModal = ({
   ];
 
   const allRowsValid = editableData.every(
-    (row) =>
-      row.business_id &&
-      row.location_id &&
-      row.name &&
-      row.email &&
-      row.phoneNumber,
+    (row) => row.name && row.email && row.phoneNumber,
   );
 
   // Count valid and invalid rows
   const validRowsCount = editableData.filter(
-    (row) =>
-      row.business_id &&
-      row.location_id &&
-      row.name &&
-      row.email &&
-      row.phoneNumber,
+    (row) => row.name && row.email && row.phoneNumber,
   ).length;
   const invalidRowsCount = editableData.length - validRowsCount;
 
