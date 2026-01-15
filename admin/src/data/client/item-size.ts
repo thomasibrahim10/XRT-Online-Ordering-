@@ -14,11 +14,9 @@ export interface ItemSize {
 }
 
 export interface CreateItemSizeInput {
-  item_id: string;
   business_id: string;
   name: string;
   code: string;
-  price: number;
   display_order?: number;
   is_active?: boolean;
 }
@@ -32,40 +30,40 @@ export interface UpdateItemSizeInput {
 }
 
 export const itemSizeClient = {
-  getAll: async (itemId: string, businessId?: string) => {
+  getAll: async (businessId?: string) => {
     const response = await HttpClient.get<{ success: boolean; data: ItemSize[] }>(
-      `items/${itemId}/sizes`,
-      businessId ? { business_id: businessId } : {}
+      `sizes`,
+      businessId ? { business_id: businessId, is_active: true } : { is_active: true }
     );
     return response?.data || response || [];
   },
 
-  get: async (itemId: string, id: string) => {
+  get: async (id: string) => {
     const response = await HttpClient.get<{ success: boolean; data: ItemSize }>(
-      `items/${itemId}/sizes/${id}`
+      `sizes/${id}`
     );
     return response;
   },
 
-  create: async (itemId: string, input: CreateItemSizeInput) => {
+  create: async (input: CreateItemSizeInput) => {
     const response = await HttpClient.post<{ success: boolean; data: ItemSize }>(
-      `items/${itemId}/sizes`,
+      `sizes`,
       input
     );
     return response;
   },
 
-  update: async (itemId: string, id: string, input: UpdateItemSizeInput) => {
+  update: async (id: string, input: UpdateItemSizeInput) => {
     const response = await HttpClient.put<{ success: boolean; data: ItemSize }>(
-      `items/${itemId}/sizes/${id}`,
+      `sizes/${id}`,
       input
     );
     return response;
   },
 
-  delete: async (itemId: string, id: string) => {
+  delete: async (id: string) => {
     const response = await HttpClient.delete<{ success: boolean }>(
-      `items/${itemId}/sizes/${id}`
+      `sizes/${id}`
     );
     return response;
   },

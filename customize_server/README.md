@@ -364,39 +364,34 @@ Production: https://xrt-online-ordering.vercel.app/api/v1
 ```
 
 ### Item Size Management Endpoints
-
-| Method | Endpoint                            | Description                                    | Auth Required | Role Required      |
-| ------ | ----------------------------------- | ---------------------------------------------- | ------------- | ------------------ |
-| GET    | `/items/:itemId/sizes`              | List all sizes for an item                    | ✅            | Any authenticated  |
-| GET    | `/items/:itemId/sizes/:id`          | Get single item size                          | ✅            | Any authenticated  |
-| POST   | `/items/:itemId/sizes`              | Create item size                              | ✅            | `admin` or `super_admin` |
-| PUT    | `/items/:itemId/sizes/:id`          | Update item size                              | ✅            | `admin` or `super_admin` |
-| DELETE | `/items/:itemId/sizes/:id`          | Delete item size                              | ✅            | `admin` or `super_admin` |
-
-**Request Body (POST):**
-```json
-{
-  "name": "Large",
-  "code": "L",
-  "price": 15.99,
-  "display_order": 2,
-  "is_active": true
-}
-```
-
-**Request Body (PUT):**
-- Same as POST, all fields optional
-
-**Business Rules:**
-- `code` must be unique per item (e.g., 'S', 'M', 'L', 'XL', 'XXL' or custom codes)
-- Code is used for modifier pricing mapping (`prices_by_size.sizeCode` should match ItemSize.code)
-- Cannot delete a size if it's set as `default_size_id` (update item first)
-- Cannot delete the last size if item has `is_sizeable = true` (add another size first or set `is_sizeable = false`)
-- Item must have `is_sizeable = true` to create sizes
-- When deleting an item, all associated sizes are automatically deleted
-
-**Migration:**
-Run `npx ts-node scripts/migrateItemSizes.ts` to migrate existing embedded sizes to the new ItemSize collection.
+ 
+ | Method | Endpoint                            | Description                                    | Auth Required | Role Required      |
+ | ------ | ----------------------------------- | ---------------------------------------------- | ------------- | ------------------ |
+ | GET    | `/sizes`                            | List all global sizes for business             | ✅            | Any authenticated  |
+ | GET    | `/sizes/:id`                        | Get single size details                        | ✅            | Any authenticated  |
+ | POST   | `/sizes`                            | Create global size                             | ✅            | `admin` or `super_admin` |
+ | PUT    | `/sizes/:id`                        | Update global size                             | ✅            | `admin` or `super_admin` |
+ | DELETE | `/sizes/:id`                        | Delete global size                             | ✅            | `admin` or `super_admin` |
+ 
+ **Request Body (POST):**
+ ```json
+ {
+   "name": "Large",
+   "code": "L",
+   "display_order": 2,
+   "is_active": true
+ }
+ ```
+ 
+ **Request Body (PUT):**
+ - Same as POST, all fields optional
+ 
+ **Business Rules:**
+ - Sizes are **GLOBAL** per business (not per item)
+ - `code` must be unique per business (e.g., 'S', 'M', 'L', 'XL')
+ - Code is used for modifier pricing mapping (`prices_by_size.sizeCode` matches ItemSize.code)
+ - Items link to these sizes via pricing configuration
+ - Deleting a size affects all items using that size (soft delete recommended)
 
 ### Import System Endpoints (Super Admin Only)
 

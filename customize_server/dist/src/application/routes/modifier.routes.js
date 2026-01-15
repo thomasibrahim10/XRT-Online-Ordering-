@@ -8,6 +8,8 @@ const router = (0, express_1.Router)();
 const modifierController = new ModifierController_1.ModifierController();
 // All modifier routes require authentication
 router.use(auth_1.requireAuth);
+// Get all modifiers - requires modifiers:read permission
+router.get('/modifiers', (0, authorize_1.requirePermission)('modifiers:read'), modifierController.index);
 // Get all modifiers for a group - requires modifiers:read permission
 router.get('/modifier-groups/:groupId/modifiers', (0, authorize_1.requirePermission)('modifiers:read'), modifierController.getAll);
 // Create modifier - requires modifiers:create permission

@@ -20,7 +20,6 @@ export class ModifierGroupRepository implements IModifierGroupRepository {
       max_select: document.max_select,
       applies_per_quantity: document.applies_per_quantity,
       quantity_levels: document.quantity_levels || [],
-      prices_by_size: document.prices_by_size || [],
       is_active: document.is_active,
       sort_order: document.sort_order,
       created_at: document.created_at,

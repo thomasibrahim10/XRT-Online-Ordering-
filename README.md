@@ -81,20 +81,13 @@ This monorepo contains two main applications:
 
 - Complete item lifecycle management
 - Image upload support
-- **Separate ItemSize collection** - Item sizes are now managed independently:
-  - Create, update, delete sizes via `/items/:itemId/sizes` endpoints
-  - Each size has: name, code (unique per item), price, display_order, is_active
-  - Code mapping: Size codes (S, M, L, XL, XXL) used in modifier pricing map to ItemSize.code
-- Business rules:
-  - If `is_sizeable = false`: Uses `base_price`, `default_size_id` must be null
-  - If `is_sizeable = true`: Must have at least one ItemSize, `base_price` is ignored, `default_size_id` references a size
-- Modifier group assignment
-- Item-level sides configuration
-- Category-based organization
-- Active/inactive status management
-- Signature item marking
-- Customizable per-order limits
-- **Migration**: Run `npx ts-node customize_server/scripts/migrateItemSizes.ts` to migrate existing embedded sizes
+- **Global Item Sizes** - Sizes are now managed globally per business:
+   - Create, update, delete sizes via `/sizes` endpoints
+   - Each size has: name, code (unique per business), display_order, is_active
+   - Code mapping: Size codes (S, M, L, XL) used in modifier pricing map to global ItemSize.code
+ - Business rules:
+   - If `is_sizeable = false`: Uses `base_price`, item has no size specifics
+   - If `is_sizeable = true`: Item manages separate pricing for each global size
 
 ### 🎛️ Modifier Group & Modifier Management
 

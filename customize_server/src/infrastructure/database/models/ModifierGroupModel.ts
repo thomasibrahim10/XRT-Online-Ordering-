@@ -5,6 +5,18 @@ export interface ModifierGroupDocument extends Omit<ModifierGroup, 'id'>, Docume
   _id: mongoose.Types.ObjectId;
 }
 
+const PricesBySizeSchema = new Schema({
+  size_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'ItemSize',
+    required: true,
+  },
+  priceDelta: {
+    type: Number,
+    required: true,
+  },
+}, { _id: false });
+
 const QuantityLevelSchema = new Schema({
   quantity: {
     type: Number,
@@ -32,17 +44,9 @@ const QuantityLevelSchema = new Schema({
     type: Boolean,
     default: true,
   },
-}, { _id: false });
-
-const PricesBySizeSchema = new Schema({
-  sizeCode: {
-    type: String,
-    required: true,
-    enum: ['S', 'M', 'L', 'XL', 'XXL'], // Must match ItemSize.code values for the item
-  },
-  priceDelta: {
-    type: Number,
-    required: true,
+  prices_by_size: {
+    type: [PricesBySizeSchema],
+    default: [],
   },
 }, { _id: false });
 
@@ -84,10 +88,6 @@ const ModifierGroupSchema = new Schema<ModifierGroupDocument>(
       type: [QuantityLevelSchema],
       default: [],
     },
-    prices_by_size: {
-      type: [PricesBySizeSchema],
-      default: [],
-    },
     is_active: {
       type: Boolean,
       default: true,
@@ -108,7 +108,7 @@ const ModifierGroupSchema = new Schema<ModifierGroupDocument>(
 );
 
 // Validation: max_select must be >= min_select
-ModifierGroupSchema.pre('validate', function(next) {
+ModifierGroupSchema.pre('validate', function (next) {
   if (this.max_select < this.min_select) {
     next(new Error('max_select must be greater than or equal to min_select'));
   } else {
@@ -117,7 +117,7 @@ ModifierGroupSchema.pre('validate', function(next) {
 });
 
 // Validation: Only one quantity level can be default
-ModifierGroupSchema.pre('validate', function(next) {
+ModifierGroupSchema.pre('validate', function (next) {
   if (this.quantity_levels && this.quantity_levels.length > 0) {
     const defaultCount = this.quantity_levels.filter((ql: QuantityLevel) => ql.is_default).length;
     if (defaultCount > 1) {

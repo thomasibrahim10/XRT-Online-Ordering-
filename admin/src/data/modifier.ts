@@ -13,23 +13,13 @@ import {
 import { mapPaginatorData } from '@/utils/data-mappers';
 import { modifierClient } from './client/modifier';
 import { Config } from '@/config';
-import { mockModifiers } from './mock/modifiers';
 
 export const useCreateModifierMutation = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: async (input: any) => {
-      // Mock: Just return the input with generated ID
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return {
-        ...input,
-        id: `m_${Date.now()}`,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-    },
+    mutationFn: modifierClient.create,
     onSuccess: () => {
       toast.success(t('common:successfully-created'));
       queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MODIFIERS] });
@@ -47,11 +37,7 @@ export const useDeleteModifierMutation = () => {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: async ({ id }: { id: string }) => {
-      // Mock: Just simulate deletion
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return { id };
-    },
+    mutationFn: modifierClient.delete,
     onSuccess: () => {
       toast.success(t('common:successfully-deleted'));
       queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MODIFIERS] });
@@ -65,15 +51,7 @@ export const useUpdateModifierMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...input }: any) => {
-      // Mock: Just return the updated data
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return {
-        ...input,
-        id,
-        updated_at: new Date().toISOString(),
-      };
-    },
+    mutationFn: modifierClient.update,
     onSuccess: async (data, variables) => {
       const updatedModifier = (data as any)?.data || data;
       queryClient.setQueryData(
@@ -92,22 +70,9 @@ export const useUpdateModifierMutation = () => {
 };
 
 export const useModifierQuery = ({ slug, id, language }: GetParams & { id?: string }) => {
-  // Use mock data instead of API call
   const { data, error, isPending: isLoading } = useQuery<Modifier, Error>({
     queryKey: [API_ENDPOINTS.MODIFIERS, { slug, id, language }],
-    queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const modifierId = id || slug;
-      const modifier = mockModifiers.find(m => m.id === modifierId);
-      
-      if (!modifier) {
-        throw new Error('Modifier not found');
-      }
-      
-      return modifier;
-    },
+    queryFn: () => modifierClient.get({ id, slug, language }),
     enabled: Boolean(id || slug),
   });
 
@@ -121,55 +86,10 @@ export const useModifierQuery = ({ slug, id, language }: GetParams & { id?: stri
 };
 
 export const useModifiersQuery = (options: Partial<ModifierQueryOptions>) => {
-  // Use mock data instead of API call
   const { data, error, isPending: isLoading } = useQuery<ModifierPaginator, Error>({
     queryKey: [API_ENDPOINTS.MODIFIERS, options],
-    queryFn: async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      let filteredModifiers = [...mockModifiers];
-      
-      // Apply filters
-      if (options.modifier_group_id) {
-        filteredModifiers = filteredModifiers.filter(m => 
-          m.modifier_group_id === options.modifier_group_id
-        );
-      }
-      
-      if (options.name) {
-        filteredModifiers = filteredModifiers.filter(m => 
-          m.name.toLowerCase().includes(options.name!.toLowerCase())
-        );
-      }
-      
-      if (options.is_active !== undefined) {
-        filteredModifiers = filteredModifiers.filter(m => m.is_active === options.is_active);
-      }
-      
-      // Pagination
-      const page = options.page || 1;
-      const limit = options.limit || 20;
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      const paginatedModifiers = filteredModifiers.slice(startIndex, endIndex);
-      
-      return {
-        data: paginatedModifiers,
-        current_page: page,
-        per_page: limit,
-        total: filteredModifiers.length,
-        last_page: Math.ceil(filteredModifiers.length / limit),
-        from: startIndex + 1,
-        to: Math.min(endIndex, filteredModifiers.length),
-        first_page_url: '',
-        last_page_url: '',
-        next_page_url: null,
-        prev_page_url: null,
-        path: '',
-        links: [],
-      };
-    },
+    queryFn: ({ queryKey, pageParam }) =>
+      modifierClient.paginated(Object.assign({}, queryKey[1] as any, pageParam)),
     placeholderData: (previousData) => previousData,
   });
 

@@ -12,9 +12,15 @@ export class ModifierRepository implements IModifierRepository {
   private toDomain(document: ModifierDocument): Modifier {
     return {
       id: document._id.toString(),
-      modifier_group_id: typeof document.modifier_group_id === 'string'
-        ? document.modifier_group_id
+      modifier_group_id: (document.modifier_group_id as any)._id
+        ? (document.modifier_group_id as any)._id.toString()
         : document.modifier_group_id.toString(),
+      modifier_group: (document.modifier_group_id as any).name
+        ? {
+          id: (document.modifier_group_id as any)._id.toString(),
+          name: (document.modifier_group_id as any).name,
+        }
+        : undefined,
       name: document.name,
       is_default: document.is_default,
       max_quantity: document.max_quantity,
@@ -86,7 +92,9 @@ export class ModifierRepository implements IModifierRepository {
       query.is_default = filters.is_default;
     }
 
-    const modifierDocs = await ModifierModel.find(query).sort({ display_order: 1, created_at: 1 });
+    const modifierDocs = await ModifierModel.find(query)
+      .populate('modifier_group_id', 'name')
+      .sort({ display_order: 1, created_at: 1 });
     return modifierDocs.map((doc) => this.toDomain(doc));
   }
 
@@ -106,10 +114,10 @@ export class ModifierRepository implements IModifierRepository {
     // If setting as default, unset other defaults in the group
     if (data.is_default === true) {
       await ModifierModel.updateMany(
-        { 
-          modifier_group_id, 
+        {
+          modifier_group_id,
           _id: { $ne: id },
-          deleted_at: null 
+          deleted_at: null
         },
         { $set: { is_default: false } }
       );

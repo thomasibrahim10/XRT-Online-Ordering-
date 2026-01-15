@@ -3245,6 +3245,162 @@
           }
         }
       ]
+    },
+    {
+      "name": "👕 Item Sizes",
+      "item": [
+        {
+          "name": "Get All Sizes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sizes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sizes"
+              ],
+              "query": [
+                {
+                  "key": "business_id",
+                  "value": "{{businessId}}",
+                  "description": "Optional business filter"
+                },
+                {
+                  "key": "is_active",
+                  "value": "true",
+                  "description": "Optional active status filter"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Size",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Large\",\n  \"code\": \"L\",\n  \"display_order\": 2,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sizes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sizes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Size By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sizes/{{sizeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sizes",
+                "{{sizeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Size",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Extra Large\",\n  \"code\": \"XL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sizes/{{sizeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sizes",
+                "{{sizeId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Size",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sizes/{{sizeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sizes",
+                "{{sizeId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

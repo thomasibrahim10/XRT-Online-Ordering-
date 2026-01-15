@@ -7,10 +7,11 @@ export interface QuantityLevel {
   is_default?: boolean;
   display_order?: number;
   is_active?: boolean;
+  prices_by_size?: PricesBySize[];
 }
 
 export interface PricesBySize {
-  sizeCode: 'S' | 'M' | 'L' | 'XL' | 'XXL'; // These codes should match ItemSize.code values for the item
+  size_id: string; // Reference to ItemSize.id
   priceDelta: number;
 }
 
@@ -23,7 +24,6 @@ export interface ModifierGroup {
   max_select: number;
   applies_per_quantity: boolean;
   quantity_levels?: QuantityLevel[];
-  prices_by_size?: PricesBySize[];
   is_active: boolean;
   sort_order: number;
   created_at: Date;
@@ -39,7 +39,6 @@ export interface CreateModifierGroupDTO {
   max_select: number;
   applies_per_quantity?: boolean;
   quantity_levels?: QuantityLevel[];
-  prices_by_size?: PricesBySize[];
   is_active?: boolean;
   sort_order?: number;
 }
@@ -51,7 +50,6 @@ export interface UpdateModifierGroupDTO {
   max_select?: number;
   applies_per_quantity?: boolean;
   quantity_levels?: QuantityLevel[];
-  prices_by_size?: PricesBySize[];
   is_active?: boolean;
   sort_order?: number;
 }

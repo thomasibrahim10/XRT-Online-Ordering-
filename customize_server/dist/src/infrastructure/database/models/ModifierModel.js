@@ -65,6 +65,17 @@ const ModifierSchema = new mongoose_1.Schema({
         default: true,
         index: true,
     },
+    sides_config: {
+        enabled: {
+            type: Boolean,
+            default: false,
+        },
+        allowed_sides: {
+            type: [String],
+            enum: ['LEFT', 'RIGHT', 'WHOLE'],
+            default: [],
+        },
+    },
     deleted_at: {
         type: Date,
         default: null,

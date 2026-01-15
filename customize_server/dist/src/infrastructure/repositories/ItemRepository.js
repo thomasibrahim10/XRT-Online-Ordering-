@@ -40,7 +40,6 @@ class ItemRepository {
                     ? mg.modifier_group_id
                     : (mg.modifier_group_id?._id || mg.modifier_group_id).toString(),
                 display_order: mg.display_order || 0,
-                sides_config: mg.sides_config || undefined,
                 modifier_overrides: mg.modifier_overrides ? mg.modifier_overrides.map((mo) => ({
                     modifier_id: typeof mo.modifier_id === 'string'
                         ? mo.modifier_id

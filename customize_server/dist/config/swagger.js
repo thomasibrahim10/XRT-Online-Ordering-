@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.swaggerUi = exports.specs = void 0;
+exports.specs = void 0;
 // Static Swagger configuration - no external libraries
 const env_js_1 = require("../src/shared/config/env.js");
 exports.specs = {
@@ -1495,68 +1495,64 @@ All responses follow a consistent format:
                         example: true,
                         description: 'Whether this modifier is active',
                     },
+                    sides_config: {
+                        type: 'object',
+                        description: 'Sides configuration for this modifier. Controls whether this modifier supports sides selection (LEFT, RIGHT, WHOLE)',
+                        properties: {
+                            enabled: {
+                                type: 'boolean',
+                                example: true,
+                                description: 'Whether sides are enabled for this modifier',
+                            },
+                            allowed_sides: {
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: ['LEFT', 'RIGHT', 'WHOLE'],
+                                },
+                                example: ['LEFT', 'RIGHT', 'WHOLE'],
+                                description: 'Array of allowed sides for this modifier. Valid values: LEFT, RIGHT, WHOLE',
+                            },
+                        },
+                    },
                     created_at: { type: 'string', format: 'date-time', example: '2023-12-01T10:30:00Z' },
                     updated_at: { type: 'string', format: 'date-time', example: '2023-12-01T10:30:00Z' },
                 },
             },
             ItemSize: {
                 type: 'object',
-                required: ['item_id', 'restaurant_id', 'name', 'code', 'price'],
+                required: ['business_id', 'name', 'code'],
                 properties: {
                     id: {
                         type: 'string',
                         example: '507f1f77bcf86cd799439013',
                         description: 'Unique identifier for the item size',
                     },
-                    item_id: {
+                    business_id: {
                         type: 'string',
                         example: '507f1f77bcf86cd799439011',
-                        description: 'ID of the item this size belongs to',
-                    },
-                    restaurant_id: {
-                        type: 'string',
-                        example: '507f1f77bcf86cd799439011',
-                        description: 'Business/Restaurant ID that owns this item size',
+                        description: 'Business ID that owns this size',
                     },
                     name: {
                         type: 'string',
                         example: 'Large',
-                        description: 'Display name of the size (e.g., Small, Medium, Large, Extra Large)',
+                        description: 'Display name of the size (e.g., Small, Medium, Large)',
                     },
                     code: {
                         type: 'string',
                         example: 'L',
-                        description: 'Unique code for this size within the item (e.g., S, M, L, XL, XXL or custom codes). Used for modifier pricing mapping.',
-                    },
-                    price: {
-                        type: 'number',
-                        minimum: 0,
-                        example: 15.99,
-                        description: 'Price for this size (replaces base_price when is_sizeable is true)',
+                        description: 'Unique code for this size within the business. Used for modifier pricing mapping.',
                     },
                     display_order: {
                         type: 'integer',
-                        minimum: 0,
-                        example: 2,
-                        description: 'Display order for sorting sizes',
+                        example: 1,
                     },
                     is_active: {
                         type: 'boolean',
                         example: true,
-                        description: 'Whether this size is active and available',
                     },
-                    created_at: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2023-12-01T10:30:00Z',
-                        description: 'Timestamp when the size was created',
-                    },
-                    updated_at: {
-                        type: 'string',
-                        format: 'date-time',
-                        example: '2023-12-01T10:30:00Z',
-                        description: 'Timestamp when the size was last updated',
-                    },
+                    created_at: { type: 'string', format: 'date-time' },
+                    updated_at: { type: 'string', format: 'date-time' },
                 },
             },
             ItemModifierPriceOverride: {
@@ -1662,23 +1658,6 @@ All responses follow a consistent format:
                         minimum: 0,
                         example: 1,
                         description: 'Display order of this modifier group within the item',
-                    },
-                    sides_config: {
-                        type: 'object',
-                        description: 'Item-specific sides configuration (applies to this item only)',
-                        properties: {
-                            enabled: {
-                                type: 'boolean',
-                                example: true,
-                                description: 'Whether sides are enabled for this modifier group on this item',
-                            },
-                            allowed_sides: {
-                                type: 'integer',
-                                minimum: 1,
-                                example: 2,
-                                description: 'Maximum number of sides allowed (when enabled)',
-                            },
-                        },
                     },
                     modifier_overrides: {
                         type: 'array',
@@ -2360,7 +2339,7 @@ All responses follow a consistent format:
                                     },
                                     modifier_groups: {
                                         type: 'string',
-                                        description: 'JSON array of modifier group assignments with optional per-modifier overrides: [{"modifier_group_id": "string", "display_order": number, "sides_config": {"enabled": boolean, "allowed_sides": number}, "modifier_overrides": [{"modifier_id": "string", "max_quantity": number, "is_default": boolean, "prices_by_size": [{"sizeCode": "S|M|L|XL|XXL", "priceDelta": number}], "quantity_levels": [{"quantity": number, "name": string, "price": number, "is_default": boolean}]}]}]',
+                                        description: 'JSON array of modifier group assignments with optional per-modifier overrides: [{"modifier_group_id": "string", "display_order": number, "modifier_overrides": [{"modifier_id": "string", "max_quantity": number, "is_default": boolean, "prices_by_size": [{"sizeCode": "S|M|L|XL|XXL", "priceDelta": number}], "quantity_levels": [{"quantity": number, "name": string, "price": number, "is_default": boolean}]}]}]. Note: Sides configuration is now managed at the Modifier level, not at the Item-ModifierGroup level.',
                                     },
                                 },
                             },
@@ -2469,7 +2448,7 @@ All responses follow a consistent format:
                                     },
                                     modifier_groups: {
                                         type: 'string',
-                                        description: 'JSON array of modifier group assignments with optional per-modifier overrides: [{"modifier_group_id": "string", "display_order": number, "sides_config": {"enabled": boolean, "allowed_sides": number}, "modifier_overrides": [{"modifier_id": "string", "max_quantity": number, "is_default": boolean, "prices_by_size": [{"sizeCode": "S|M|L|XL|XXL", "priceDelta": number}], "quantity_levels": [{"quantity": number, "name": string, "price": number, "is_default": boolean}]}]}]',
+                                        description: 'JSON array of modifier group assignments with optional per-modifier overrides: [{"modifier_group_id": "string", "display_order": number, "modifier_overrides": [{"modifier_id": "string", "max_quantity": number, "is_default": boolean, "prices_by_size": [{"sizeCode": "S|M|L|XL|XXL", "priceDelta": number}], "quantity_levels": [{"quantity": number, "name": string, "price": number, "is_default": boolean}]}]}]. Note: Sides configuration is now managed at the Modifier level, not at the Item-ModifierGroup level.',
                                     },
                                 },
                             },
@@ -2548,18 +2527,17 @@ All responses follow a consistent format:
                 },
             },
         },
-        '/api/v1/items/{itemId}/sizes': {
+        '/api/v1/sizes': {
             get: {
-                summary: 'Get all sizes for an item',
+                summary: 'Get all global item sizes',
                 tags: ['Item Sizes'],
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     {
-                        in: 'path',
-                        name: 'itemId',
-                        required: true,
+                        in: 'query',
+                        name: 'business_id',
                         schema: { type: 'string' },
-                        description: 'ID of the item',
+                        description: 'Filter by business ID (optional, defaults to user business)',
                     },
                     {
                         in: 'query',
@@ -2590,25 +2568,16 @@ All responses follow a consistent format:
                 },
             },
             post: {
-                summary: 'Create item size',
+                summary: 'Create global item size',
                 tags: ['Item Sizes'],
                 security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'itemId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item',
-                    },
-                ],
                 requestBody: {
                     required: true,
                     content: {
                         'application/json': {
                             schema: {
                                 type: 'object',
-                                required: ['name', 'code', 'price'],
+                                required: ['name', 'code'],
                                 properties: {
                                     name: {
                                         type: 'string',
@@ -2618,13 +2587,7 @@ All responses follow a consistent format:
                                     code: {
                                         type: 'string',
                                         example: 'L',
-                                        description: 'Unique code for this size within the item (e.g., S, M, L, XL, XXL). Used for modifier pricing mapping.',
-                                    },
-                                    price: {
-                                        type: 'number',
-                                        minimum: 0,
-                                        example: 15.99,
-                                        description: 'Price for this size',
+                                        description: 'Unique code for this size within the business.',
                                     },
                                     display_order: {
                                         type: 'integer',
@@ -2660,182 +2623,6 @@ All responses follow a consistent format:
                     },
                     400: {
                         description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/items/{itemId}/sizes/{id}': {
-            get: {
-                summary: 'Get item size by ID',
-                tags: ['Item Sizes'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'itemId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item',
-                    },
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item size',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Item size retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Item size retrieved successfully' },
-                                        data: { $ref: '#/components/schemas/ItemSize' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Item size not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            put: {
-                summary: 'Update item size',
-                tags: ['Item Sizes'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'itemId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item',
-                    },
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item size',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    name: { type: 'string', example: 'Large' },
-                                    code: {
-                                        type: 'string',
-                                        example: 'L',
-                                        description: 'Unique code for this size (must be unique per item)',
-                                    },
-                                    price: { type: 'number', minimum: 0, example: 16.99 },
-                                    display_order: { type: 'integer', minimum: 0, example: 2 },
-                                    is_active: { type: 'boolean', example: true },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Item size updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Item size updated successfully' },
-                                        data: { $ref: '#/components/schemas/ItemSize' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Item size not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete item size',
-                tags: ['Item Sizes'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'itemId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item',
-                    },
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'ID of the item size',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Item size deleted successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Item size deleted successfully' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Validation error (e.g., cannot delete default size or last size)',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Item size not found',
                         content: {
                             'application/json': {
                                 schema: { $ref: '#/components/schemas/ErrorResponse' },
@@ -2989,174 +2776,43 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-            put: {
-                summary: 'Update import session (save draft)',
-                tags: ['Import'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    parsedData: { type: 'object', description: 'Updated parsed data' },
-                                    status: { type: 'string', enum: ['draft', 'validated'], example: 'draft' },
-                                },
-                            },
+                put: {
+                    summary: 'Update import session (save draft)',
+                    tags: ['Import'],
+                    security: [{ bearerAuth: [] }],
+                    parameters: [
+                        {
+                            in: 'path',
+                            name: 'id',
+                            required: true,
+                            schema: { type: 'string' },
                         },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Import session updated',
+                    ],
+                    requestBody: {
+                        required: true,
                         content: {
                             'application/json': {
                                 schema: {
                                     type: 'object',
                                     properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Import session updated' },
-                                        data: { $ref: '#/components/schemas/ImportSession' },
+                                        parsedData: { type: 'object', description: 'Updated parsed data' },
+                                        status: { type: 'string', enum: ['draft', 'validated'], example: 'draft' },
                                     },
                                 },
                             },
                         },
                     },
-                },
-            },
-            delete: {
-                summary: 'Discard import session',
-                tags: ['Import'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Import session discarded',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Import session discarded' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/import/sessions/{id}/save': {
-            post: {
-                summary: 'Final save to database (transactional)',
-                tags: ['Import'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Import saved to database successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Import saved to database successfully' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Validation error - cannot save with errors',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/import/sessions/{id}/errors': {
-            get: {
-                summary: 'Download validation errors as CSV',
-                tags: ['Import'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'CSV file with validation errors',
-                        content: {
-                            'text/csv': {
-                                schema: {
-                                    type: 'string',
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/business-settings': {
-            get: {
-                summary: 'Get business settings',
-                tags: ['Business Settings'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'header',
-                        name: 'x-business-id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Business settings details',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                settings: { $ref: '#/components/schemas/BusinessSettings' },
-                                            },
+                    responses: {
+                        200: {
+                            description: 'Import session updated',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            message: { type: 'string', example: 'Import session updated' },
+                                            data: { $ref: '#/components/schemas/ImportSession' },
                                         },
                                     },
                                 },
@@ -3164,40 +2820,28 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-            patch: {
-                summary: 'Update business settings',
-                tags: ['Business Settings'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'header',
-                        name: 'x-business-id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                requestBody: {
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateBusinessSettingsRequest' },
+                delete: {
+                    summary: 'Discard import session',
+                    tags: ['Import'],
+                    security: [{ bearerAuth: [] }],
+                    parameters: [
+                        {
+                            in: 'path',
+                            name: 'id',
+                            required: true,
+                            schema: { type: 'string' },
                         },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Settings updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                settings: { $ref: '#/components/schemas/BusinessSettings' },
-                                            },
+                    ],
+                    responses: {
+                        200: {
+                            description: 'Import session discarded',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            success: { type: 'boolean', example: true },
+                                            message: { type: 'string', example: 'Import session discarded' },
                                         },
                                     },
                                 },
@@ -3205,641 +2849,65 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/auth/register': {
-            post: {
-                summary: 'Register a new user',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/RegisterRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'User registered successfully',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/AuthResponse' },
+                '/api/v1/import/sessions/{id}/save': {
+                    post: {
+                        summary: 'Final save to database (transactional)',
+                        tags: ['Import'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
                             },
-                        },
-                    },
-                    400: {
-                        description: 'Bad request - validation error or duplicate email',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/login': {
-            post: {
-                summary: 'Login user',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/LoginRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Login successful',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/AuthResponse' },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Invalid credentials',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    403: {
-                        description: 'Account not approved or banned',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/refresh-token': {
-            post: {
-                summary: 'Refresh access token using refresh token',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/RefreshTokenRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Token refreshed successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        accessToken: { type: 'string' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Invalid or expired refresh token',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/forgot-password': {
-            post: {
-                summary: 'Request password reset email',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Password reset email sent',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        message: { type: 'string', example: 'Password reset email sent' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/verify-reset-token': {
-            post: {
-                summary: 'Verify password reset token',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                required: ['token'],
-                                properties: {
-                                    token: {
-                                        type: 'string',
-                                        example: 'reset_token_here',
-                                        description: 'Password reset token received via email',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Token is valid',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    $ref: '#/components/schemas/SuccessResponse',
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Invalid or expired token',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/reset-password': {
-            post: {
-                summary: 'Reset password with token',
-                tags: ['Authentication'],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                required: ['token', 'password'],
-                                properties: {
-                                    token: {
-                                        type: 'string',
-                                        example: 'reset_token_here',
-                                        description: 'Password reset token',
-                                    },
-                                    password: {
-                                        type: 'string',
-                                        format: 'password',
-                                        example: 'newSecurePassword123',
-                                        description: 'New password (minimum 6 characters)',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Password reset successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    $ref: '#/components/schemas/SuccessResponse',
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Invalid token or password requirements not met',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/me': {
-            get: {
-                summary: 'Get current user profile',
-                tags: ['Authentication'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'User profile retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Import saved to database successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                user: { $ref: '#/components/schemas/User' },
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Import saved to database successfully' },
                                             },
                                         },
                                     },
                                 },
                             },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/update-password': {
-            patch: {
-                summary: 'Update user password (requires authentication)',
-                tags: ['Authentication'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdatePasswordRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Password updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/AuthResponse' },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required or invalid current password',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/logout': {
-            post: {
-                summary: 'Logout user and clear cookies',
-                tags: ['Authentication'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'Logged out successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
+                            400: {
+                                description: 'Validation error - cannot save with errors',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
                                     },
                                 },
                             },
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/auth/users': {
-            get: {
-                summary: 'Get all users (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'List of users retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'number', example: 10 },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                users: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/User' },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
+                '/api/v1/import/sessions/{id}/errors': {
+                    get: {
+                        summary: 'Download validation errors as CSV',
+                        tags: ['Import'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
                             },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    403: {
-                        description: 'Insufficient permissions',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/users/{id}/approve': {
-            patch: {
-                summary: 'Approve a user account (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'User approved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                user: { $ref: '#/components/schemas/User' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/users/{id}/ban': {
-            patch: {
-                summary: 'Ban or unban a user (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/BanUserRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'User ban status updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                user: { $ref: '#/components/schemas/User' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/users/{id}': {
-            delete: {
-                summary: 'Delete a user (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                responses: {
-                    204: {
-                        description: 'User deleted successfully',
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/users/{id}/permissions': {
-            patch: {
-                summary: 'Update user permissions (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdatePermissionsRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'User permissions updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                user: { $ref: '#/components/schemas/User' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/users/{id}/permissions-get': {
-            get: {
-                summary: 'Get user permissions (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'User permissions retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                permissions: {
-                                                    type: 'array',
-                                                    items: { type: 'string' },
-                                                },
-                                                role: { type: 'string' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/auth/permissions': {
-            get: {
-                summary: 'Get all available permissions (Admin only)',
-                tags: ['User Management'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'All available permissions retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                permissions: {
-                                                    type: 'array',
-                                                    items: { type: 'string' },
-                                                    description: 'Array of all available permissions',
-                                                },
-                                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'CSV file with validation errors',
+                                content: {
+                                    'text/csv': {
+                                        schema: {
+                                            type: 'string',
                                         },
                                     },
                                 },
@@ -3847,496 +2915,73 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/roles': {
-            post: {
-                summary: 'Create a new role (Admin only)',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateRoleRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Role created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
+                '/api/v1/business-settings': {
+                    get: {
+                        summary: 'Get business settings',
+                        tags: ['Business Settings'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'header',
+                                name: 'x-business-id',
+                                required: true,
+                                schema: { type: 'string' },
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Business settings details',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                role: { $ref: '#/components/schemas/Role' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Validation error or duplicate role name',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    403: {
-                        description: 'Insufficient permissions',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            get: {
-                summary: 'Get all roles',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'List of roles retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                roles: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Role' },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/roles/{id}': {
-            get: {
-                summary: 'Get role by ID',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Role ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Role retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                role: { $ref: '#/components/schemas/Role' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Role not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            patch: {
-                summary: 'Update role',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Role ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateRoleRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Role updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                role: { $ref: '#/components/schemas/Role' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Role not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    403: {
-                        description: 'Cannot modify system roles',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete role',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Role ID',
-                    },
-                ],
-                responses: {
-                    204: {
-                        description: 'Role deleted successfully',
-                    },
-                    404: {
-                        description: 'Role not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Cannot delete system role or role assigned to users',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/roles/users/{id}/assign': {
-            patch: {
-                summary: 'Assign role to user',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/AssignRoleRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Role assigned successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                user: { $ref: '#/components/schemas/User' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User or role not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/roles/users/{id}/remove': {
-            patch: {
-                summary: 'Remove role from user',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'User ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Role removed successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                user: { $ref: '#/components/schemas/User' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'User not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/roles/users/{roleId}': {
-            get: {
-                summary: 'Get users with specific role',
-                tags: ['Role Management'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'roleId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Role ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Users with role retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                users: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/User' },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/customers': {
-            post: {
-                summary: 'Create a new customer',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                required: ['name', 'email', 'phoneNumber'],
-                                properties: {
-                                    name: { type: 'string', example: 'John Doe' },
-                                    email: { type: 'string', format: 'email', example: 'john@example.com' },
-                                    phoneNumber: { type: 'string', example: '+1234567890' },
-                                    rewards: { type: 'number', example: 100 },
-                                    notes: { type: 'string', example: 'VIP customer, prefers delivery' },
-                                },
-                                description: 'business_id is automatically set from current user\'s business',
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Customer created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                customer: { $ref: '#/components/schemas/Customer' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Bad request - validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            get: {
-                summary: 'Get all customers (with optional filtering)',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'business_id',
-                        schema: { type: 'string' },
-                        description: 'Filter by business ID (automatically set for non-super-admins)',
-                    },
-                    {
-                        in: 'query',
-                        name: 'isActive',
-                        schema: { type: 'boolean' },
-                        description: 'Filter by active status',
-                    },
-                    {
-                        in: 'query',
-                        name: 'page',
-                        schema: { type: 'integer', default: 1 },
-                        description: 'Page number for pagination',
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                        description: 'Number of items per page',
-                    },
-                    {
-                        in: 'query',
-                        name: 'search',
-                        schema: { type: 'string' },
-                        description: 'Search by name or email',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Customers retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                customers: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Customer' },
-                                                },
-                                                paginatorInfo: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
                                                     type: 'object',
                                                     properties: {
-                                                        total: { type: 'integer', example: 100 },
-                                                        currentPage: { type: 'integer', example: 1 },
-                                                        lastPage: { type: 'integer', example: 10 },
-                                                        perPage: { type: 'integer', example: 10 },
-                                                        count: { type: 'integer', example: 10 },
+                                                        settings: { $ref: '#/components/schemas/BusinessSettings' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    patch: {
+                        summary: 'Update business settings',
+                        tags: ['Business Settings'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'header',
+                                name: 'x-business-id',
+                                required: true,
+                                schema: { type: 'string' },
+                            },
+                        ],
+                        requestBody: {
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateBusinessSettingsRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Settings updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        settings: { $ref: '#/components/schemas/BusinessSettings' },
                                                     },
                                                 },
                                             },
@@ -4347,35 +2992,331 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/customers/{id}': {
-            get: {
-                summary: 'Get a single customer by ID',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Customer ID',
+                '/api/v1/auth/register': {
+                    post: {
+                        summary: 'Register a new user',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/RegisterRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'User registered successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/AuthResponse' },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Bad request - validation error or duplicate email',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
                     },
-                ],
-                responses: {
-                    200: {
-                        description: 'Customer retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
+                },
+                '/api/v1/auth/login': {
+                    post: {
+                        summary: 'Login user',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/LoginRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Login successful',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/AuthResponse' },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Invalid credentials',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Account not approved or banned',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/refresh-token': {
+                    post: {
+                        summary: 'Refresh access token using refresh token',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/RefreshTokenRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Token refreshed successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customer: { $ref: '#/components/schemas/Customer' },
+                                                status: { type: 'string', example: 'success' },
+                                                accessToken: { type: 'string' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Invalid or expired refresh token',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/forgot-password': {
+                    post: {
+                        summary: 'Request password reset email',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/ForgotPasswordRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Password reset email sent',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                message: { type: 'string', example: 'Password reset email sent' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/verify-reset-token': {
+                    post: {
+                        summary: 'Verify password reset token',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        required: ['token'],
+                                        properties: {
+                                            token: {
+                                                type: 'string',
+                                                example: 'reset_token_here',
+                                                description: 'Password reset token received via email',
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Token is valid',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/SuccessResponse',
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Invalid or expired token',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/reset-password': {
+                    post: {
+                        summary: 'Reset password with token',
+                        tags: ['Authentication'],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        required: ['token', 'password'],
+                                        properties: {
+                                            token: {
+                                                type: 'string',
+                                                example: 'reset_token_here',
+                                                description: 'Password reset token',
+                                            },
+                                            password: {
+                                                type: 'string',
+                                                format: 'password',
+                                                example: 'newSecurePassword123',
+                                                description: 'New password (minimum 6 characters)',
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Password reset successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            $ref: '#/components/schemas/SuccessResponse',
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Invalid token or password requirements not met',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/me': {
+                    get: {
+                        summary: 'Get current user profile',
+                        tags: ['Authentication'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'User profile retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Authentication required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/update-password': {
+                    patch: {
+                        summary: 'Update user password (requires authentication)',
+                        tags: ['Authentication'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdatePasswordRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Password updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/AuthResponse' },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Authentication required or invalid current password',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/logout': {
+                    post: {
+                        summary: 'Logout user and clear cookies',
+                        tags: ['Authentication'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'Logged out successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
                                             },
                                         },
                                     },
@@ -4383,134 +3324,307 @@ All responses follow a consistent format:
                             },
                         },
                     },
-                    404: {
-                        description: 'Customer not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
                 },
-            },
-            put: {
-                summary: 'Update a customer',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Customer ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    name: { type: 'string' },
-                                    email: { type: 'string', format: 'email' },
-                                    phoneNumber: { type: 'string' },
-                                    rewards: { type: 'number' },
-                                    notes: { type: 'string' },
-                                    isActive: { type: 'boolean' },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Customer updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
+                '/api/v1/auth/users': {
+                    get: {
+                        summary: 'Get all users (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'List of users retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customer: { $ref: '#/components/schemas/Customer' },
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'number', example: 10 },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        users: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/User' },
+                                                        },
+                                                    },
+                                                },
                                             },
                                         },
                                     },
                                 },
                             },
-                        },
-                    },
-                    404: {
-                        description: 'Customer not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                            401: {
+                                description: 'Authentication required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Insufficient permissions',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
                             },
                         },
                     },
                 },
-            },
-            delete: {
-                summary: 'Delete a customer (soft delete)',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Customer ID',
-                    },
-                ],
-                responses: {
-                    204: {
-                        description: 'Customer deleted successfully',
-                    },
-                    404: {
-                        description: 'Customer not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                '/api/v1/auth/users/{id}/approve': {
+                    patch: {
+                        summary: 'Approve a user account (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
                             },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/customers/top-rewards': {
-            get: {
-                summary: 'Get top customers by rewards points',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                        description: 'Number of top customers to return',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Top customers retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
+                        ],
+                        responses: {
+                            200: {
+                                description: 'User approved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customers: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Customer' },
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/users/{id}/ban': {
+                    patch: {
+                        summary: 'Ban or unban a user (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/BanUserRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'User ban status updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/users/{id}': {
+                    delete: {
+                        summary: 'Delete a user (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        responses: {
+                            204: {
+                                description: 'User deleted successfully',
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/users/{id}/permissions': {
+                    patch: {
+                        summary: 'Update user permissions (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdatePermissionsRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'User permissions updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/users/{id}/permissions-get': {
+                    get: {
+                        summary: 'Get user permissions (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'User permissions retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        permissions: {
+                                                            type: 'array',
+                                                            items: { type: 'string' },
+                                                        },
+                                                        role: { type: 'string' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/auth/permissions': {
+                    get: {
+                        summary: 'Get all available permissions (Admin only)',
+                        tags: ['User Management'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'All available permissions retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        permissions: {
+                                                            type: 'array',
+                                                            items: { type: 'string' },
+                                                            description: 'Array of all available permissions',
+                                                        },
+                                                    },
                                                 },
                                             },
                                         },
@@ -4520,38 +3634,86 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/customers/business/{businessId}': {
-            get: {
-                summary: 'Get customers by business ID',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'businessId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Customers retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
+                '/api/v1/roles': {
+                    post: {
+                        summary: 'Create a new role (Admin only)',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateRoleRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Role created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customers: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Customer' },
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        role: { $ref: '#/components/schemas/Role' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Validation error or duplicate role name',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Authentication required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Insufficient permissions',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    get: {
+                        summary: 'Get all roles',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'List of roles retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        roles: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Role' },
+                                                        },
+                                                    },
                                                 },
                                             },
                                         },
@@ -4561,38 +3723,274 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/customers/location/{locationId}': {
-            get: {
-                summary: 'Get customers by location ID',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'locationId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Customers retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
+                '/api/v1/roles/{id}': {
+                    get: {
+                        summary: 'Get role by ID',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Role ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Role retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customers: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Customer' },
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        role: { $ref: '#/components/schemas/Role' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Role not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    patch: {
+                        summary: 'Update role',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Role ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateRoleRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Role updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        role: { $ref: '#/components/schemas/Role' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Role not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Cannot modify system roles',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    delete: {
+                        summary: 'Delete role',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Role ID',
+                            },
+                        ],
+                        responses: {
+                            204: {
+                                description: 'Role deleted successfully',
+                            },
+                            404: {
+                                description: 'Role not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Cannot delete system role or role assigned to users',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/roles/users/{id}/assign': {
+                    patch: {
+                        summary: 'Assign role to user',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/AssignRoleRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Role assigned successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User or role not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/roles/users/{id}/remove': {
+                    patch: {
+                        summary: 'Remove role from user',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'User ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Role removed successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        user: { $ref: '#/components/schemas/User' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'User not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/roles/users/{roleId}': {
+                    get: {
+                        summary: 'Get users with specific role',
+                        tags: ['Role Management'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'roleId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Role ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Users with role retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        users: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/User' },
+                                                        },
+                                                    },
                                                 },
                                             },
                                         },
@@ -4602,1340 +4000,131 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-        },
-        '/api/v1/customers/{id}/rewards/add': {
-            patch: {
-                summary: 'Add rewards points to a customer',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Customer ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                required: ['points'],
-                                properties: {
-                                    points: { type: 'number', minimum: 1, description: 'Number of points to add' },
+                '/api/v1/customers': {
+                    post: {
+                        summary: 'Create a new customer',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        required: ['name', 'email', 'phoneNumber'],
+                                        properties: {
+                                            name: { type: 'string', example: 'John Doe' },
+                                            email: { type: 'string', format: 'email', example: 'john@example.com' },
+                                            phoneNumber: { type: 'string', example: '+1234567890' },
+                                            rewards: { type: 'number', example: 100 },
+                                            notes: { type: 'string', example: 'VIP customer, prefers delivery' },
+                                        },
+                                        description: 'business_id is automatically set from current user\'s business',
+                                    },
                                 },
                             },
                         },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Rewards added successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
+                        responses: {
+                            201: {
+                                description: 'Customer created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                customer: { $ref: '#/components/schemas/Customer' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/customers/{id}/rewards/redeem': {
-            patch: {
-                summary: 'Redeem rewards points from a customer',
-                tags: ['Customers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Customer ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                required: ['points'],
-                                properties: {
-                                    points: { type: 'number', minimum: 1, description: 'Number of points to redeem' },
-                                },
-                            },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Rewards redeemed successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                customer: { $ref: '#/components/schemas/Customer' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Insufficient rewards points',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses': {
-            post: {
-                summary: 'Create a new business',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateBusinessRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Business created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                business: { $ref: '#/components/schemas/Business' },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Bad request - validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            get: {
-                summary: 'Get all businesses',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'page',
-                        schema: { type: 'integer', default: 1 },
-                        description: 'Page number for pagination',
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                        description: 'Number of items per page',
-                    },
-                    {
-                        in: 'query',
-                        name: 'search',
-                        schema: { type: 'string' },
-                        description: 'Search businesses by name or legal name',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Businesses retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        total: { type: 'integer' },
-                                        page: { type: 'integer' },
-                                        pages: { type: 'integer' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Business' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    401: {
-                        description: 'Authentication required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses/{id}': {
-            get: {
-                summary: 'Get business by ID',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Business retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Business' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            put: {
-                summary: 'Update business by ID',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateBusinessRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Business updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Business' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete business by ID',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    204: {
-                        description: 'Business deleted successfully',
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses/{id}/activate': {
-            patch: {
-                summary: 'Activate business',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Business activated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Business' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses/{id}/deactivate': {
-            patch: {
-                summary: 'Deactivate business',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Business deactivated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Business' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses/owner/{ownerId}': {
-            get: {
-                summary: 'Get businesses by owner',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'ownerId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Owner user ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Businesses retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Business' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/businesses/{id}/owner': {
-            patch: {
-                summary: 'Update business owner',
-                tags: ['Businesses'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateBusinessOwnerRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Business owner updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Business' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Invalid owner ID',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations': {
-            post: {
-                summary: 'Create a new location',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateLocationRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Location created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Location' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Bad request - validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Business not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            get: {
-                summary: 'Get all locations',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'page',
-                        schema: { type: 'integer', default: 1 },
-                        description: 'Page number for pagination',
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                        description: 'Number of items per page',
-                    },
-                    {
-                        in: 'query',
-                        name: 'business_id',
-                        schema: { type: 'string' },
-                        description: 'Filter by business ID',
-                    },
-                    {
-                        in: 'query',
-                        name: 'search',
-                        schema: { type: 'string' },
-                        description: 'Search locations by branch name',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Locations retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        total: { type: 'integer' },
-                                        page: { type: 'integer' },
-                                        pages: { type: 'integer' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Location' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations/nearby': {
-            get: {
-                summary: 'Get nearby locations',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'longitude',
-                        required: true,
-                        schema: { type: 'number' },
-                        description: 'User longitude',
-                    },
-                    {
-                        in: 'query',
-                        name: 'latitude',
-                        required: true,
-                        schema: { type: 'number' },
-                        description: 'User latitude',
-                    },
-                    {
-                        in: 'query',
-                        name: 'radius',
-                        schema: { type: 'number', default: 10 },
-                        description: 'Search radius in kilometers',
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                        description: 'Number of results to return',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Nearby locations retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Location' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Longitude and latitude are required',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations/business/{businessId}': {
-            get: {
-                summary: 'Get locations by business',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'businessId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Business ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Locations retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        results: { type: 'integer' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Location' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations/{id}': {
-            get: {
-                summary: 'Get location by ID',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Location retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Location' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Location not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            put: {
-                summary: 'Update location by ID',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateLocationRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Location updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Location' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Location not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete location by ID',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                responses: {
-                    204: {
-                        description: 'Location deleted successfully',
-                    },
-                    404: {
-                        description: 'Location not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations/{id}/activate': {
-            patch: {
-                summary: 'Activate location',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Location activated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Location' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Location not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/locations/{id}/deactivate': {
-            patch: {
-                summary: 'Deactivate location',
-                tags: ['Locations'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Location ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Location deactivated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Location' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Location not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/withdraws': {
-            post: {
-                summary: 'Create a withdraw request',
-                tags: ['Withdraws'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateWithdrawRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Created',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Withdraw' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-            get: {
-                summary: 'Get all withdraws (Admin)',
-                tags: ['Withdraws'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'page',
-                        schema: { type: 'integer', default: 1 },
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 10 },
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'List of withdraws',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Withdraw' }
-                                        }
-                                    }
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/withdraws/my-withdraws': {
-            get: {
-                summary: 'Get my withdraws',
-                tags: ['Withdraws'],
-                security: [{ bearerAuth: [] }],
-                responses: {
-                    200: {
-                        description: 'Success',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: {
-                                            type: 'array',
-                                            items: { $ref: '#/components/schemas/Withdraw' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/withdraws/{id}/status': {
-            patch: {
-                summary: 'Update withdraw status (Admin)',
-                tags: ['Withdraws'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateWithdrawStatusRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Success',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        status: { type: 'string', example: 'success' },
-                                        data: { $ref: '#/components/schemas/Withdraw' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/modifier-groups': {
-            get: {
-                summary: 'Get all modifier groups',
-                tags: ['Modifier Groups'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'query',
-                        name: 'business_id',
-                        schema: { type: 'string' },
-                        description: 'Filter by business ID',
-                    },
-                    {
-                        in: 'query',
-                        name: 'name',
-                        schema: { type: 'string' },
-                        description: 'Search by name',
-                    },
-                    {
-                        in: 'query',
-                        name: 'is_active',
-                        schema: { type: 'boolean' },
-                        description: 'Filter by active status',
-                    },
-                    {
-                        in: 'query',
-                        name: 'display_type',
-                        schema: { type: 'string', enum: ['RADIO', 'CHECKBOX'] },
-                        description: 'Filter by display type',
-                    },
-                    {
-                        in: 'query',
-                        name: 'page',
-                        schema: { type: 'integer', default: 1 },
-                        description: 'Page number',
-                    },
-                    {
-                        in: 'query',
-                        name: 'limit',
-                        schema: { type: 'integer', default: 20 },
-                        description: 'Items per page',
-                    },
-                    {
-                        in: 'query',
-                        name: 'orderBy',
-                        schema: { type: 'string', default: 'sort_order' },
-                        description: 'Field to order by',
-                    },
-                    {
-                        in: 'query',
-                        name: 'sortedBy',
-                        schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
-                        description: 'Sort order',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Modifier groups retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier groups retrieved successfully' },
-                                        data: {
-                                            type: 'object',
-                                            properties: {
-                                                modifierGroups: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/ModifierGroup' },
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customer: { $ref: '#/components/schemas/Customer' },
+                                                    },
                                                 },
-                                                total: { type: 'integer', example: 10 },
-                                                page: { type: 'integer', example: 1 },
-                                                limit: { type: 'integer', example: 20 },
-                                                totalPages: { type: 'integer', example: 1 },
                                             },
                                         },
                                     },
                                 },
                             },
-                        },
-                    },
-                },
-            },
-            post: {
-                summary: 'Create a new modifier group',
-                tags: ['Modifier Groups'],
-                security: [{ bearerAuth: [] }],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateModifierGroupRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Modifier group created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier group created successfully' },
-                                        data: { $ref: '#/components/schemas/ModifierGroup' },
+                            400: {
+                                description: 'Bad request - validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
                                     },
                                 },
                             },
                         },
                     },
-                    400: {
-                        description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    get: {
+                        summary: 'Get all customers (with optional filtering)',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'business_id',
+                                schema: { type: 'string' },
+                                description: 'Filter by business ID (automatically set for non-super-admins)',
                             },
-                        },
-                    },
-                    403: {
-                        description: 'Insufficient permissions',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                            {
+                                in: 'query',
+                                name: 'isActive',
+                                schema: { type: 'boolean' },
+                                description: 'Filter by active status',
                             },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/modifier-groups/{id}': {
-            get: {
-                summary: 'Get modifier group by ID',
-                tags: ['Modifier Groups'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Modifier group retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier group retrieved successfully' },
-                                        data: { $ref: '#/components/schemas/ModifierGroup' },
-                                    },
-                                },
+                            {
+                                in: 'query',
+                                name: 'page',
+                                schema: { type: 'integer', default: 1 },
+                                description: 'Page number for pagination',
                             },
-                        },
-                    },
-                    404: {
-                        description: 'Modifier group not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                                description: 'Number of items per page',
                             },
-                        },
-                    },
-                },
-            },
-            put: {
-                summary: 'Update modifier group',
-                tags: ['Modifier Groups'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateModifierGroupRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Modifier group updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier group updated successfully' },
-                                        data: { $ref: '#/components/schemas/ModifierGroup' },
-                                    },
-                                },
+                            {
+                                in: 'query',
+                                name: 'search',
+                                schema: { type: 'string' },
+                                description: 'Search by name or email',
                             },
-                        },
-                    },
-                    400: {
-                        description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Modifier group not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete modifier group (soft delete)',
-                tags: ['Modifier Groups'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Modifier group deleted successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier group deleted successfully' },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    400: {
-                        description: 'Cannot delete modifier group that is assigned to items',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                    404: {
-                        description: 'Modifier group not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/modifier-groups/{groupId}/modifiers': {
-            get: {
-                summary: 'Get all modifiers in a modifier group',
-                tags: ['Modifiers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'groupId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Modifiers retrieved successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifiers retrieved successfully' },
-                                        data: {
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Customers retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
                                             type: 'object',
                                             properties: {
-                                                modifiers: {
-                                                    type: 'array',
-                                                    items: { $ref: '#/components/schemas/Modifier' },
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customers: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Customer' },
+                                                        },
+                                                        paginatorInfo: {
+                                                            type: 'object',
+                                                            properties: {
+                                                                total: { type: 'integer', example: 100 },
+                                                                currentPage: { type: 'integer', example: 1 },
+                                                                lastPage: { type: 'integer', example: 10 },
+                                                                perPage: { type: 'integer', example: 10 },
+                                                                count: { type: 'integer', example: 10 },
+                                                            },
+                                                        },
+                                                    },
                                                 },
                                             },
                                         },
@@ -5945,181 +4134,1779 @@ All responses follow a consistent format:
                         },
                     },
                 },
-            },
-            post: {
-                summary: 'Create a new modifier in a modifier group',
-                tags: ['Modifiers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'groupId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/CreateModifierRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    201: {
-                        description: 'Modifier created successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier created successfully' },
-                                        data: { $ref: '#/components/schemas/Modifier' },
+                '/api/v1/customers/{id}': {
+                    get: {
+                        summary: 'Get a single customer by ID',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Customer ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Customer retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customer: { $ref: '#/components/schemas/Customer' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Customer not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
                                     },
                                 },
                             },
                         },
                     },
-                    400: {
-                        description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    put: {
+                        summary: 'Update a customer',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Customer ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            name: { type: 'string' },
+                                            email: { type: 'string', format: 'email' },
+                                            phoneNumber: { type: 'string' },
+                                            rewards: { type: 'number' },
+                                            notes: { type: 'string' },
+                                            isActive: { type: 'boolean' },
+                                        },
+                                    },
+                                },
                             },
                         },
-                    },
-                    403: {
-                        description: 'Insufficient permissions',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                        responses: {
+                            200: {
+                                description: 'Customer updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customer: { $ref: '#/components/schemas/Customer' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
                             },
-                        },
-                    },
-                    404: {
-                        description: 'Modifier group not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-        '/api/v1/modifier-groups/{groupId}/modifiers/{id}': {
-            put: {
-                summary: 'Update a modifier',
-                tags: ['Modifiers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'groupId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier ID',
-                    },
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        'application/json': {
-                            schema: { $ref: '#/components/schemas/UpdateModifierRequest' },
-                        },
-                    },
-                },
-                responses: {
-                    200: {
-                        description: 'Modifier updated successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier updated successfully' },
-                                        data: { $ref: '#/components/schemas/Modifier' },
+                            404: {
+                                description: 'Customer not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
                                     },
                                 },
                             },
                         },
                     },
-                    400: {
-                        description: 'Validation error',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    delete: {
+                        summary: 'Delete a customer (soft delete)',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Customer ID',
                             },
-                        },
-                    },
-                    404: {
-                        description: 'Modifier not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                        ],
+                        responses: {
+                            204: {
+                                description: 'Customer deleted successfully',
                             },
-                        },
-                    },
-                },
-            },
-            delete: {
-                summary: 'Delete a modifier (soft delete)',
-                tags: ['Modifiers'],
-                security: [{ bearerAuth: [] }],
-                parameters: [
-                    {
-                        in: 'path',
-                        name: 'groupId',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier group ID',
-                    },
-                    {
-                        in: 'path',
-                        name: 'id',
-                        required: true,
-                        schema: { type: 'string' },
-                        description: 'Modifier ID',
-                    },
-                ],
-                responses: {
-                    200: {
-                        description: 'Modifier deleted successfully',
-                        content: {
-                            'application/json': {
-                                schema: {
-                                    type: 'object',
-                                    properties: {
-                                        success: { type: 'boolean', example: true },
-                                        message: { type: 'string', example: 'Modifier deleted successfully' },
+                            404: {
+                                description: 'Customer not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
                                     },
                                 },
                             },
                         },
                     },
-                    404: {
-                        description: 'Modifier not found',
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ErrorResponse' },
+                },
+                '/api/v1/customers/top-rewards': {
+                    get: {
+                        summary: 'Get top customers by rewards points',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                                description: 'Number of top customers to return',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Top customers retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customers: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Customer' },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/customers/business/{businessId}': {
+                    get: {
+                        summary: 'Get customers by business ID',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'businessId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Customers retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customers: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Customer' },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/customers/location/{locationId}': {
+                    get: {
+                        summary: 'Get customers by location ID',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'locationId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Customers retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customers: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Customer' },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/customers/{id}/rewards/add': {
+                    patch: {
+                        summary: 'Add rewards points to a customer',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Customer ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        required: ['points'],
+                                        properties: {
+                                            points: { type: 'number', minimum: 1, description: 'Number of points to add' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Rewards added successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customer: { $ref: '#/components/schemas/Customer' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/customers/{id}/rewards/redeem': {
+                    patch: {
+                        summary: 'Redeem rewards points from a customer',
+                        tags: ['Customers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Customer ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        required: ['points'],
+                                        properties: {
+                                            points: { type: 'number', minimum: 1, description: 'Number of points to redeem' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Rewards redeemed successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        customer: { $ref: '#/components/schemas/Customer' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Insufficient rewards points',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses': {
+                    post: {
+                        summary: 'Create a new business',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateBusinessRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Business created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        business: { $ref: '#/components/schemas/Business' },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Bad request - validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Authentication required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    get: {
+                        summary: 'Get all businesses',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'page',
+                                schema: { type: 'integer', default: 1 },
+                                description: 'Page number for pagination',
+                            },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                                description: 'Number of items per page',
+                            },
+                            {
+                                in: 'query',
+                                name: 'search',
+                                schema: { type: 'string' },
+                                description: 'Search businesses by name or legal name',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Businesses retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                total: { type: 'integer' },
+                                                page: { type: 'integer' },
+                                                pages: { type: 'integer' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Business' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            401: {
+                                description: 'Authentication required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses/{id}': {
+                    get: {
+                        summary: 'Get business by ID',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Business retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Business' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    put: {
+                        summary: 'Update business by ID',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateBusinessRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Business updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Business' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    delete: {
+                        summary: 'Delete business by ID',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            204: {
+                                description: 'Business deleted successfully',
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses/{id}/activate': {
+                    patch: {
+                        summary: 'Activate business',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Business activated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Business' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses/{id}/deactivate': {
+                    patch: {
+                        summary: 'Deactivate business',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Business deactivated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Business' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses/owner/{ownerId}': {
+                    get: {
+                        summary: 'Get businesses by owner',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'ownerId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Owner user ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Businesses retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Business' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/businesses/{id}/owner': {
+                    patch: {
+                        summary: 'Update business owner',
+                        tags: ['Businesses'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateBusinessOwnerRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Business owner updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Business' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Invalid owner ID',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations': {
+                    post: {
+                        summary: 'Create a new location',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateLocationRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Location created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Location' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Bad request - validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Business not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    get: {
+                        summary: 'Get all locations',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'page',
+                                schema: { type: 'integer', default: 1 },
+                                description: 'Page number for pagination',
+                            },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                                description: 'Number of items per page',
+                            },
+                            {
+                                in: 'query',
+                                name: 'business_id',
+                                schema: { type: 'string' },
+                                description: 'Filter by business ID',
+                            },
+                            {
+                                in: 'query',
+                                name: 'search',
+                                schema: { type: 'string' },
+                                description: 'Search locations by branch name',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Locations retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                total: { type: 'integer' },
+                                                page: { type: 'integer' },
+                                                pages: { type: 'integer' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Location' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations/nearby': {
+                    get: {
+                        summary: 'Get nearby locations',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'longitude',
+                                required: true,
+                                schema: { type: 'number' },
+                                description: 'User longitude',
+                            },
+                            {
+                                in: 'query',
+                                name: 'latitude',
+                                required: true,
+                                schema: { type: 'number' },
+                                description: 'User latitude',
+                            },
+                            {
+                                in: 'query',
+                                name: 'radius',
+                                schema: { type: 'number', default: 10 },
+                                description: 'Search radius in kilometers',
+                            },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                                description: 'Number of results to return',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Nearby locations retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Location' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Longitude and latitude are required',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations/business/{businessId}': {
+                    get: {
+                        summary: 'Get locations by business',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'businessId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Business ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Locations retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                results: { type: 'integer' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Location' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations/{id}': {
+                    get: {
+                        summary: 'Get location by ID',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Location retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Location' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Location not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    put: {
+                        summary: 'Update location by ID',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateLocationRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Location updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Location' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Location not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    delete: {
+                        summary: 'Delete location by ID',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        responses: {
+                            204: {
+                                description: 'Location deleted successfully',
+                            },
+                            404: {
+                                description: 'Location not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations/{id}/activate': {
+                    patch: {
+                        summary: 'Activate location',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Location activated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Location' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Location not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/locations/{id}/deactivate': {
+                    patch: {
+                        summary: 'Deactivate location',
+                        tags: ['Locations'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Location ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Location deactivated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Location' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Location not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/withdraws': {
+                    post: {
+                        summary: 'Create a withdraw request',
+                        tags: ['Withdraws'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateWithdrawRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Created',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Withdraw' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    get: {
+                        summary: 'Get all withdraws (Admin)',
+                        tags: ['Withdraws'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'page',
+                                schema: { type: 'integer', default: 1 },
+                            },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 10 },
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'List of withdraws',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Withdraw' }
+                                                }
+                                            }
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/withdraws/my-withdraws': {
+                    get: {
+                        summary: 'Get my withdraws',
+                        tags: ['Withdraws'],
+                        security: [{ bearerAuth: [] }],
+                        responses: {
+                            200: {
+                                description: 'Success',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: {
+                                                    type: 'array',
+                                                    items: { $ref: '#/components/schemas/Withdraw' },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/withdraws/{id}/status': {
+                    patch: {
+                        summary: 'Update withdraw status (Admin)',
+                        tags: ['Withdraws'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateWithdrawStatusRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Success',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                status: { type: 'string', example: 'success' },
+                                                data: { $ref: '#/components/schemas/Withdraw' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/modifier-groups': {
+                    get: {
+                        summary: 'Get all modifier groups',
+                        tags: ['Modifier Groups'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'query',
+                                name: 'business_id',
+                                schema: { type: 'string' },
+                                description: 'Filter by business ID',
+                            },
+                            {
+                                in: 'query',
+                                name: 'name',
+                                schema: { type: 'string' },
+                                description: 'Search by name',
+                            },
+                            {
+                                in: 'query',
+                                name: 'is_active',
+                                schema: { type: 'boolean' },
+                                description: 'Filter by active status',
+                            },
+                            {
+                                in: 'query',
+                                name: 'display_type',
+                                schema: { type: 'string', enum: ['RADIO', 'CHECKBOX'] },
+                                description: 'Filter by display type',
+                            },
+                            {
+                                in: 'query',
+                                name: 'page',
+                                schema: { type: 'integer', default: 1 },
+                                description: 'Page number',
+                            },
+                            {
+                                in: 'query',
+                                name: 'limit',
+                                schema: { type: 'integer', default: 20 },
+                                description: 'Items per page',
+                            },
+                            {
+                                in: 'query',
+                                name: 'orderBy',
+                                schema: { type: 'string', default: 'sort_order' },
+                                description: 'Field to order by',
+                            },
+                            {
+                                in: 'query',
+                                name: 'sortedBy',
+                                schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' },
+                                description: 'Sort order',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Modifier groups retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier groups retrieved successfully' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        modifierGroups: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/ModifierGroup' },
+                                                        },
+                                                        total: { type: 'integer', example: 10 },
+                                                        page: { type: 'integer', example: 1 },
+                                                        limit: { type: 'integer', example: 20 },
+                                                        totalPages: { type: 'integer', example: 1 },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    post: {
+                        summary: 'Create a new modifier group',
+                        tags: ['Modifier Groups'],
+                        security: [{ bearerAuth: [] }],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateModifierGroupRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Modifier group created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier group created successfully' },
+                                                data: { $ref: '#/components/schemas/ModifierGroup' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Insufficient permissions',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/modifier-groups/{id}': {
+                    get: {
+                        summary: 'Get modifier group by ID',
+                        tags: ['Modifier Groups'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Modifier group retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier group retrieved successfully' },
+                                                data: { $ref: '#/components/schemas/ModifierGroup' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier group not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    put: {
+                        summary: 'Update modifier group',
+                        tags: ['Modifier Groups'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateModifierGroupRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Modifier group updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier group updated successfully' },
+                                                data: { $ref: '#/components/schemas/ModifierGroup' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier group not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    delete: {
+                        summary: 'Delete modifier group (soft delete)',
+                        tags: ['Modifier Groups'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Modifier group deleted successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier group deleted successfully' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Cannot delete modifier group that is assigned to items',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier group not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/modifier-groups/{groupId}/modifiers': {
+                    get: {
+                        summary: 'Get all modifiers in a modifier group',
+                        tags: ['Modifiers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'groupId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Modifiers retrieved successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifiers retrieved successfully' },
+                                                data: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        modifiers: {
+                                                            type: 'array',
+                                                            items: { $ref: '#/components/schemas/Modifier' },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    post: {
+                        summary: 'Create a new modifier in a modifier group',
+                        tags: ['Modifiers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'groupId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/CreateModifierRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            201: {
+                                description: 'Modifier created successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier created successfully' },
+                                                data: { $ref: '#/components/schemas/Modifier' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            403: {
+                                description: 'Insufficient permissions',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier group not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                '/api/v1/modifier-groups/{groupId}/modifiers/{id}': {
+                    put: {
+                        summary: 'Update a modifier',
+                        tags: ['Modifiers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'groupId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier ID',
+                            },
+                        ],
+                        requestBody: {
+                            required: true,
+                            content: {
+                                'application/json': {
+                                    schema: { $ref: '#/components/schemas/UpdateModifierRequest' },
+                                },
+                            },
+                        },
+                        responses: {
+                            200: {
+                                description: 'Modifier updated successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier updated successfully' },
+                                                data: { $ref: '#/components/schemas/Modifier' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            400: {
+                                description: 'Validation error',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    delete: {
+                        summary: 'Delete a modifier (soft delete)',
+                        tags: ['Modifiers'],
+                        security: [{ bearerAuth: [] }],
+                        parameters: [
+                            {
+                                in: 'path',
+                                name: 'groupId',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier group ID',
+                            },
+                            {
+                                in: 'path',
+                                name: 'id',
+                                required: true,
+                                schema: { type: 'string' },
+                                description: 'Modifier ID',
+                            },
+                        ],
+                        responses: {
+                            200: {
+                                description: 'Modifier deleted successfully',
+                                content: {
+                                    'application/json': {
+                                        schema: {
+                                            type: 'object',
+                                            properties: {
+                                                success: { type: 'boolean', example: true },
+                                                message: { type: 'string', example: 'Modifier deleted successfully' },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            404: {
+                                description: 'Modifier not found',
+                                content: {
+                                    'application/json': {
+                                        schema: { $ref: '#/components/schemas/ErrorResponse' },
+                                    },
+                                },
                             },
                         },
                     },
                 },
             },
-        },
-    },
+            // Export empty swaggerUi since we're not using it
+            const: swaggerUi = null
+        }
+    }
 };
-// Export empty swaggerUi since we're not using it
-exports.swaggerUi = null;

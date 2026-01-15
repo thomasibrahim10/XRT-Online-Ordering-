@@ -1,6 +1,10 @@
 export interface Modifier {
   id: string;
   modifier_group_id: string;
+  modifier_group?: {
+    id: string;
+    name: string;
+  };
   name: string;
   is_default: boolean;
   max_quantity?: number;

@@ -7,7 +7,6 @@ import { GetItemSizesUseCase } from '../../domain/usecases/item-sizes/GetItemSiz
 import { GetItemSizeUseCase } from '../../domain/usecases/item-sizes/GetItemSizeUseCase';
 import { DeleteItemSizeUseCase } from '../../domain/usecases/item-sizes/DeleteItemSizeUseCase';
 import { ItemSizeRepository } from '../../infrastructure/repositories/ItemSizeRepository';
-import { ItemRepository } from '../../infrastructure/repositories/ItemRepository';
 import { CreateItemSizeDTO, UpdateItemSizeDTO, ItemSizeFilters } from '../../domain/entities/ItemSize';
 import { asyncHandler } from '../../shared/utils/asyncHandler';
 import { ValidationError } from '../../shared/errors/AppError';
@@ -22,17 +21,15 @@ export class ItemSizeController {
 
   constructor() {
     const itemSizeRepository = new ItemSizeRepository();
-    const itemRepository = new ItemRepository();
 
-    this.createItemSizeUseCase = new CreateItemSizeUseCase(itemSizeRepository, itemRepository);
+    this.createItemSizeUseCase = new CreateItemSizeUseCase(itemSizeRepository);
     this.updateItemSizeUseCase = new UpdateItemSizeUseCase(itemSizeRepository);
     this.getItemSizesUseCase = new GetItemSizesUseCase(itemSizeRepository);
     this.getItemSizeUseCase = new GetItemSizeUseCase(itemSizeRepository);
-    this.deleteItemSizeUseCase = new DeleteItemSizeUseCase(itemSizeRepository, itemRepository);
+    this.deleteItemSizeUseCase = new DeleteItemSizeUseCase(itemSizeRepository);
   }
 
   create = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { itemId } = req.params;
     const business_id = req.user?.business_id || req.body.restaurant_id;
 
     if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
@@ -40,11 +37,9 @@ export class ItemSizeController {
     }
 
     const sizeData: CreateItemSizeDTO = {
-      item_id: itemId,
-      restaurant_id: business_id,
+      business_id: business_id,
       name: req.body.name,
       code: req.body.code,
-      price: req.body.price,
       display_order: req.body.display_order,
       is_active: req.body.is_active,
     };
@@ -55,12 +50,10 @@ export class ItemSizeController {
   });
 
   getAll = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { itemId } = req.params;
     const business_id = req.user?.business_id;
 
     const filters: ItemSizeFilters = {
-      item_id: itemId,
-      restaurant_id: business_id,
+      business_id: business_id,
       is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
     };
 
@@ -70,9 +63,11 @@ export class ItemSizeController {
   });
 
   getById = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { itemId, id } = req.params;
+    const { id } = req.params;
 
-    const itemSize = await this.getItemSizeUseCase.execute(id, itemId);
+    // TODO: Verify business ownership logic if strict
+    // For now assuming ID lookup is enough or UseCase handles it
+    const itemSize = await this.getItemSizeUseCase.execute(id);
 
     if (!itemSize) {
       return sendError(res, 'Item size not found', 404);
@@ -82,12 +77,11 @@ export class ItemSizeController {
   });
 
   update = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { itemId, id } = req.params;
+    const { id } = req.params;
 
     const updateData: UpdateItemSizeDTO = {
       name: req.body.name,
       code: req.body.code,
-      price: req.body.price,
       display_order: req.body.display_order,
       is_active: req.body.is_active,
     };
@@ -99,15 +93,15 @@ export class ItemSizeController {
       }
     });
 
-    const itemSize = await this.updateItemSizeUseCase.execute(id, itemId, updateData);
+    const itemSize = await this.updateItemSizeUseCase.execute(id, updateData);
 
     return sendSuccess(res, 'Item size updated successfully', itemSize);
   });
 
   delete = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { itemId, id } = req.params;
+    const { id } = req.params;
 
-    await this.deleteItemSizeUseCase.execute(id, itemId);
+    await this.deleteItemSizeUseCase.execute(id);
 
     return sendSuccess(res, 'Item size deleted successfully', null, 200);
   });

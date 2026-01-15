@@ -89,7 +89,7 @@ app.use(`${env_1.env.API_BASE_URL}/permissions`, permission_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/withdraws`, withdraw_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/attachments`, attachment_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/items`, item_routes_1.default);
-app.use(`${env_1.env.API_BASE_URL}/items`, item_size_routes_1.default); // Nested routes for item sizes
+app.use(`${env_1.env.API_BASE_URL}/sizes`, item_size_routes_1.default); // Nested routes for item sizes
 app.use(`${env_1.env.API_BASE_URL}/customers`, customer_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/modifier-groups`, modifier_group_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/import`, import_routes_1.default);

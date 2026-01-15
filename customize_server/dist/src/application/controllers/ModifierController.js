@@ -13,9 +13,19 @@ class ModifierController {
     constructor() {
         this.create = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { groupId } = req.params;
-            const { name, is_default, max_quantity, display_order, is_active, } = req.body;
+            const { name, is_default, max_quantity, display_order, is_active, sides_config, } = req.body;
             if (!groupId) {
                 throw new AppError_1.ValidationError('groupId is required');
+            }
+            // Parse sides_config if provided as string
+            let parsedSidesConfig = sides_config;
+            if (sides_config && typeof sides_config === 'string') {
+                try {
+                    parsedSidesConfig = JSON.parse(sides_config);
+                }
+                catch (error) {
+                    throw new AppError_1.ValidationError('Invalid sides_config format. Expected JSON object.');
+                }
             }
             const modifier = await this.createModifierUseCase.execute({
                 modifier_group_id: groupId,
@@ -24,8 +34,18 @@ class ModifierController {
                 max_quantity: max_quantity ? Number(max_quantity) : undefined,
                 display_order: display_order ? Number(display_order) : 0,
                 is_active: is_active !== undefined ? (is_active === true || is_active === 'true') : true,
+                sides_config: parsedSidesConfig,
             });
             return (0, response_1.sendSuccess)(res, 'Modifier created successfully', modifier, 201);
+        });
+        this.index = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+            const filters = {
+                name: req.query.name,
+                modifier_group_id: req.query.modifier_group_id,
+                is_active: req.query.is_active !== undefined ? req.query.is_active === 'true' : undefined,
+            };
+            const modifiers = await this.modifierRepository.findAll(filters);
+            return (0, response_1.sendSuccess)(res, 'Modifiers retrieved successfully', modifiers);
         });
         this.getAll = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { groupId } = req.params;
@@ -38,9 +58,21 @@ class ModifierController {
         this.update = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
             const { groupId } = req.params;
-            const { name, is_default, max_quantity, display_order, is_active, } = req.body;
+            const { name, is_default, max_quantity, display_order, is_active, sides_config, } = req.body;
             if (!groupId) {
                 throw new AppError_1.ValidationError('groupId is required');
+            }
+            // Parse sides_config if provided as string
+            let parsedSidesConfig = sides_config;
+            if (sides_config !== undefined) {
+                if (typeof sides_config === 'string') {
+                    try {
+                        parsedSidesConfig = JSON.parse(sides_config);
+                    }
+                    catch (error) {
+                        throw new AppError_1.ValidationError('Invalid sides_config format. Expected JSON object.');
+                    }
+                }
             }
             const updateData = {};
             if (name !== undefined)
@@ -53,6 +85,8 @@ class ModifierController {
                 updateData.display_order = Number(display_order);
             if (is_active !== undefined)
                 updateData.is_active = is_active === true || is_active === 'true';
+            if (parsedSidesConfig !== undefined)
+                updateData.sides_config = parsedSidesConfig;
             const modifier = await this.updateModifierUseCase.execute(id, groupId, updateData);
             return (0, response_1.sendSuccess)(res, 'Modifier updated successfully', modifier);
         });

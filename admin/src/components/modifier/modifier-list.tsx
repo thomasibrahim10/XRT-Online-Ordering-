@@ -173,12 +173,12 @@ const ModifierList = ({
       key: 'modifier_group_id',
       align: alignLeft,
       width: 150,
-      render: (groupId: string) => (
+      render: (groupId: string, record: Modifier) => (
         <Link
           href={`/modifiers/groups/${groupId}`}
           className="text-body hover:text-accent transition-colors"
         >
-          {getGroupName(groupId)}
+          {record.modifier_group?.name || getGroupName(groupId)}
         </Link>
       ),
     },
@@ -305,7 +305,7 @@ const ModifierList = ({
                       className="text-accent hover:underline"
                       onClick={(e: React.MouseEvent) => e.stopPropagation()}
                     >
-                      {getGroupName(modifier.modifier_group_id)}
+                      {modifier.modifier_group?.name || getGroupName(modifier.modifier_group_id)}
                     </Link>
                   }
                 />

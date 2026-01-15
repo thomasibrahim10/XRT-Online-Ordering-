@@ -5,30 +5,14 @@ import { ValidationError } from '../../../shared/errors/AppError';
 
 export class CreateItemSizeUseCase {
   constructor(
-    private itemSizeRepository: IItemSizeRepository,
-    private itemRepository: IItemRepository
+    private itemSizeRepository: IItemSizeRepository
   ) { }
 
   async execute(sizeData: CreateItemSizeDTO): Promise<ItemSize> {
-    // Verify item exists and belongs to the restaurant
-    const item = await this.itemRepository.findById(sizeData.item_id);
-    if (!item) {
-      throw new ValidationError('Item not found');
-    }
-
-    if (item.business_id !== sizeData.restaurant_id) {
-      throw new ValidationError('Item does not belong to the specified restaurant');
-    }
-
-    // Verify item is sizable
-    if (!item.is_sizeable) {
-      throw new ValidationError('Cannot add sizes to a non-sizeable item. Set is_sizeable to true first.');
-    }
-
-    // Check if code already exists for this item
-    const codeExists = await this.itemSizeRepository.exists(sizeData.code, sizeData.item_id);
+    // Check if code already exists for this business
+    const codeExists = await this.itemSizeRepository.exists(sizeData.code, sizeData.business_id);
     if (codeExists) {
-      throw new ValidationError(`Size code '${sizeData.code}' already exists for this item`);
+      throw new ValidationError(`Size code '${sizeData.code}' already exists`);
     }
 
     const finalSizeData: CreateItemSizeDTO = {

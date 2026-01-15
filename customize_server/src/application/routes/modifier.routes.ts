@@ -9,6 +9,13 @@ const modifierController = new ModifierController();
 // All modifier routes require authentication
 router.use(requireAuth);
 
+// Get all modifiers - requires modifiers:read permission
+router.get(
+  '/modifiers',
+  requirePermission('modifiers:read'),
+  modifierController.index
+);
+
 // Get all modifiers for a group - requires modifiers:read permission
 router.get(
   '/modifier-groups/:groupId/modifiers',

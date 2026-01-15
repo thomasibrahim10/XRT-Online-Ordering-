@@ -2449,26 +2449,41 @@ export interface OrderStickerCardProps extends StickerCardProps {
   | 'withdrawn_amount';
 }
 
-// Legacy embedded ItemSize (for backward compatibility during migration)
-export interface ItemSize {
-  name: string;
-  code?: string;
-  price: number;
-  is_default: boolean;
-}
-
 // Separate ItemSize entity (matches backend)
-export interface ItemSizeEntity {
+export interface ItemSize {
   id: string;
-  item_id: string;
   business_id: string;
   name: string;
   code: string;
-  price: number;
   display_order: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  deleted_at?: string;
+}
+
+export interface CreateItemSizeInput {
+  business_id: string;
+  name: string;
+  code: string;
+  display_order?: number;
+  is_active?: boolean;
+}
+
+export interface UpdateItemSizeInput {
+  id: string;
+  name?: string;
+  code?: string;
+  display_order?: number;
+  is_active?: boolean;
+}
+
+export interface ItemSizeConfig {
+  size_id: string;
+  price: number;
+  is_default: boolean;
+  is_active: boolean;
+  size?: ItemSize; // Populated
 }
 
 export interface Item {
@@ -2479,6 +2494,7 @@ export interface Item {
   sort_order: number;
   is_active: boolean;
   base_price: number;
+  sizes?: ItemSizeConfig[];
   category_id: string;
   category?: Category;
   image?: string;
@@ -2488,7 +2504,6 @@ export interface Item {
   is_sizeable?: boolean;
   is_customizable?: boolean;
   default_size_id?: string | null; // FK to ItemSize.id
-  sizes?: ItemSize[]; // Legacy - kept for backward compatibility
   modifier_groups?: ItemModifierGroupAssignment[]; // Updated to match backend
   modifier_assignment?: ItemModifierAssignment; // Legacy - kept for backward compatibility
   apply_sides?: boolean;
@@ -2543,6 +2558,7 @@ export interface QuantityLevel {
   is_default?: boolean;
   display_order?: number;
   is_active?: boolean;
+  prices_by_size?: PricesBySize[];
 }
 
 export interface PricesBySize {
@@ -2553,6 +2569,10 @@ export interface PricesBySize {
 export interface Modifier {
   id: string;
   modifier_group_id: string;
+  modifier_group?: {
+    id: string;
+    name: string;
+  };
   name: string;
   is_default: boolean;
   max_quantity?: number;
@@ -2580,7 +2600,6 @@ export interface ModifierGroup {
   applies_per_quantity: boolean;
   // Group-level quantity levels (defaults for all modifiers)
   quantity_levels?: QuantityLevel[];
-  // Group-level pricing by size
   prices_by_size?: PricesBySize[];
   is_active: boolean;
   sort_order: number;
@@ -2614,8 +2633,6 @@ export interface CreateModifierGroupInput {
   applies_per_quantity?: boolean;
   // Group-level quantity levels
   quantity_levels?: QuantityLevel[];
-  // Group-level pricing by size
-  prices_by_size?: PricesBySize[];
   is_active?: boolean;
   sort_order?: number;
   business_id?: string;

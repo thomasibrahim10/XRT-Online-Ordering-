@@ -35,7 +35,18 @@ const ItemSchema = new Schema<ItemDocument>(
         base_price: {
             type: Number,
             required: true,
-            default: 0,
+            min: 0,
+        },
+        sizes: {
+            type: [
+                {
+                    size_id: { type: Schema.Types.ObjectId, ref: 'ItemSize', required: true },
+                    price: { type: Number, required: true, min: 0 },
+                    is_default: { type: Boolean, default: false },
+                    is_active: { type: Boolean, default: true },
+                },
+            ],
+            default: [],
         },
         category_id: {
             type: Schema.Types.ObjectId,

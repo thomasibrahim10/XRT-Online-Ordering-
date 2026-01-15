@@ -42,19 +42,15 @@ export const itemValidationSchema = yup.object().shape({
             schema
                 .of(
                     yup.object().shape({
-                        name: yup.string().required('form:error-size-name-required'),
-                        code: yup.string().nullable(),
-                        price: yup
-                            .number()
-                            .typeError('form:error-price-must-number')
-                            .positive('form:error-price-must-positive')
-                            .required('form:error-price-required'),
+                        size_id: yup.string().required(),
+                        price: yup.number().min(0).required(),
                         is_default: yup.boolean(),
+                        is_active: yup.boolean(),
                     })
                 )
                 .min(1, 'form:error-at-least-one-size-required')
                 .test('has-default', 'form:error-default-size-required', function (sizes) {
-                    if (!sizes || sizes.length === 0) return true; // min validation will catch empty
+                    if (!sizes || sizes.length === 0) return true;
                     return sizes.some((size: any) => size?.is_default === true);
                 }),
         otherwise: (schema) => schema.nullable(),

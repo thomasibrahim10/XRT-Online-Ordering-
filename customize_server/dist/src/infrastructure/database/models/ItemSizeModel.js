@@ -36,13 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ItemSizeModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const ItemSizeSchema = new mongoose_1.Schema({
-    item_id: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Item',
-        required: true,
-        index: true,
-    },
-    restaurant_id: {
+    business_id: {
         type: String,
         required: true,
         index: true,
@@ -57,11 +51,6 @@ const ItemSizeSchema = new mongoose_1.Schema({
         required: true,
         trim: true,
     },
-    price: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
     display_order: {
         type: Number,
         default: 0,
@@ -71,13 +60,14 @@ const ItemSizeSchema = new mongoose_1.Schema({
         default: true,
         index: true,
     },
+    deleted_at: {
+        type: Date,
+        default: null,
+        index: true,
+    },
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 });
-// Unique constraint: code must be unique per item
-ItemSizeSchema.index({ item_id: 1, code: 1 }, { unique: true });
-// Index for filtering by restaurant
-ItemSizeSchema.index({ restaurant_id: 1, is_active: 1 });
-// Index for filtering active sizes by item
-ItemSizeSchema.index({ item_id: 1, is_active: 1 });
+// Unique constraint: code must be unique per business
+ItemSizeSchema.index({ business_id: 1, code: 1 }, { unique: true });
 exports.ItemSizeModel = mongoose_1.default.model('ItemSize', ItemSizeSchema);

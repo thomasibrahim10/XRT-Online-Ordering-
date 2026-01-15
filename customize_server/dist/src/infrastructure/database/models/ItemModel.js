@@ -62,7 +62,18 @@ const ItemSchema = new mongoose_1.Schema({
     base_price: {
         type: Number,
         required: true,
-        default: 0,
+        min: 0,
+    },
+    sizes: {
+        type: [
+            {
+                size_id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'ItemSize', required: true },
+                price: { type: Number, required: true, min: 0 },
+                is_default: { type: Boolean, default: false },
+                is_active: { type: Boolean, default: true },
+            },
+        ],
+        default: [],
     },
     category_id: {
         type: mongoose_1.Schema.Types.ObjectId,
@@ -112,16 +123,6 @@ const ItemSchema = new mongoose_1.Schema({
                     type: Number,
                     default: 0,
                     min: 0,
-                },
-                sides_config: {
-                    enabled: {
-                        type: Boolean,
-                        default: false,
-                    },
-                    allowed_sides: {
-                        type: Number,
-                        min: 1,
-                    },
                 },
                 modifier_overrides: {
                     type: [

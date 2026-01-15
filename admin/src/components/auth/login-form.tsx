@@ -33,8 +33,20 @@ const defaultValues = {
 
 const LoginForm = () => {
   const { t } = useTranslation();
+  const [rememberMe, setRememberMe] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { mutate: login, isPending: isLoading, error } = useLogin();
+  const { mutate: login, isPending: isLoading } = useLogin();
+
+  // Load saved email on mount
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedEmail = localStorage.getItem('remember_email');
+      if (savedEmail) {
+        defaultValues.email = savedEmail;
+        setRememberMe(true);
+      }
+    }
+  });
 
   function onSubmit(values: LoginInput, e?: React.BaseSyntheticEvent) {
     // Prevent any default form submission behavior
@@ -45,6 +57,13 @@ const LoginForm = () => {
 
     // Clear any previous error messages
     setErrorMessage(null);
+
+    // Handle Remember Me
+    if (rememberMe) {
+      localStorage.setItem('remember_email', values.email);
+    } else {
+      localStorage.removeItem('remember_email');
+    }
 
     login(
       {
@@ -69,7 +88,7 @@ const LoginForm = () => {
               role === 'admin' ||
               role === 'client'
             ) {
-              setAuthCredentials(token, permissions, role, refreshToken);
+              setAuthCredentials(token, permissions, role, refreshToken, rememberMe);
               Router.push(Routes.dashboard);
               return;
             }
@@ -169,6 +188,23 @@ const LoginForm = () => {
               forgotPageLink={Routes.forgotPassword}
               className="transition-all duration-200 focus:ring-2 focus:ring-accent/20"
             />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label
+                  htmlFor="remember"
+                  className="ml-2 block text-sm text-body"
+                >
+                  {t('form:input-label-remember-me') || 'Remember me'}
+                </label>
+              </div>
+            </div>
             <Button
               className="w-full mt-6 h-11 text-base font-medium shadow-sm transition-all duration-200 hover:shadow-md"
               loading={isLoading}

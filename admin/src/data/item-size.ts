@@ -4,11 +4,11 @@ import { useTranslation } from 'next-i18next';
 import { API_ENDPOINTS } from './client/api-endpoints';
 import { itemSizeClient, ItemSize, CreateItemSizeInput, UpdateItemSizeInput } from './client/item-size';
 
-export const useItemSizesQuery = (itemId: string, businessId?: string, options?: { enabled?: boolean }) => {
+export const useItemSizesQuery = (businessId?: string, options?: { enabled?: boolean }) => {
   const { data, error, isPending: isLoading } = useQuery<ItemSize[]>({
-    queryKey: ['item-sizes', itemId, businessId],
-    queryFn: () => itemSizeClient.getAll(itemId, businessId),
-    enabled: options?.enabled !== false && !!itemId,
+    queryKey: ['item-sizes', businessId],
+    queryFn: () => itemSizeClient.getAll(businessId),
+    enabled: options?.enabled !== false,
   });
   const sizes = (data as any)?.data || data || [];
   return {
@@ -18,14 +18,14 @@ export const useItemSizesQuery = (itemId: string, businessId?: string, options?:
   };
 };
 
-export const useItemSizeQuery = (itemId: string, id: string) => {
+export const useItemSizeQuery = (id: string) => {
   const { data, error, isPending: isLoading } = useQuery<ItemSize>({
-    queryKey: ['item-size', itemId, id],
+    queryKey: ['item-size', id],
     queryFn: async () => {
-      const response = await itemSizeClient.get(itemId, id);
+      const response = await itemSizeClient.get(id);
       return (response as any)?.data || response;
     },
-    enabled: !!itemId && !!id,
+    enabled: !!id,
   });
   const size = data;
   return {
@@ -35,15 +35,15 @@ export const useItemSizeQuery = (itemId: string, id: string) => {
   };
 };
 
-export const useCreateItemSizeMutation = (itemId: string) => {
+export const useCreateItemSizeMutation = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: (input: CreateItemSizeInput) => itemSizeClient.create(itemId, input),
+    mutationFn: (input: CreateItemSizeInput) => itemSizeClient.create(input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['item-sizes', itemId] });
-      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ITEMS] });
+      queryClient.invalidateQueries({ queryKey: ['item-sizes'] });
+      // Might need to invalidate items if they stash size/price combos that rely on this? Unlikely for simple create.
       toast.success(t('common:successfully-created'));
     },
     onError: (error: any) => {
@@ -52,17 +52,16 @@ export const useCreateItemSizeMutation = (itemId: string) => {
   });
 };
 
-export const useUpdateItemSizeMutation = (itemId: string) => {
+export const useUpdateItemSizeMutation = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ id, ...input }: { id: string } & UpdateItemSizeInput) =>
-      itemSizeClient.update(itemId, id, input),
+      itemSizeClient.update(id, input),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['item-sizes', itemId] });
-      queryClient.invalidateQueries({ queryKey: ['item-size', itemId, variables.id] });
-      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ITEMS] });
+      queryClient.invalidateQueries({ queryKey: ['item-sizes'] });
+      queryClient.invalidateQueries({ queryKey: ['item-size', variables.id] });
       toast.success(t('common:successfully-updated'));
     },
     onError: (error: any) => {
@@ -71,15 +70,14 @@ export const useUpdateItemSizeMutation = (itemId: string) => {
   });
 };
 
-export const useDeleteItemSizeMutation = (itemId: string) => {
+export const useDeleteItemSizeMutation = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: (id: string) => itemSizeClient.delete(itemId, id),
+    mutationFn: (id: string) => itemSizeClient.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['item-sizes', itemId] });
-      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ITEMS] });
+      queryClient.invalidateQueries({ queryKey: ['item-sizes'] });
       toast.success(t('common:successfully-deleted'));
     },
     onError: (error: any) => {

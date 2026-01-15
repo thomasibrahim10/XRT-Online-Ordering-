@@ -88,11 +88,17 @@ const SidebarItemMap = ({ menuItems }: any) => {
             return null;
           }
 
+          // Safely get shop slug from query or fallback to empty string (or handle appropriately)
+          // The href function awaits the shop slug. 
+          // If shop is undefined, links might break.
+          // We can fallback to fetching shop from me query if needed, but for now let's safely handle the string conversion.
+          const shopSlug = shop?.toString() || '';
+
           return (
             <SidebarItem
               key={label}
               // @ts-ignore
-              href={href(shop?.toString()!)}
+              href={href ? (typeof href === 'function' ? href(shopSlug) : href) : '#'}
               label={t(label)}
               icon={icon}
               childMenu={childMenu}

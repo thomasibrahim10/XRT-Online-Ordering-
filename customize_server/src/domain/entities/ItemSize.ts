@@ -1,22 +1,19 @@
 export interface ItemSize {
   id: string;
-  item_id: string;
-  restaurant_id: string; // business_id
+  business_id: string; // Global per business, NOT per item
   name: string;
-  code: string; // Unique per item (e.g., 'S', 'M', 'L', 'XL', 'XXL' or custom codes)
-  price: number;
+  code: string; // Unique per business (e.g., 'S', 'M', 'L', 'XL')
   display_order: number;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
+  deleted_at?: Date; // Soft delete support
 }
 
 export interface CreateItemSizeDTO {
-  item_id: string;
-  restaurant_id: string;
+  business_id: string;
   name: string;
   code: string;
-  price: number;
   display_order?: number;
   is_active?: boolean;
 }
@@ -24,13 +21,11 @@ export interface CreateItemSizeDTO {
 export interface UpdateItemSizeDTO {
   name?: string;
   code?: string;
-  price?: number;
   display_order?: number;
   is_active?: boolean;
 }
 
 export interface ItemSizeFilters {
-  item_id?: string;
-  restaurant_id?: string;
+  business_id?: string;
   is_active?: boolean;
 }

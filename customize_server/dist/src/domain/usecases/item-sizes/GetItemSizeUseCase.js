@@ -5,8 +5,8 @@ class GetItemSizeUseCase {
     constructor(itemSizeRepository) {
         this.itemSizeRepository = itemSizeRepository;
     }
-    async execute(id, item_id) {
-        return await this.itemSizeRepository.findById(id, item_id);
+    async execute(id) {
+        return await this.itemSizeRepository.findById(id);
     }
 }
 exports.GetItemSizeUseCase = GetItemSizeUseCase;

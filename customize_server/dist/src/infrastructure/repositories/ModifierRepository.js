@@ -7,14 +7,24 @@ class ModifierRepository {
     toDomain(document) {
         return {
             id: document._id.toString(),
-            modifier_group_id: typeof document.modifier_group_id === 'string'
-                ? document.modifier_group_id
+            modifier_group_id: document.modifier_group_id._id
+                ? document.modifier_group_id._id.toString()
                 : document.modifier_group_id.toString(),
+            modifier_group: document.modifier_group_id.name
+                ? {
+                    id: document.modifier_group_id._id.toString(),
+                    name: document.modifier_group_id.name,
+                }
+                : undefined,
             name: document.name,
             is_default: document.is_default,
             max_quantity: document.max_quantity,
             display_order: document.display_order,
             is_active: document.is_active,
+            sides_config: document.sides_config ? {
+                enabled: document.sides_config.enabled || false,
+                allowed_sides: document.sides_config.allowed_sides || [],
+            } : undefined,
             created_at: document.created_at,
             updated_at: document.updated_at,
             deleted_at: document.deleted_at,
@@ -64,7 +74,9 @@ class ModifierRepository {
         if (filters.is_default !== undefined) {
             query.is_default = filters.is_default;
         }
-        const modifierDocs = await ModifierModel_1.ModifierModel.find(query).sort({ display_order: 1, created_at: 1 });
+        const modifierDocs = await ModifierModel_1.ModifierModel.find(query)
+            .populate('modifier_group_id', 'name')
+            .sort({ display_order: 1, created_at: 1 });
         return modifierDocs.map((doc) => this.toDomain(doc));
     }
     async findByGroupId(modifier_group_id) {

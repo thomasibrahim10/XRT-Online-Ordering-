@@ -11,15 +11,14 @@ export class ItemSizeRepository implements IItemSizeRepository {
   private toDomain(document: ItemSizeDocument): ItemSize {
     return {
       id: document._id.toString(),
-      item_id: document.item_id.toString(),
-      restaurant_id: document.restaurant_id,
+      business_id: document.business_id,
       name: document.name,
       code: document.code,
-      price: document.price,
       display_order: document.display_order,
       is_active: document.is_active,
       created_at: document.created_at,
       updated_at: document.updated_at,
+      deleted_at: document.deleted_at,
     };
   }
 
@@ -29,24 +28,16 @@ export class ItemSizeRepository implements IItemSizeRepository {
     return this.toDomain(itemSizeDoc);
   }
 
-  async findById(id: string, item_id?: string): Promise<ItemSize | null> {
-    const query: any = { _id: id };
-    if (item_id) {
-      query.item_id = item_id;
-    }
-    const itemSizeDoc = await ItemSizeModel.findOne(query);
+  async findById(id: string): Promise<ItemSize | null> {
+    const itemSizeDoc = await ItemSizeModel.findOne({ _id: id });
     return itemSizeDoc ? this.toDomain(itemSizeDoc) : null;
   }
 
   async findAll(filters: ItemSizeFilters): Promise<ItemSize[]> {
     const query: any = {};
 
-    if (filters.item_id) {
-      query.item_id = filters.item_id;
-    }
-
-    if (filters.restaurant_id) {
-      query.restaurant_id = filters.restaurant_id;
+    if (filters.business_id) {
+      query.business_id = filters.business_id;
     }
 
     if (filters.is_active !== undefined) {
@@ -59,15 +50,9 @@ export class ItemSizeRepository implements IItemSizeRepository {
     return itemSizeDocs.map((doc) => this.toDomain(doc));
   }
 
-  async findByItemId(item_id: string): Promise<ItemSize[]> {
-    const itemSizeDocs = await ItemSizeModel.find({ item_id, is_active: true })
-      .sort({ display_order: 1, created_at: 1 });
-    return itemSizeDocs.map((doc) => this.toDomain(doc));
-  }
-
-  async update(id: string, item_id: string, data: UpdateItemSizeDTO): Promise<ItemSize> {
+  async update(id: string, data: UpdateItemSizeDTO): Promise<ItemSize> {
     const itemSizeDoc = await ItemSizeModel.findOneAndUpdate(
-      { _id: id, item_id },
+      { _id: id },
       data,
       {
         new: true,
@@ -82,23 +67,23 @@ export class ItemSizeRepository implements IItemSizeRepository {
     return this.toDomain(itemSizeDoc);
   }
 
-  async delete(id: string, item_id: string): Promise<void> {
-    const result = await ItemSizeModel.findOneAndDelete({ _id: id, item_id });
+  async delete(id: string): Promise<void> {
+    // Soft delete usually preferred, but UseCase might enforce checks.
+    // If we want soft delete:
+    // await ItemSizeModel.findOneAndUpdate({ _id: id }, { deleted_at: new Date() });
+    // For now, sticking to interface contract which implies deletion.
+    const result = await ItemSizeModel.findOneAndDelete({ _id: id });
     if (!result) {
       throw new Error('Item size not found');
     }
   }
 
-  async exists(code: string, item_id: string, excludeId?: string): Promise<boolean> {
-    const query: any = { code, item_id };
+  async exists(code: string, business_id: string, excludeId?: string): Promise<boolean> {
+    const query: any = { code, business_id };
     if (excludeId) {
       query._id = { $ne: excludeId };
     }
     const count = await ItemSizeModel.countDocuments(query);
     return count > 0;
-  }
-
-  async countByItemId(item_id: string): Promise<number> {
-    return await ItemSizeModel.countDocuments({ item_id, is_active: true });
   }
 }

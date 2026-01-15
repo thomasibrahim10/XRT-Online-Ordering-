@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FileInput from '@/components/ui/file-input';
 import { itemValidationSchema } from './item-validation-schema';
-import { Item, CreateItemInput, UpdateItemInput, ItemSize, ItemModifierAssignment, ItemModifierGroupAssignment } from '@/types';
+import { Item, CreateItemInput, UpdateItemInput, ItemSize, ItemSizeConfig, ItemModifierAssignment, ItemModifierGroupAssignment } from '@/types';
 import { useTranslation } from 'next-i18next';
 import { useShopQuery } from '@/data/shop';
 import Alert from '@/components/ui/alert';
@@ -28,7 +28,6 @@ import SwitchInput from '@/components/ui/switch-input';
 import { TrashIcon } from '@/components/icons/trash';
 import { useModifierGroupsQuery } from '@/data/modifier-group';
 import { useModifiersQuery } from '@/data/modifier';
-import { getModifiersByGroupId } from '@/data/mock/modifiers';
 import ItemSizesManager from './item-sizes-manager';
 import { useItemSizesQuery } from '@/data/item-size';
 
@@ -57,7 +56,7 @@ type FormValues = {
     is_sizeable?: boolean;
     is_customizable?: boolean;
     default_size_id?: string | null; // FK to ItemSize.id, required if is_sizeable = true
-    sizes?: ItemSize[]; // Legacy - kept for backward compatibility
+    sizes?: ItemSizeConfig[]; // Updated to match Item structure
     modifier_groups?: ItemModifierGroupAssignment[]; // Updated to match backend
     modifier_assignment?: ItemModifierAssignment; // Legacy - kept for backward compatibility
     apply_sides?: boolean;
@@ -112,6 +111,7 @@ export default function CreateOrUpdateItemForm({
             ? {
                 ...initialValues,
                 category: initialValues.category,
+                // sizes in initialValues is now ItemSizeConfig[]
                 sizes: initialValues.sizes || [],
                 // If item has sizes, automatically set is_sizeable to true
                 is_sizeable: initialValues.is_sizeable || (initialValues.sizes && initialValues.sizes.length > 0) || false,
@@ -150,7 +150,7 @@ export default function CreateOrUpdateItemForm({
                 },
             };
             // Reset the form with new values
-            methods.reset(formValues, { 
+            methods.reset(formValues, {
                 keepDefaultValues: false,
                 keepValues: false,
                 keepDirty: false,
@@ -187,9 +187,8 @@ export default function CreateOrUpdateItemForm({
 
     // Fetch item sizes if editing and item is sizeable
     const { sizes: itemSizes } = useItemSizesQuery(
-        initialValues?.id || '',
         shopId,
-        { enabled: !!initialValues?.id && isSizeable }
+        { enabled: !!shopId && isSizeable }
     );
 
     // Auto-set is_sizeable to true if item has default_size_id when editing
@@ -216,9 +215,16 @@ export default function CreateOrUpdateItemForm({
         is_active: true,
     });
 
+    // Fetch all modifiers for local filtering
+    const { modifiers: allModifiersList } = useModifiersQuery({
+        limit: 1000,
+        language: locale,
+        is_active: true,
+    });
+
     const onSubmit = async (values: any) => {
         let basePrice: number | undefined = undefined;
-        
+
         // Pricing logic:
         // - If is_sizeable = false: base_price is required and used
         // - If is_sizeable = true: base_price is ignored, default_size_id is required
@@ -250,28 +256,28 @@ export default function CreateOrUpdateItemForm({
             const selectedDefaultModifiers = values.modifier_assignment.default_modifiers || [];
             const modifierPricesBySize = values.modifier_assignment.modifier_prices_by_size || {};
             const modifierPricesBySizeAndQuantity = values.modifier_assignment.modifier_prices_by_size_and_quantity || {};
-            
+
             if (selectedGroups.length > 0 || selectedDefaultModifiers.length > 0 || Object.keys(modifierPricesBySize).length > 0 || Object.keys(modifierPricesBySizeAndQuantity).length > 0) {
                 // Transform groups from objects to ItemModifierGroupAssignment format
-                const modifierGroups = Array.isArray(selectedGroups) 
+                const modifierGroups = Array.isArray(selectedGroups)
                     ? selectedGroups.map((group: any, index: number) => ({
                         modifier_group_id: typeof group === 'string' ? group : group.id,
                         display_order: index + 1,
                     }))
                     : [];
-                
+
                 // Transform default modifiers to IDs (strings)
                 const defaultModifiers = Array.isArray(selectedDefaultModifiers)
-                    ? selectedDefaultModifiers.map((modifier: any) => 
+                    ? selectedDefaultModifiers.map((modifier: any) =>
                         typeof modifier === 'string' ? modifier : modifier.id
                     )
                     : [];
-                
+
                 // Transform modifier prices by size and quantity levels
                 // Format: { modifierId: { sizeName: { quantity: price } } } or { modifierId: { sizeName: price } }
                 const pricesBySize: any = {};
                 const pricesBySizeAndQuantity: any = {};
-                
+
                 if (values.is_sizeable && itemSizes && itemSizes.length > 0) {
                     // Handle modifiers with quantity levels: modifier_prices_by_size_and_quantity[modifierId][sizeName][quantity]
                     Object.keys(modifierPricesBySizeAndQuantity).forEach((modifierId) => {
@@ -326,7 +332,7 @@ export default function CreateOrUpdateItemForm({
                         }
                     });
                 }
-                
+
                 modifierAssignment = {
                     modifier_groups: modifierGroups,
                     default_modifiers: defaultModifiers,
@@ -426,10 +432,10 @@ export default function CreateOrUpdateItemForm({
                             />
 
                             <div className="mb-5">
-                                <SwitchInput 
-                                    name="is_sizeable" 
-                                    control={control} 
-                                    label={t('form:input-label-sizeable')} 
+                                <SwitchInput
+                                    name="is_sizeable"
+                                    control={control}
+                                    label={t('form:input-label-sizeable')}
                                 />
                             </div>
 
@@ -451,14 +457,30 @@ export default function CreateOrUpdateItemForm({
                                         details={t('form:item-sizes-help-text') || 'Manage item sizes. At least one size is required, and you must select a default size.'}
                                         className="mb-4"
                                     />
-                                    {initialValues?.id ? (
-                                        <ItemSizesManager
-                                            itemId={initialValues.id}
-                                            businessId={shopId}
-                                            defaultSizeId={defaultSizeId || undefined}
-                                            onDefaultSizeChange={(sizeId) => {
-                                                setValue('default_size_id', sizeId, { shouldValidate: true });
-                                            }}
+                                    {initialValues?.id || shopId ? (
+                                        <Controller
+                                            name="sizes"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <ItemSizesManager
+                                                    businessId={shopId}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    defaultSizeId={defaultSizeId || undefined}
+                                                    onDefaultSizeChange={(sizeId) => {
+                                                        setValue('default_size_id', sizeId, { shouldValidate: true });
+                                                        // Also set default flag in the config array
+                                                        if (sizeId) {
+                                                            const currentSizes = field.value || [];
+                                                            const newSizes = currentSizes.map((s: any) => ({
+                                                                ...s,
+                                                                is_default: s.size_id === sizeId
+                                                            }));
+                                                            field.onChange(newSizes);
+                                                        }
+                                                    }}
+                                                />
+                                            )}
                                         />
                                     ) : (
                                         <Alert
@@ -555,12 +577,12 @@ export default function CreateOrUpdateItemForm({
                                 control={control}
                                 render={({ field }) => {
                                     const selectedGroups = watch('modifier_assignment.modifier_groups') || [];
-                                    const allModifiers: any[] = [];
-                                    
-                                    selectedGroups.forEach((group: any) => {
-                                        const modifiers = getModifiersByGroupId(group.id);
-                                        allModifiers.push(...modifiers);
-                                    });
+
+                                    // Filter modifiers locally using top-level data
+
+                                    const relevantModifiers = allModifiersList.filter((m: any) =>
+                                        selectedGroups.some((g: any) => (g.id || g) === m.modifier_group_id)
+                                    );
 
                                     return (
                                         <div className="mb-5">
@@ -570,7 +592,7 @@ export default function CreateOrUpdateItemForm({
                                                 control={control}
                                                 getOptionLabel={(option: any) => option.name}
                                                 getOptionValue={(option: any) => option.id}
-                                                options={allModifiers}
+                                                options={relevantModifiers}
                                                 isMulti
                                                 isClearable
                                                 placeholder={t('form:input-placeholder-select-default-modifiers') || 'Select default modifiers...'}
@@ -595,15 +617,14 @@ export default function CreateOrUpdateItemForm({
                                     <div className="space-y-6">
                                         {(() => {
                                             const selectedGroups = watch('modifier_assignment.modifier_groups') || [];
-                                            const allModifiers: any[] = [];
-                                            
-                                            selectedGroups.forEach((group: any) => {
-                                                const groupId = typeof group === 'object' ? group.id : group;
-                                                const modifiers = getModifiersByGroupId(groupId);
-                                                allModifiers.push(...modifiers);
-                                            });
 
-                                            if (allModifiers.length === 0) {
+                                            // Filter modifiers locally using top-level data
+
+                                            const relevantModifiers = allModifiersList.filter((m: any) =>
+                                                selectedGroups.some((g: any) => (g.id || g) === m.modifier_group_id)
+                                            );
+
+                                            if (relevantModifiers.length === 0) {
                                                 return (
                                                     <div className="p-4 text-center text-sm text-gray-500 border border-gray-200 rounded-lg">
                                                         {t('form:select-modifier-groups-first') || 'Please select modifier groups first to set prices'}
@@ -611,7 +632,7 @@ export default function CreateOrUpdateItemForm({
                                                 );
                                             }
 
-                                            return allModifiers.map((modifier: any, modifierIndex: number) => {
+                                            return relevantModifiers.map((modifier: any, modifierIndex: number) => {
                                                 // Always use default quantity levels (Light, Normal, Extra) for all modifiers
                                                 const quantityLevelsToShow = DEFAULT_QUANTITY_LEVELS;
 

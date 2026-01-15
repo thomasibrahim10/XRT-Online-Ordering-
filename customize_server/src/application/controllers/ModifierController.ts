@@ -64,6 +64,18 @@ export class ModifierController {
     return sendSuccess(res, 'Modifier created successfully', modifier, 201);
   });
 
+  index = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const filters = {
+      name: req.query.name as string,
+      modifier_group_id: req.query.modifier_group_id as string,
+      is_active: req.query.is_active !== undefined ? req.query.is_active === 'true' : undefined,
+    };
+
+    const modifiers = await this.modifierRepository.findAll(filters);
+
+    return sendSuccess(res, 'Modifiers retrieved successfully', modifiers);
+  });
+
   getAll = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { groupId } = req.params;
 

@@ -22,10 +22,13 @@ export function setAuthCredentials(
   permissions: any,
   role: any,
   refreshToken?: string,
+  persist: boolean = false,
 ) {
+  const options = persist ? { expires: 30 } : {};
   Cookie.set(
     AUTH_CRED,
     JSON.stringify({ token, permissions, role, refreshToken }),
+    options,
   );
 }
 export function setEmailVerified(emailVerified: boolean) {

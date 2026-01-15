@@ -26,6 +26,13 @@ export interface ItemModifierGroupAssignment {
     modifier_overrides?: ItemModifierOverride[]; // Item-level overrides for individual modifiers
 }
 
+export interface ItemSizeConfig {
+    size_id: string; // References ItemSize.id (Global Catalog)
+    price: number;
+    is_default: boolean;
+    is_active: boolean;
+}
+
 export interface Item {
     id: string;
     business_id: string;
@@ -33,7 +40,8 @@ export interface Item {
     description?: string;
     sort_order: number;
     is_active: boolean;
-    base_price: number;
+    base_price: number; // Used if is_sizeable is false.
+    sizes?: ItemSizeConfig[]; // New: Stores pricing per size
     category_id: string;
     category?: {
         id: string;
@@ -46,7 +54,7 @@ export interface Item {
     max_per_order?: number;
     is_sizeable?: boolean;
     is_customizable?: boolean;
-    default_size_id?: string; // FK to ItemSize.id, nullable - only used when is_sizeable = true
+    default_size_id?: string; // KEEPING for backward compat or quick lookup, but sizes array has is_default
     modifier_groups?: ItemModifierGroupAssignment[];
     created_at: Date;
     updated_at: Date;

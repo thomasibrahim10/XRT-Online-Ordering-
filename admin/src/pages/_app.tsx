@@ -109,7 +109,8 @@ const CustomApp = ({ Component, pageProps }: AppPropsWithLayout) => {
   );
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  const { locale } = useRouter();
+  const router = useRouter();
+  const { locale } = router;
   const dir = Config.getDirection(locale);
   return (
     <div dir={dir}>
@@ -126,12 +127,12 @@ const CustomApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                       {authProps ? (
                         <PrivateRoute authProps={authProps}>
                           <Layout {...pageProps}>
-                            <Component {...pageProps} />
+                            <Component {...pageProps} key={router.asPath} />
                           </Layout>
                         </PrivateRoute>
                       ) : (
                         <Layout {...pageProps}>
-                          <Component {...pageProps} />
+                          <Component {...pageProps} key={router.asPath} />
                         </Layout>
                       )}
                       <ToastContainer autoClose={2000} theme="colored" />

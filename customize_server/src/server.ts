@@ -99,7 +99,7 @@ app.use(`${env.API_BASE_URL}/permissions`, permissionRoutes);
 app.use(`${env.API_BASE_URL}/withdraws`, withdrawRoutes);
 app.use(`${env.API_BASE_URL}/attachments`, attachmentRoutes);
 app.use(`${env.API_BASE_URL}/items`, itemRoutes);
-app.use(`${env.API_BASE_URL}/items`, itemSizeRoutes); // Nested routes for item sizes
+app.use(`${env.API_BASE_URL}/sizes`, itemSizeRoutes); // Nested routes for item sizes
 app.use(`${env.API_BASE_URL}/customers`, customerRoutes);
 app.use(`${env.API_BASE_URL}/modifier-groups`, modifierGroupRoutes);
 app.use(`${env.API_BASE_URL}/import`, importRoutes);
