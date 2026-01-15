@@ -28,7 +28,7 @@ import permissionRoutes from './application/routes/permission.routes';
 import { env } from './shared/config/env';
 import { logger } from './shared/utils/logger';
 // Import swagger config - using relative path from src to config directory
-import { specs } from '../config/swagger';
+import { specs } from './swagger';
 
 const app: Express = express();
 

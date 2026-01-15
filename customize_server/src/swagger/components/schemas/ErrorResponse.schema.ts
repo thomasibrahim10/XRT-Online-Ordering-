@@ -1,0 +1,7 @@
+export const ErrorResponse = {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          message: { type: 'string', example: 'Validation failed' },
+        },
+      };
