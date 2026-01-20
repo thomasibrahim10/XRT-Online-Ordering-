@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 export const modifierGroupValidationSchema = yup.object().shape({
   name: yup.string().required('form:error-name-required'),
+  display_name: yup.string().optional(),
   display_type: yup
     .string()
     .transform((value, originalValue) => {

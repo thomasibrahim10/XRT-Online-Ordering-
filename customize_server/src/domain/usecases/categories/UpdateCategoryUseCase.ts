@@ -1,4 +1,5 @@
 import { ICategoryRepository } from '../../repositories/ICategoryRepository';
+import { IItemRepository } from '../../repositories/IItemRepository';
 import { IImageStorage } from '../../services/IImageStorage';
 import { Category, UpdateCategoryDTO } from '../../entities/Category';
 import { NotFoundError, ValidationError } from '../../../shared/errors/AppError';
@@ -6,8 +7,9 @@ import { NotFoundError, ValidationError } from '../../../shared/errors/AppError'
 export class UpdateCategoryUseCase {
   constructor(
     private categoryRepository: ICategoryRepository,
-    private imageStorage: IImageStorage
-  ) { }
+    private imageStorage: IImageStorage,
+    private itemRepository: IItemRepository
+  ) {}
 
   async execute(
     id: string,
@@ -84,7 +86,26 @@ export class UpdateCategoryUseCase {
       translated_languages: updatedLanguages,
     };
 
+    // Apply modifier groups to all items in the category if:
+    // 1. The flag is explicitly set to true, OR
+    // 2. Modifier groups are provided (automatic application when flag is not explicitly false)
+    const hasModifierGroups = categoryData.modifier_groups && 
+                              Array.isArray(categoryData.modifier_groups) && 
+                              categoryData.modifier_groups.length > 0;
+    
+    const shouldApplyToItems = hasModifierGroups && 
+                               (categoryData.apply_modifier_groups_to_items !== false);
+
+    if (shouldApplyToItems) {
+      console.log(`Applying modifier groups to items in category ${id}:`, categoryData.modifier_groups);
+      await this.itemRepository.assignModifierGroupsToCategoryItems(
+        id,
+        business_id,
+        categoryData.modifier_groups
+      );
+      console.log(`Successfully applied modifier groups to items in category ${id}`);
+    }
+
     return await this.categoryRepository.update(id, business_id, finalCategoryData);
   }
 }
-

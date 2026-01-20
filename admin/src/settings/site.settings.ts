@@ -147,38 +147,49 @@ export const siteSettings = {
         ],
       },
 
-      item: {
+      menu: {
         href: '',
-        label: 'sidebar-nav-item-items',
+        label: 'text-content-management',
         icon: 'ProductsIcon',
         childMenu: [
           {
-            href: Routes.category.list,
-            label: 'sidebar-nav-item-categories',
-            icon: 'CategoriesIcon',
-          },
-          {
-            href: Routes.item.list,
-            label: 'sidebar-nav-item-items',
+            href: '',
+            label: 'sidebar-nav-item-menu',
             icon: 'ProductsIcon',
-          },
-        ],
-      },
-
-      modifier: {
-        href: '',
-        label: 'form:input-label-modifiers',
-        icon: 'AttributeIcon',
-        childMenu: [
-          {
-            href: Routes.modifierGroup.list,
-            label: 'form:input-label-modifier-groups',
-            icon: 'AttributeIcon',
-          },
-          {
-            href: Routes.modifier.list,
-            label: 'sidebar-nav-item-all-modifiers',
-            icon: 'AttributeIcon',
+            childMenu: [
+              {
+                href: Routes.category.list,
+                label: 'sidebar-nav-item-categories',
+                icon: 'CategoriesIcon',
+              },
+              {
+                href: Routes.item.list,
+                label: 'sidebar-nav-item-categories-items',
+                icon: 'ProductsIcon',
+              },
+              {
+                href: Routes.itemSize.list,
+                label: 'sidebar-nav-item-items-sizes',
+                icon: 'ProductsIcon',
+              },
+              {
+                href: '',
+                label: 'sidebar-nav-item-modifiers-management',
+                icon: 'AttributeIcon',
+                childMenu: [
+                  {
+                    href: Routes.modifierGroup.list,
+                    label: 'form:input-label-modifier-groups',
+                    icon: 'AttributeIcon',
+                  },
+                  {
+                    href: Routes.modifier.list,
+                    label: 'sidebar-nav-item-modifier-items',
+                    icon: 'AttributeIcon',
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

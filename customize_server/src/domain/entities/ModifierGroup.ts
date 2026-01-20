@@ -19,6 +19,7 @@ export interface ModifierGroup {
   id: string;
   business_id: string;
   name: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type: ModifierDisplayType;
   min_select: number;
   max_select: number;
@@ -34,6 +35,7 @@ export interface ModifierGroup {
 export interface CreateModifierGroupDTO {
   business_id: string;
   name: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type: ModifierDisplayType;
   min_select: number;
   max_select: number;
@@ -46,6 +48,7 @@ export interface CreateModifierGroupDTO {
 
 export interface UpdateModifierGroupDTO {
   name?: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type?: ModifierDisplayType;
   min_select?: number;
   max_select?: number;

@@ -273,6 +273,7 @@ export interface Category {
   updated_at: string;
   kitchen_section_id?: string;
   is_active?: boolean;
+  modifier_groups?: any[];
 }
 
 export interface Attribute {
@@ -1138,8 +1139,6 @@ export interface Tax {
   rate?: number;
 }
 
-
-
 export interface ContactDetails {
   socials?: ShopSocials[];
   contact?: string;
@@ -1470,7 +1469,6 @@ export interface MaintenanceFormValues {
   maintenance: Maintenance;
 }
 
-
 export interface ServerInfo {
   max_execution_time?: string;
   max_input_time?: string;
@@ -1553,8 +1551,6 @@ export interface SettingsOptionsInput {
     sales_tax?: number;
   };
 }
-
-
 
 export interface DeliveryTime {
   description?: string;
@@ -2136,65 +2132,63 @@ export interface Customer {
   updatedAt?: string;
 }
 
-export interface CustomerPaginator extends PaginatorInfo<Customer> { }
+export interface CustomerPaginator extends PaginatorInfo<Customer> {}
 
-export interface ShopPaginator extends PaginatorInfo<Shop> { }
+export interface ShopPaginator extends PaginatorInfo<Shop> {}
 
-export interface WithdrawPaginator extends PaginatorInfo<Withdraw> { }
+export interface WithdrawPaginator extends PaginatorInfo<Withdraw> {}
 
-export interface UserPaginator extends PaginatorInfo<User> { }
+export interface UserPaginator extends PaginatorInfo<User> {}
 
-export interface LicensedDomainPaginator extends PaginatorInfo<Domain> { }
+export interface LicensedDomainPaginator extends PaginatorInfo<Domain> {}
 
-export interface QuestionPaginator extends PaginatorInfo<Question> { }
+export interface QuestionPaginator extends PaginatorInfo<Question> {}
 
-export interface StaffPaginator extends PaginatorInfo<User> { }
+export interface StaffPaginator extends PaginatorInfo<User> {}
 
-export interface OrderPaginator extends PaginatorInfo<Order> { }
+export interface OrderPaginator extends PaginatorInfo<Order> {}
 
-export interface NotifyLogsPaginator extends PaginatorInfo<NotifyLogs> { }
+export interface NotifyLogsPaginator extends PaginatorInfo<NotifyLogs> {}
 
-export interface CouponPaginator extends PaginatorInfo<Coupon> { }
+export interface CouponPaginator extends PaginatorInfo<Coupon> {}
 
-export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> { }
+export interface StoreNoticePaginator extends PaginatorInfo<StoreNotice> {}
 
-export interface FAQsPaginator extends PaginatorInfo<FAQs> { }
+export interface FAQsPaginator extends PaginatorInfo<FAQs> {}
 
-export interface FlashSalePaginator extends PaginatorInfo<FlashSale> { }
+export interface FlashSalePaginator extends PaginatorInfo<FlashSale> {}
 
-export interface TermsAndConditionsPaginator
-  extends PaginatorInfo<TermsAndConditions> { }
+export interface TermsAndConditionsPaginator extends PaginatorInfo<TermsAndConditions> {}
 
-export interface ProductPaginator extends PaginatorInfo<Product> { }
+export interface ProductPaginator extends PaginatorInfo<Product> {}
 
-export interface CategoryPaginator extends PaginatorInfo<Category> { }
+export interface CategoryPaginator extends PaginatorInfo<Category> {}
 
-export interface TaxPaginator extends PaginatorInfo<Tax> { }
+export interface TaxPaginator extends PaginatorInfo<Tax> {}
 
-export interface ReviewPaginator extends PaginatorInfo<Review> { }
+export interface ReviewPaginator extends PaginatorInfo<Review> {}
 
-export interface TagPaginator extends PaginatorInfo<Tag> { }
+export interface TagPaginator extends PaginatorInfo<Tag> {}
 
-export interface AttributePaginator extends PaginatorInfo<Attribute> { }
+export interface AttributePaginator extends PaginatorInfo<Attribute> {}
 
-export interface AttributeValuePaginator
-  extends PaginatorInfo<AttributeValue> { }
+export interface AttributeValuePaginator extends PaginatorInfo<AttributeValue> {}
 
-export interface ShippingPaginator extends PaginatorInfo<Shipping> { }
+export interface ShippingPaginator extends PaginatorInfo<Shipping> {}
 
-export interface AuthorPaginator extends PaginatorInfo<Author> { }
+export interface AuthorPaginator extends PaginatorInfo<Author> {}
 
-export interface RefundPolicyPaginator extends PaginatorInfo<RefundPolicy> { }
+export interface RefundPolicyPaginator extends PaginatorInfo<RefundPolicy> {}
 
-export interface RefundReasonPaginator extends PaginatorInfo<RefundReason> { }
+export interface RefundReasonPaginator extends PaginatorInfo<RefundReason> {}
 
-export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> { }
+export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> {}
 
-export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> { }
+export interface OrderStatusPaginator extends PaginatorInfo<OrderStatus> {}
 
-export interface ConversionPaginator extends PaginatorInfo<Conversations> { }
+export interface ConversionPaginator extends PaginatorInfo<Conversations> {}
 
-export interface MessagePaginator extends PaginatorInfo<Message> { }
+export interface MessagePaginator extends PaginatorInfo<Message> {}
 
 export interface FlashSaleProductsRequest {
   id: string;
@@ -2224,17 +2218,13 @@ export interface FlashSaleProductsRequestQueryOptions extends QueryOptions {
   shop_id?: string;
 }
 
-export interface FlashSaleRequestedProductsQueryOptions
-  extends ProductQueryOptions {
+export interface FlashSaleRequestedProductsQueryOptions extends ProductQueryOptions {
   vendor_request_id: string;
 }
 
-export interface FlashSaleProductsRequestPaginator
-  extends PaginatorInfo<FlashSaleProductsRequest> { }
+export interface FlashSaleProductsRequestPaginator extends PaginatorInfo<FlashSaleProductsRequest> {}
 
-export interface MessagePaginator extends PaginatorInfo<Message> { }
-
-
+export interface MessagePaginator extends PaginatorInfo<Message> {}
 
 export interface CommissionItem {
   id?: string;
@@ -2406,8 +2396,7 @@ export interface OwnershipTransferInput {
   deleted_at: string;
 }
 
-export interface OwnershipTransferPaginator
-  extends PaginatorInfo<OwnershipTransfer> { }
+export interface OwnershipTransferPaginator extends PaginatorInfo<OwnershipTransfer> {}
 
 export interface OwnershipTransferQueryOptions extends QueryOptions {
   transaction_identifier?: string;
@@ -2435,18 +2424,18 @@ export interface StickerCardProps {
 
 export interface OrderStickerCardProps extends StickerCardProps {
   key:
-  | 'pending'
-  | 'processing'
-  | 'complete'
-  | 'cancelled'
-  | 'refunded'
-  | 'failed'
-  | 'localFacility'
-  | 'outForDelivery'
-  | 'total_earnings'
-  | 'current_balance'
-  | 'admin_commission_rate'
-  | 'withdrawn_amount';
+    | 'pending'
+    | 'processing'
+    | 'complete'
+    | 'cancelled'
+    | 'refunded'
+    | 'failed'
+    | 'localFacility'
+    | 'outForDelivery'
+    | 'total_earnings'
+    | 'current_balance'
+    | 'admin_commission_rate'
+    | 'withdrawn_amount';
 }
 
 // Separate ItemSize entity (matches backend)
@@ -2546,7 +2535,7 @@ export interface UpdateItemInput extends Partial<CreateItemInput> {
   id: string;
 }
 
-export interface ItemPaginator extends PaginatorInfo<Item> { }
+export interface ItemPaginator extends PaginatorInfo<Item> {}
 
 // Modifiers System Types
 export type ModifierDisplayType = 'RADIO' | 'CHECKBOX';
@@ -2594,6 +2583,7 @@ export interface ModifierGroup {
   id: string;
   business_id: string;
   name: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type: ModifierDisplayType;
   min_select: number;
   max_select: number;
@@ -2630,6 +2620,7 @@ export interface UpdateModifierInput extends Partial<CreateModifierInput> {
 
 export interface CreateModifierGroupInput {
   name: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type: ModifierDisplayType;
   min_select: number;
   max_select: number;
@@ -2645,8 +2636,8 @@ export interface UpdateModifierGroupInput extends Partial<CreateModifierGroupInp
   id: string;
 }
 
-export interface ModifierGroupPaginator extends PaginatorInfo<ModifierGroup> { }
-export interface ModifierPaginator extends PaginatorInfo<Modifier> { }
+export interface ModifierGroupPaginator extends PaginatorInfo<ModifierGroup> {}
+export interface ModifierPaginator extends PaginatorInfo<Modifier> {}
 
 export interface ModifierGroupQueryOptions extends QueryOptions {
   name?: string;
@@ -2693,7 +2684,12 @@ export interface ItemModifierAssignment {
   default_modifiers?: string[]; // Modifier IDs
   modifier_groups?: ItemModifierGroupAssignment[];
   assignment_scope?: 'ITEM' | 'CATEGORY';
-  modifier_prices_by_size?: { [modifierId: string]: { [sizeName: string]: number } }; // Modifier prices by size (for modifiers without quantity levels)
-  modifier_prices_by_size_and_quantity?: { [modifierId: string]: { [sizeName: string]: { [quantity: string]: number } } }; // Modifier prices by size and quantity level
+  modifier_prices_by_size?: {
+    [modifierId: string]: { [sizeName: string]: number };
+  }; // Modifier prices by size (for modifiers without quantity levels)
+  modifier_prices_by_size_and_quantity?: {
+    [modifierId: string]: {
+      [sizeName: string]: { [quantity: string]: number };
+    };
+  }; // Modifier prices by size and quantity level
 }
-

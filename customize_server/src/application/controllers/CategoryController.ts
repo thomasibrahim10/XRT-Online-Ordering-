@@ -6,6 +6,7 @@ import { GetCategoriesUseCase } from '../../domain/usecases/categories/GetCatego
 import { UpdateCategoryUseCase } from '../../domain/usecases/categories/UpdateCategoryUseCase';
 import { DeleteCategoryUseCase } from '../../domain/usecases/categories/DeleteCategoryUseCase';
 import { CategoryRepository } from '../../infrastructure/repositories/CategoryRepository';
+import { ItemRepository } from '../../infrastructure/repositories/ItemRepository';
 import { CloudinaryStorage } from '../../infrastructure/cloudinary/CloudinaryStorage';
 import { sendSuccess } from '../../shared/utils/response';
 import { asyncHandler } from '../../shared/utils/asyncHandler';
@@ -21,11 +22,16 @@ export class CategoryController {
 
   constructor() {
     const categoryRepository = new CategoryRepository();
+    const itemRepository = new ItemRepository();
     const imageStorage = new CloudinaryStorage();
 
     this.createCategoryUseCase = new CreateCategoryUseCase(categoryRepository, imageStorage);
     this.getCategoriesUseCase = new GetCategoriesUseCase(categoryRepository);
-    this.updateCategoryUseCase = new UpdateCategoryUseCase(categoryRepository, imageStorage);
+    this.updateCategoryUseCase = new UpdateCategoryUseCase(
+      categoryRepository,
+      imageStorage,
+      itemRepository
+    );
     this.deleteCategoryUseCase = new DeleteCategoryUseCase(categoryRepository, imageStorage);
     this.getCategoryByIdUseCase = new GetCategoryByIdUseCase(categoryRepository);
   }
@@ -43,6 +49,7 @@ export class CategoryController {
       icon,
       icon_public_id,
       language,
+      modifier_groups,
     } = req.body;
     const business_id = req.user?.business_id || req.body.business_id;
 
@@ -50,7 +57,17 @@ export class CategoryController {
       throw new ValidationError('business_id is required');
     }
 
-   
+    // Parse modifier_groups if it's a string (common in form data)
+    let parsedModifierGroups = undefined;
+    if (modifier_groups !== undefined) {
+      try {
+        parsedModifierGroups = typeof modifier_groups === 'string' 
+          ? JSON.parse(modifier_groups) 
+          : modifier_groups;
+      } catch (error) {
+        throw new ValidationError('Invalid modifier_groups format. Expected JSON array.');
+      }
+    }
 
     try {
       const category = await this.createCategoryUseCase.execute(
@@ -66,6 +83,10 @@ export class CategoryController {
           icon,
           icon_public_id,
           language,
+          modifier_groups: parsedModifierGroups,
+          apply_modifier_groups_to_items:
+            req.body.apply_modifier_groups_to_items === 'true' ||
+            req.body.apply_modifier_groups_to_items === true,
         },
         req.files as { [fieldname: string]: Express.Multer.File[] }
       );
@@ -115,11 +136,24 @@ export class CategoryController {
       icon,
       icon_public_id,
       language,
+      modifier_groups,
     } = req.body;
     const business_id = req.user?.business_id || req.body.business_id;
 
     if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
       throw new ValidationError('business_id is required');
+    }
+
+    // Parse modifier_groups if it's a string (common in form data)
+    let parsedModifierGroups = undefined;
+    if (modifier_groups !== undefined) {
+      try {
+        parsedModifierGroups = typeof modifier_groups === 'string' 
+          ? JSON.parse(modifier_groups) 
+          : modifier_groups;
+      } catch (error) {
+        throw new ValidationError('Invalid modifier_groups format. Expected JSON array.');
+      }
     }
 
     const category = await this.updateCategoryUseCase.execute(
@@ -136,6 +170,10 @@ export class CategoryController {
         icon,
         icon_public_id,
         language,
+        modifier_groups: parsedModifierGroups,
+        apply_modifier_groups_to_items:
+          req.body.apply_modifier_groups_to_items === 'true' ||
+          req.body.apply_modifier_groups_to_items === true,
       },
       req.files as { [fieldname: string]: Express.Multer.File[] }
     );
@@ -156,7 +194,10 @@ export class CategoryController {
       business_id = undefined;
     }
 
-    const category = await this.getCategoryByIdUseCase.execute(id, business_id as string | undefined);
+    const category = await this.getCategoryByIdUseCase.execute(
+      id,
+      business_id as string | undefined
+    );
 
     return sendSuccess(res, 'Category retrieved successfully', category);
   });
@@ -174,4 +215,3 @@ export class CategoryController {
     return sendSuccess(res, 'Category deleted successfully');
   });
 }
-

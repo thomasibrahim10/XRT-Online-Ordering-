@@ -15,6 +15,7 @@ export class ModifierGroupRepository implements IModifierGroupRepository {
       id: document._id.toString(),
       business_id: document.business_id,
       name: document.name,
+      display_name: (document as any).display_name,
       display_type: document.display_type,
       min_select: document.min_select,
       max_select: document.max_select,

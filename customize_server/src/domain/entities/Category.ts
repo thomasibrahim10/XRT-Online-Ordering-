@@ -1,3 +1,5 @@
+import { ItemModifierGroupAssignment } from './Item';
+
 export interface Category {
   id: string;
   business_id: string;
@@ -11,6 +13,7 @@ export interface Category {
   icon?: string;
   icon_public_id?: string;
   translated_languages: string[];
+  modifier_groups?: ItemModifierGroupAssignment[]; // Using ItemModifierGroupAssignment from Item entity
   created_at: Date;
   updated_at: Date;
 }
@@ -27,6 +30,7 @@ export interface CreateCategoryDTO {
   icon?: string;
   icon_public_id?: string;
   language?: string;
+  modifier_groups?: ItemModifierGroupAssignment[];
 }
 
 export interface UpdateCategoryDTO {
@@ -40,6 +44,8 @@ export interface UpdateCategoryDTO {
   icon?: string;
   icon_public_id?: string;
   language?: string;
+  modifier_groups?: ItemModifierGroupAssignment[];
+  apply_modifier_groups_to_items?: boolean;
 }
 
 export interface CategoryFilters {
@@ -47,4 +53,3 @@ export interface CategoryFilters {
   is_active?: boolean;
   kitchen_section_id?: string;
 }
-

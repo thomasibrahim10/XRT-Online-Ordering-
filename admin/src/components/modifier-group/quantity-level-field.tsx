@@ -44,7 +44,7 @@ export default function QuantityLevelField({
       {/* Mobile/Tablet Header: Title + Delete */}
       <div className="flex items-center justify-between lg:hidden mb-4 border-b border-gray-200 pb-2">
         <span className="text-sm font-semibold text-heading">
-          {t('form:text-level')} {index + 1}
+          {t('form:text-level') || 'Level'} {index + 1}
         </span>
         <button
           type="button"
@@ -84,7 +84,10 @@ export default function QuantityLevelField({
             type="text"
             error={t(errors.quantity_levels?.[index]?.name?.message!)}
             variant="outline"
-            placeholder={t('form:input-placeholder-quantity-level-name')}
+            placeholder={
+              t('form:input-placeholder-quantity-level-name') ||
+              'e.g., Light, Normal, Extra'
+            }
             className="w-full"
             inputClassName="bg-white"
           />
@@ -94,7 +97,7 @@ export default function QuantityLevelField({
         <div className="lg:col-span-2">
           <Input
             label={t('form:input-label-display-order') || 'Order'}
-            labelClassName="lg:sr-only" // Hide label on desktop
+            labelClassName="lg:sr-only"
             {...register(`quantity_levels.${index}.display_order` as const, {
               valueAsNumber: true,
             })}

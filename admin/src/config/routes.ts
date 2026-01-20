@@ -80,6 +80,9 @@ export const Routes = {
   item: {
     ...routesFactory('/items'),
   },
+  itemSize: {
+    ...routesFactory('/item-sizes'),
+  },
   modifierGroup: {
     ...routesFactory('/modifiers/groups'),
   },

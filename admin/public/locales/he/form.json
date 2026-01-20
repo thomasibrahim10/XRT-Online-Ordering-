@@ -783,5 +783,11 @@
   "input-label-business": "Business",
   "input-label-location": "Location",
   "input-label-rewards": "Rewards",
-  "input-label-notes": "Notes"
+  "input-label-notes": "Notes",
+  "input-label-modifier-groups": "קבוצות שינוי",
+  "input-label-apply-modifier-groups-recursive": "החל על כל הפריטים בקטגוריה",
+  "input-label-display-name": "שם תצוגה",
+  "input-placeholder-display-name": "למשל, תוספות נוספות, בחר את הגודל שלך",
+  "input-helper-display-name": "שם ידידותי למשתמש עבור דף נחיתה (אופציונלי)",
+  "button-label-add-item-size": "הוסף גודל פריט"
 }

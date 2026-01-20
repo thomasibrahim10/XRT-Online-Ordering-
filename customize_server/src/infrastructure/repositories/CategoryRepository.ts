@@ -22,6 +22,27 @@ export class CategoryRepository implements ICategoryRepository {
       icon: document.icon,
       icon_public_id: document.icon_public_id,
       translated_languages: document.translated_languages,
+      modifier_groups: document.modifier_groups
+        ? document.modifier_groups.map((mg: any) => ({
+            modifier_group_id:
+              typeof mg.modifier_group_id === 'string'
+                ? mg.modifier_group_id
+                : (mg.modifier_group_id?._id || mg.modifier_group_id).toString(),
+            display_order: mg.display_order || 0,
+            modifier_overrides: mg.modifier_overrides
+              ? mg.modifier_overrides.map((mo: any) => ({
+                  modifier_id:
+                    typeof mo.modifier_id === 'string'
+                      ? mo.modifier_id
+                      : (mo.modifier_id?._id || mo.modifier_id).toString(),
+                  max_quantity: mo.max_quantity,
+                  is_default: mo.is_default,
+                  prices_by_size: mo.prices_by_size || undefined,
+                  quantity_levels: mo.quantity_levels || undefined,
+                }))
+              : undefined,
+          }))
+        : [],
       created_at: document.created_at,
       updated_at: document.updated_at,
     };
@@ -95,4 +116,3 @@ export class CategoryRepository implements ICategoryRepository {
     return count > 0;
   }
 }
-

@@ -789,5 +789,11 @@
   "input-label-business": "Business",
   "input-label-location": "Location",
   "input-label-rewards": "Rewards",
-  "input-label-notes": "Notes"
+  "input-label-notes": "Notes",
+  "input-label-modifier-groups": "修饰符组",
+  "input-label-apply-modifier-groups-recursive": "应用于类别中的所有项目",
+  "input-label-display-name": "显示名称",
+  "input-placeholder-display-name": "例如：额外配料，选择您的尺寸",
+  "input-helper-display-name": "用于着陆页的用户友好名称（可选）",
+  "button-label-add-item-size": "添加项目尺寸"
 }

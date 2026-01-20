@@ -28,25 +28,8 @@ const Logo: React.FC<React.AnchorHTMLAttributes<{}>> = ({
     setIsMounted(true);
   }, []);
 
-  // Show fallback or loading state during SSR/hydration
-  if (!isMounted) {
-    return (
-      <Link
-        href={siteSettings?.logo?.href}
-        className={cn('inline-flex items-center gap-3', className)}
-      >
-        <span
-          className="relative overflow-hidden "
-          style={{
-            width: siteSettings.logo.width,
-            height: siteSettings.logo.height,
-          }}
-        >
-          <div style={{ width: '100%', height: '100%', background: '#f3f4f6' }} />
-        </span>
-      </Link>
-    );
-  }
+  // Always render the same structure - use CSS/conditional rendering inside to prevent hydration mismatch
+  const showCollapsedLogo = isMounted && miniSidebar && width >= RESPONSIVE_WIDTH;
 
   return (
     <Link
@@ -54,7 +37,7 @@ const Logo: React.FC<React.AnchorHTMLAttributes<{}>> = ({
       className={cn('inline-flex items-center gap-3', className)}
       // {...props}
     >
-      {miniSidebar && width >= RESPONSIVE_WIDTH ? (
+      {showCollapsedLogo ? (
         <span
           className="relative overflow-hidden "
           style={{

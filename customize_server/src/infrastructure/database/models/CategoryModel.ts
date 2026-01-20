@@ -50,6 +50,35 @@ const CategorySchema = new Schema<CategoryDocument>(
       type: [String],
       default: ['en'],
     },
+    modifier_groups: [
+      {
+        modifier_group_id: { type: Schema.Types.ObjectId, ref: 'ModifierGroup' },
+        display_order: Number,
+        modifier_overrides: [
+          {
+            modifier_id: { type: Schema.Types.ObjectId, ref: 'Modifier' },
+            max_quantity: Number,
+            is_default: Boolean,
+            prices_by_size: [
+              {
+                sizeCode: String,
+                priceDelta: Number,
+              },
+            ],
+            quantity_levels: [
+              {
+                quantity: Number,
+                name: String,
+                price: Number,
+                is_default: Boolean,
+                display_order: Number,
+                is_active: Boolean,
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
@@ -61,4 +90,3 @@ CategorySchema.index({ business_id: 1, is_active: 1 });
 CategorySchema.index({ business_id: 1, kitchen_section_id: 1 });
 
 export const CategoryModel = mongoose.model<CategoryDocument>('Category', CategorySchema);
-

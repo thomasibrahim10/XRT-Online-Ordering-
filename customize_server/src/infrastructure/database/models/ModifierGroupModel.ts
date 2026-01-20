@@ -62,6 +62,10 @@ const ModifierGroupSchema = new Schema<ModifierGroupDocument>(
       required: true,
       trim: true,
     },
+    display_name: {
+      type: String,
+      trim: true,
+    },
     display_type: {
       type: String,
       required: true,

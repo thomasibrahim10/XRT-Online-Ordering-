@@ -20,6 +20,7 @@ import {
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
 } from '@/data/category';
+import { useModifierGroupsQuery } from '@/data/modifier-group';
 import { useSettingsQuery } from '@/data/settings';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import OpenAIButton from '@/components/openAI/openAI.button';
@@ -36,6 +37,7 @@ type FormValues = {
   kitchen_section_id: any;
   sort_order: number;
   is_active?: boolean;
+  modifier_groups?: any;
 };
 
 const defaultValues = {
@@ -46,6 +48,7 @@ const defaultValues = {
   kitchen_section_id: '',
   sort_order: 0,
   is_active: true,
+  modifier_groups: [],
 };
 
 type IProps = {
@@ -61,45 +64,51 @@ export default function CreateOrUpdateCategoriesForm({
   const isNewTranslation = router?.query?.action === 'translate';
 
   // Helper for text fallback
-  const getFallback = (key: string, accessKey: string, fallback: string) => {
-    const val = t(accessKey);
-    return val === key || val === accessKey ? fallback : val;
-  };
+  const getFallback = useCallback(
+    (key: string, accessKey: string, fallback: string) => {
+      const val = t(accessKey);
+      return val === key || val === accessKey ? fallback : val;
+    },
+    [t],
+  );
 
-  const kitchenSectionOptions: { label: string; value: string }[] = [
-    {
-      label: getFallback(
-        'kitchen-section-appetizers',
-        'common:kitchen-section-appetizers',
-        'Appetizers',
-      ),
-      value: 'KS_001',
-    },
-    {
-      label: getFallback(
-        'kitchen-section-main-course',
-        'common:kitchen-section-main-course',
-        'Main Course',
-      ),
-      value: 'KS_002',
-    },
-    {
-      label: getFallback(
-        'kitchen-section-desserts',
-        'common:kitchen-section-desserts',
-        'Desserts',
-      ),
-      value: 'KS_003',
-    },
-    {
-      label: getFallback(
-        'kitchen-section-beverages',
-        'common:kitchen-section-beverages',
-        'Beverages',
-      ),
-      value: 'KS_004',
-    },
-  ];
+  const kitchenSectionOptions: { label: string; value: string }[] = useMemo(
+    () => [
+      {
+        label: getFallback(
+          'kitchen-section-appetizers',
+          'common:kitchen-section-appetizers',
+          'Appetizers',
+        ),
+        value: 'KS_001',
+      },
+      {
+        label: getFallback(
+          'kitchen-section-main-course',
+          'common:kitchen-section-main-course',
+          'Main Course',
+        ),
+        value: 'KS_002',
+      },
+      {
+        label: getFallback(
+          'kitchen-section-desserts',
+          'common:kitchen-section-desserts',
+          'Desserts',
+        ),
+        value: 'KS_003',
+      },
+      {
+        label: getFallback(
+          'kitchen-section-beverages',
+          'common:kitchen-section-beverages',
+          'Beverages',
+        ),
+        value: 'KS_004',
+      },
+    ],
+    [t],
+  );
 
   const {
     register,
@@ -140,6 +149,14 @@ export default function CreateOrUpdateCategoriesForm({
           kitchen_section_id: kitchenSectionOptions.find(
             (opt: any) => opt.value === initialValues.kitchen_section_id,
           ),
+          modifier_groups: initialValues.modifier_groups?.map((bg: any) => ({
+            label: bg.modifier_group_id?.name || bg.modifier_group_id, // Handle populated vs string ID if needed, though usually populated in detailed view
+            value: {
+              modifier_group_id:
+                bg.modifier_group_id?._id || bg.modifier_group_id,
+              display_order: bg.display_order,
+            },
+          })),
         }
       : defaultValues,
     resolver: yupResolver(categoryValidationSchema),
@@ -177,6 +194,14 @@ export default function CreateOrUpdateCategoriesForm({
         kitchen_section_id: kitchenSectionOptions.find(
           (opt: any) => opt.value === initialValues.kitchen_section_id,
         ),
+        modifier_groups: initialValues.modifier_groups?.map((bg: any) => ({
+          label: bg.modifier_group_id?.name || bg.modifier_group_id,
+          value: {
+            modifier_group_id:
+              bg.modifier_group_id?._id || bg.modifier_group_id,
+            display_order: bg.display_order,
+          },
+        })),
       });
     }
   }, [initialValues, reset, kitchenSectionOptions]);
@@ -190,10 +215,35 @@ export default function CreateOrUpdateCategoriesForm({
     language: locale!,
   });
 
+  const { groups: modifierGroups, loading: loadingModifierGroups } =
+    useModifierGroupsQuery({
+      limit: 1000,
+      language: locale!,
+    });
+
   const generateName = watch('name');
+  const selectedModifierGroups = watch('modifier_groups');
+  
   const categoryDetailSuggestionLists = useMemo(() => {
     return CategoryDetailSuggestion({ name: generateName ?? '' });
   }, [generateName]);
+
+  // Create modifier group options - filter out already selected ones to prevent duplicate selection
+  const availableModifierGroupOptions = useMemo(() => {
+    const selectedIds = (selectedModifierGroups || []).map(
+      (mg: any) => mg?.value?.modifier_group_id || mg?.modifier_group_id
+    );
+    return modifierGroups
+      ?.filter((group) => !selectedIds.includes(group.id))
+      .map((group) => ({
+        label: group.display_name || group.name, // Use display_name if available, fallback to name
+        value: {
+          modifier_group_id: group.id,
+          modifier_group_name: group.name, // Use name for system use
+          display_order: 0,
+        },
+      })) || [];
+  }, [modifierGroups, selectedModifierGroups]);
 
   const handleGenerateDescription = useCallback(() => {
     openModal('GENERATE_DESCRIPTION', {
@@ -219,6 +269,12 @@ export default function CreateOrUpdateCategoriesForm({
       sort_order: Number(values.sort_order),
       is_active: values.is_active,
       business_id: 'biz_001',
+      modifier_groups: values.modifier_groups?.map((mg: any) => ({
+        modifier_group_id: mg.value.modifier_group_id,
+        display_order: mg.value.display_order || 0,
+      })),
+      // Automatically apply modifier groups to all items when modifier groups are selected
+      apply_modifier_groups_to_items: values.modifier_groups && values.modifier_groups.length > 0,
     };
 
     // Extract File objects if they exist in the values (returned as array from FileInput)
@@ -377,6 +433,18 @@ export default function CreateOrUpdateCategoriesForm({
               label={t('form:input-label-is-active-question')}
             />
           </div>
+
+          <div className="mb-5">
+            <Label>{t('form:input-label-modifier-groups')}</Label>
+            <SelectInput
+              name="modifier_groups"
+              control={control as any}
+              options={availableModifierGroupOptions}
+              isMulti
+              isLoading={loadingModifierGroups}
+            />
+          </div>
+
         </Card>
       </div>
       <StickyFooterPanel className="z-0">

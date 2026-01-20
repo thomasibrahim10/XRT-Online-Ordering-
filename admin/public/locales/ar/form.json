@@ -2,6 +2,9 @@
   "form-title-permission": "إذن",
 
   "input-placeholder-modifier-group-name": "مثال: الإضافات، الأحجام، خيارات أخرى",
+  "input-label-display-name": "اسم العرض",
+  "input-placeholder-display-name": "مثال: إضافات إضافية، اختر حجمك",
+  "input-helper-display-name": "اسم سهل الاستخدام لصفحة الهبوط (اختياري)",
   "input-label-actions": "إجراءات",
   "no-quantity-levels-helper": "قم بإنشاء مستويات مثل \"خفيف\"، \"عادي\"، \"زيادة\" للسماح للعملاء بتخصيص طلباتهم.",
   "error-base-price-required": "السعر الأساسي مطلوب للعناصر غير القابلة للحجم",
@@ -18,6 +21,7 @@
   "input-label-modifiers": "معدلات العناصر",
   "item-modifiers-help-text": "تعيين مجموعات المعدلات وتكوين المعدلات الافتراضية لهذا العنصر.",
   "input-label-modifier-groups": "مجموعات المعدلات",
+  "input-label-apply-modifier-groups-recursive": "تطبيق على جميع العناصر في الفئة",
   "input-placeholder-select-modifier-groups": "حدد مجموعات المعدلات...",
   "input-label-default-modifiers": "المعدلات الافتراضية",
   "loading-modifiers": "جاري تحميل المعدلات...",
@@ -47,6 +51,15 @@
   "action-mark-signature": "تحديد كتوقيع",
   "input-label-signature-dish": "طبق مميز",
   "form-title-create-product": "إنشاء منتج جديد",
+  "form-title-create-item": "إنشاء عنصر جديد",
+  "form-title-edit-item": "تحرير العنصر",
+  "form-title-create-item-size": "إنشاء حجم عنصر جديد",
+  "form-title-edit-item-size": "تحرير حجم العنصر",
+  "item-size-form-helper-text": "أضف تفاصيل حجم العنصر والمعلومات الضرورية من هنا",
+  "button-label-add-item-size": "إضافة حجم العنصر",
+  "input-label-is-active": "نشط",
+  "error-code-required": "الرمز مطلوب",
+  "code-cannot-be-changed": "لا يمكن تغيير الرمز بعد الإنشاء",
   "form-title-edit-product": "تحرير المنتج",
   "form-title-edit-faq": "تحرير الأسئلة الشائعة",
   "form-title-edit-shop": "تحرير المتجر",
@@ -858,5 +871,6 @@
   "modifiers-count": "معدلات",
   "no-modifiers-in-group": "لا توجد معدلات في هذه المجموعة بعد.",
   "pricing-inherited-from-group": "استخدام تسعير المجموعة.",
-  "pricing-will-use-group-config": "سيتم وراثه الأسعار من تكوين مجموعة المعدل."
+  "pricing-will-use-group-config": "سيتم وراثه الأسعار من تكوين مجموعة المعدل.",
+  "button-label-add-item-size": "إضافة حجم عنصر"
 }

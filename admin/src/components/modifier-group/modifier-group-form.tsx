@@ -38,6 +38,7 @@ import QuantityLevelField from './quantity-level-field';
 
 type FormValues = {
   name: string;
+  display_name?: string; // User-friendly display name for landing page
   display_type: 'RADIO' | 'CHECKBOX';
   min_select: number;
   max_select: number;
@@ -49,6 +50,7 @@ type FormValues = {
 
 const defaultValues: FormValues = {
   name: '',
+  display_name: '',
   display_type: 'RADIO' as const,
   min_select: 0,
   max_select: 1,
@@ -72,6 +74,7 @@ export default function CreateOrUpdateModifierGroupForm({
     defaultValues: initialValues
       ? {
           name: initialValues.name,
+          display_name: initialValues.display_name || '',
           display_type: initialValues.display_type,
           min_select: initialValues.min_select,
           max_select: initialValues.max_select,
@@ -97,6 +100,7 @@ export default function CreateOrUpdateModifierGroupForm({
     control,
     formState: { errors },
     watch,
+    setValue,
   } = methods;
 
   const {
@@ -140,6 +144,7 @@ export default function CreateOrUpdateModifierGroupForm({
   const onSubmit = async (values: FormValues) => {
     const input = {
       name: values.name,
+      display_name: values.display_name || undefined,
       display_type: (values.display_type as any)?.value || values.display_type,
       min_select: Number(values.min_select),
       max_select: Number(values.max_select),
@@ -282,6 +287,24 @@ export default function CreateOrUpdateModifierGroupForm({
                   }
                   className="w-full"
                 />
+
+                <div className="mb-0">
+                  <Input
+                    label={t('form:input-label-display-name') || 'Display Name'}
+                    {...register('display_name')}
+                    error={t(errors.display_name?.message!)}
+                    variant="outline"
+                    placeholder={
+                      t('form:input-placeholder-display-name') ||
+                      'e.g., Extra Toppings, Choose Your Size'
+                    }
+                    className="w-full"
+                  />
+                  <p className="mt-2 text-xs text-body/60">
+                    {t('form:input-helper-display-name') ||
+                      'User-friendly name for landing page (optional)'}
+                  </p>
+                </div>
 
                 <Input
                   label={t('form:input-label-sort-order') || 'Sort Order'}

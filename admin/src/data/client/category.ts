@@ -48,8 +48,20 @@ export const categoryClient = {
         formData.append('image', input.image);
       } else if (key === 'icon' && input.icon) {
         formData.append('icon', input.icon);
+      } else if (key === 'modifier_groups' && (input as any).modifier_groups !== undefined) {
+        // Serialize arrays/objects as JSON strings for FormData
+        formData.append(key, JSON.stringify((input as any).modifier_groups));
       } else if (input[key as keyof CreateCategoryInput] !== undefined) {
-        formData.append(key, String(input[key as keyof CreateCategoryInput]));
+        const value = input[key as keyof CreateCategoryInput];
+        // Handle boolean values properly
+        if (typeof value === 'boolean') {
+          formData.append(key, String(value));
+        } else if (typeof value === 'object' && value !== null) {
+          // Serialize other objects as JSON
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
       }
     });
     const response = await HttpClient.post<any>(API_ENDPOINTS.CATEGORIES, formData, {
@@ -64,8 +76,19 @@ export const categoryClient = {
         formData.append('image', input.image);
       } else if (key === 'icon' && input.icon) {
         formData.append('icon', input.icon);
+      } else if (key === 'modifier_groups' && input.modifier_groups !== undefined) {
+        // Serialize arrays/objects as JSON strings for FormData
+        formData.append(key, JSON.stringify(input.modifier_groups));
       } else if (input[key] !== undefined) {
-        formData.append(key, String(input[key]));
+        // Handle boolean values properly
+        if (typeof input[key] === 'boolean') {
+          formData.append(key, String(input[key]));
+        } else if (typeof input[key] === 'object' && input[key] !== null) {
+          // Serialize other objects as JSON
+          formData.append(key, JSON.stringify(input[key]));
+        } else {
+          formData.append(key, String(input[key]));
+        }
       }
     });
     const response = await HttpClient.put<any>(

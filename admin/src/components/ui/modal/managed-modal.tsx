@@ -64,6 +64,9 @@ const AttributeDeleteView = dynamic(
 const ItemDeleteView = dynamic(
   () => import('@/components/item/item-delete-view'),
 );
+const ItemSizeDeleteView = dynamic(
+  () => import('@/components/item/item-size-delete-view'),
+);
 
 const ItemToggleView = dynamic(
   () => import('@/components/item/item-toggle-view'),
@@ -243,6 +246,8 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <RoleDeleteView />;
     case 'DELETE_ITEM':
       return <ItemDeleteView />;
+    case 'DELETE_ITEM_SIZE':
+      return <ItemSizeDeleteView />;
     case 'TOGGLE_ITEM_STATUS':
       return <ItemToggleView />;
     case 'ITEM_PREVIEW':

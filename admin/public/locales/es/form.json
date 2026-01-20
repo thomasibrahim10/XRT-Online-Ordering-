@@ -790,5 +790,11 @@
   "input-label-business": "Business",
   "input-label-location": "Location",
   "input-label-rewards": "Rewards",
-  "input-label-notes": "Notes"
+  "input-label-notes": "Notes",
+  "input-label-modifier-groups": "Grupos de modificadores",
+  "input-label-apply-modifier-groups-recursive": "Aplicar a todos los artículos en la categoría",
+  "input-label-display-name": "Nombre para mostrar",
+  "input-placeholder-display-name": "ej., Toppings extra, Elige tu tamaño",
+  "input-helper-display-name": "Nombre fácil de usar para la página de destino (opcional)",
+  "button-label-add-item-size": "Agregar tamaño de artículo"
 }

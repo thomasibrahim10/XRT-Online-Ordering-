@@ -783,5 +783,11 @@
   "input-label-business": "Business",
   "input-label-location": "Location",
   "input-label-rewards": "Rewards",
-  "input-label-notes": "Notes"
+  "input-label-notes": "Notes",
+  "input-label-modifier-groups": "Modifikationsgruppen",
+  "input-label-apply-modifier-groups-recursive": "Auf alle Artikel in der Kategorie anwenden",
+  "input-label-display-name": "Anzeigename",
+  "input-placeholder-display-name": "z.B. Extra Toppings, Größe wählen",
+  "input-helper-display-name": "Benutzerfreundlicher Name für die Landingpage (optional)",
+  "button-label-add-item-size": "Artikelgröße hinzufügen"
 }
