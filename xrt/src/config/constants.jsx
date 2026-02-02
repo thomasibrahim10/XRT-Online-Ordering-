@@ -620,6 +620,13 @@ export const footer_image =
   pay:payment
 }
 
+export const adsPopup = {
+  view: true,
+  image: null, 
+  title: "Special Offer",
+  description: "Get 20% off your first order!"
+};
+
 export const STORE_LOCATION = {
   location: "9066 Green Lake Drive Chevy Chase, MD 20815",
   mail: "contact@example.com",
