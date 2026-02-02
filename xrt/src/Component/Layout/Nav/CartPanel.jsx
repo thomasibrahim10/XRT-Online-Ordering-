@@ -9,7 +9,7 @@ import { products } from '../../../config/constants';
 
 export default function CartPanel({ open, setclosefun }) {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, addToCart, cartTotal } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, addToCart, cartTotal, orderType } = useCart();
   const scrollContainerRef = useRef(null);
 
   const scroll = (direction) => {
