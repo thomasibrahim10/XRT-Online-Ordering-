@@ -101,6 +101,11 @@ export default function CartPanel({ open, setclosefun }) {
                             />
                         </div>
                         <div className="flex-1">
+                            {item.isCustomized && (
+                              <span className="inline-block px-2 py-0.5 mb-1 text-[10px] font-semibold text-[var(--primary)] bg-green-50 rounded-full border border-green-100">
+                                Customized
+                              </span>
+                            )}
                             <h4 className="text-sm font-semibold text-[var(--text-primary)] line-clamp-2 leading-tight mb-1">
                             {item.name}
                             </h4>

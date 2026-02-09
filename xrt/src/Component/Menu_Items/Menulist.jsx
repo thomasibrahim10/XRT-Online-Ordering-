@@ -45,7 +45,9 @@ export default function Menulist({
 
 
 
-  const gridCols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
+  const gridCols = (variant === 'home' || variant === 'full')
+    ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+    : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
 
   const containerPadding = "px-4 md:px-8 lg:px-[70px]";
 
@@ -101,7 +103,16 @@ export default function Menulist({
             }`}
           >
             {displayedProducts.map((product) => (
-              <ItemComponent key={product.id} product={product} />
+              (variant === 'home' || variant === 'full') ? (
+                <div 
+                  key={product.id}
+                  className="w-full max-w-[170px] mx-auto [&>div>div:first-child>img]:!h-[160px] [&>div>div:last-child]:!flex-col [&>div>div:last-child]:!gap-3 [&>div>div:last-child>div]:!w-full [&>div>div:last-child>div]:!h-auto [&>div>div:last-child>div]:!py-2 [&>div>div:last-child>div_h5]:!text-xs [&>div>div:last-child>div_svg]:!w-4"
+                >
+                  <ItemComponent product={product} />
+                </div>
+              ) : (
+                <ItemComponent key={product.id} product={product} />
+              )
             ))}
           </div>
 

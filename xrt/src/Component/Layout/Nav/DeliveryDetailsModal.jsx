@@ -20,7 +20,11 @@ const DeliveryDetailsModal = () => {
     if (deliveryDetails) {
       setValue('firstName', deliveryDetails.firstName);
       setValue('lastName', deliveryDetails.lastName);
-      setValue('address', deliveryDetails.address);
+      setValue('address1', deliveryDetails.address1);
+      setValue('apt', deliveryDetails.apt);
+      setValue('city', deliveryDetails.city);
+      setValue('state', deliveryDetails.state);
+      setValue('zipcode', deliveryDetails.zipcode);
     }
   }, [deliveryDetails, setValue]);
 
@@ -55,11 +59,14 @@ const DeliveryDetailsModal = () => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              '--primary': COLORS.primary,
+            }}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50">
-              <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: COLORS.primary }}>
-                <MapPin className="text-blue-500" size={24} />
+              <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--primary)]">
+                <MapPin className="text-[var(--primary)]" size={24} />
                 Delivery Details
               </h2>
               <button
@@ -72,16 +79,17 @@ const DeliveryDetailsModal = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              
+              {/* First Name & Last Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                    <User size={14} className="text-gray-400" />
-                    First Name
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     {...register("firstName", { required: "First name is required" })}
-                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-100 bg-gray-50/50 outline-none transition-all ${
-                      errors.firstName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                      errors.firstName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="John"
                   />
@@ -89,13 +97,12 @@ const DeliveryDetailsModal = () => {
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                    <User size={14} className="text-gray-400" />
-                    Last Name
+                    Last Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     {...register("lastName", { required: "Last name is required" })}
-                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-100 bg-gray-50/50 outline-none transition-all ${
-                      errors.lastName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                      errors.lastName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="Doe"
                   />
@@ -103,28 +110,85 @@ const DeliveryDetailsModal = () => {
                 </div>
               </div>
 
+              {/* Address 1 */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  <MapPin size={14} className="text-gray-400" />
-                  Delivery Address
+                  Address <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  {...register("address", { required: "Address is required" })}
-                  className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-100 bg-gray-50/50 outline-none transition-all min-h-[100px] resize-none ${
-                    errors.address ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
+                <input
+                  {...register("address1", { required: "Address is required" })}
+                  className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                    errors.address1 ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
                   }`}
-                  placeholder="Enter your full delivery address..."
-                ></textarea>
-                {errors.address && <span className="text-xs text-red-500">{errors.address.message}</span>}
+                  placeholder="123 Main St"
+                />
+                {errors.address1 && <span className="text-xs text-red-500">{errors.address1.message}</span>}
+              </div>
+
+              {/* Apt / Building (Optional) */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                  Apt / Building <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  {...register("apt")}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all"
+                  placeholder="Apt 4B, Building C"
+                />
+              </div>
+
+              {/* City, State, Zipcode */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("city", { required: "City is required" })}
+                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                      errors.city ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                    }`}
+                    placeholder="New York"
+                  />
+                  {errors.city && <span className="text-xs text-red-500">{errors.city.message}</span>}
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("state", { required: "State is required" })}
+                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                      errors.state ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                    }`}
+                    placeholder="NY"
+                  />
+                  {errors.state && <span className="text-xs text-red-500">{errors.state.message}</span>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    Zipcode <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("zipcode", { required: "Zipcode is required" })}
+                    className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-[var(--primary)]/20 bg-gray-50/50 outline-none transition-all ${
+                      errors.zipcode ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                    }`}
+                    placeholder="10001"
+                  />
+                  {errors.zipcode && <span className="text-xs text-red-500">{errors.zipcode.message}</span>}
+                </div>
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-[var(--primary)] hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-green-200/50 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Save size={18} />
-                  Save & Continue
+                  <span>Save & Continue</span>
                 </button>
               </div>
             </form>

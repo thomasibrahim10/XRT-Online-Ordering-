@@ -4,6 +4,7 @@ import { X, Handbag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import ProductCustomizer from './Product/ProductCustomizer';
 import { COLORS } from '../config/colors';
+import { computeTotalPrice } from '../utils/priceUtils';
 
 const ProductModal = ({ isOpen, onClose, product }) => {
   const { addToCart } = useCart();
@@ -142,18 +143,9 @@ const ProductModal = ({ isOpen, onClose, product }) => {
 
   if (!isOpen || !product) return null;
 
-  // Calculate Price
-  let currentPrice = product.basePrice;
-  if (selectedSize && selectedSize.multiplier) {
-      currentPrice *= selectedSize.multiplier;
-  }
-  
-  // Modifiers Price
-  // Note: accurate calculation requires replicating the logic in ProductCustomizer or moving it to a helper
-  // For now, we'll rely on base calculation or implement a basic sum
-  // This might be slightly off if we don't duplicate 100% of logic, but sufficient for MV reconstruction
-  
-  const totalPrice = (currentPrice * quantity).toFixed(2);
+// ... (inside component)
+
+  const totalPrice = computeTotalPrice(product, selectedSize, selectedModifiers, quantity);
 
   return (
     <AnimatePresence>
@@ -171,75 +163,86 @@ const ProductModal = ({ isOpen, onClose, product }) => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-             {/* Header */}
-             <div className="flex justify-between items-start p-6 border-b border-gray-100">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">{product.name}</h2>
-                  <p className="text-gray-500 text-sm mt-1">{product.description}</p>
-                </div>
-                <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                  <X size={24} className="text-gray-500" />
-                </button>
-             </div>
+             {/* Close Button */}
+             <button 
+                onClick={onClose} 
+                className="absolute top-4 right-4 z-10 p-2 bg-white/80 hover:bg-gray-100 rounded-full transition-colors shadow-sm"
+             >
+                <X size={24} className="text-gray-500" />
+             </button>
 
-             {/* Content */}
-             <div className="flex-1 overflow-y-auto p-6">
-                <div className="flex flex-col md:flex-row gap-8">
-                   <div className="w-full md:w-1/3">
+             <div className="p-6 md:p-8">
+                {/* Top Section: 2 Columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 items-center">
+                   {/* Left: Image */}
+                   <div>
                       <img 
-                        src={product.src} 
+                        src={product.src || null} 
                         alt={product.name} 
                         className="w-full h-auto rounded-xl object-cover shadow-sm border border-gray-100" 
                       />
                    </div>
                    
-                   <div className="w-full md:w-2/3">
-                      <ProductCustomizer 
-                        product={product}
-                        selectedSize={selectedSize}
-                        setSelectedSize={setSelectedSize}
-                        selectedModifiers={selectedModifiers}
-                        toggleModifier={handleToggleModifier}
-                        updateModifierLevel={updateModifierLevel}
-                        updateModifierPlacement={updateModifierPlacement}
-                      />
+                   {/* Right: Info */}
+                   <div>
+                      <h2 className="text-3xl font-bold text-gray-800 mb-2">{product.name}</h2>
+                      <p className="text-gray-500 leading-relaxed">{product.description}</p>
                    </div>
                 </div>
-             </div>
 
-             {/* Footer */}
-             <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-4">
-                 <div className="flex items-center gap-4">
-                    <div className="flex items-center bg-white border border-gray-200 rounded-lg h-12">
-                       <button 
-                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                         className="px-4 h-full hover:bg-gray-100 text-xl font-bold text-gray-600 rounded-l-lg"
-                       >-</button>
-                       <span className="w-12 text-center font-bold text-gray-800">{quantity}</span>
-                       <button 
-                         onClick={() => setQuantity(quantity + 1)}
-                         className="px-4 h-full hover:bg-gray-100 text-xl font-bold text-gray-600 rounded-r-lg"
-                       >+</button>
+                {/* Below: Customizer (Sizes & Modifiers) */}
+                <div className="mb-8">
+                   <ProductCustomizer 
+                     product={product}
+                     selectedSize={selectedSize}
+                     setSelectedSize={setSelectedSize}
+                     selectedModifiers={selectedModifiers}
+                     toggleModifier={handleToggleModifier}
+                     updateModifierLevel={updateModifierLevel}
+                     updateModifierPlacement={updateModifierPlacement}
+                   />
+                </div>
+
+                {/* Bottom: Cart Controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                       <span className="text-gray-700 font-medium hidden sm:inline">Quantity:</span>
+                       <div className="flex items-center bg-white border border-gray-200 rounded-lg h-12 w-full sm:w-auto justify-between sm:justify-start">
+                          <button 
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            className="px-4 h-full hover:bg-gray-50 text-xl font-bold text-gray-600 rounded-l-lg transition-colors"
+                          >-</button>
+                          <span className="w-12 text-center font-bold text-gray-800">{quantity}</span>
+                          <button 
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="px-4 h-full hover:bg-gray-50 text-xl font-bold text-gray-600 rounded-r-lg transition-colors"
+                          >+</button>
+                       </div>
                     </div>
-                 </div>
 
-                 <button 
-                   onClick={() => {
-                       addToCart({...product, modifiers: selectedModifiers, size: selectedSize}, quantity);
-                       onClose();
-                   }}
-                   className="flex-1 h-12 bg-[var(--primary)] text-white font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
-                   style={{ backgroundColor: COLORS.primary }}
-                 >
-                   <Handbag size={20} />
-                   <span>Add to Order</span>
-                   <span className="ml-2 bg-white/20 px-2 py-0.5 rounded text-sm">
-                     ${totalPrice}
-                   </span>
-                 </button>
+                    <button 
+                      onClick={() => {
+                          const unitPrice = computeTotalPrice(product, selectedSize, selectedModifiers, 1);
+                          addToCart({
+                              ...product, 
+                              modifiers: selectedModifiers, 
+                              size: selectedSize, 
+                              price: unitPrice,
+                              isCustomized: Object.keys(selectedModifiers).length > 0
+                          }, quantity);
+                          onClose();
+                      }}
+                      className="w-full sm:flex-1 h-14 bg-[var(--primary)] text-white font-bold rounded-xl flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-lg shadow-green-200/50 hover:shadow-xl hover:-translate-y-0.5"
+                      style={{ backgroundColor: COLORS.primary }}
+                    >
+                      <Handbag size={22} />
+                      <span>Add to Order</span>
+                      <span>${totalPrice}</span>
+                    </button>
+                </div>
              </div>
 
           </motion.div>

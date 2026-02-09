@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Menulist from "../Component/Menu_Items/Menulist";
-import MenuItemCard from "../Component/Menu_Items/MenuItemCard";
+import ViewItems from "../Component/Menu_Items/ViewItems";
 import MenuCategories from "../Component/Menu_Items/MenuCategories";
 import { products } from "../config/constants";
 
@@ -41,7 +41,7 @@ export default function Menu() {
           variant="full"
           hideFilter={true}
           products={menuProducts}
-          ItemComponent={MenuItemCard}
+          ItemComponent={ViewItems}
           hideCountText={true}
         />
       </div>

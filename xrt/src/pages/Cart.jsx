@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { COLORS } from '../config/colors';
 import { X, ShoppingBag, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SignatureProducts from '../Component/Product/SignatureProducts';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -148,6 +149,7 @@ const Cart = () => {
           </Link>
         </div>
       )}
+      <SignatureProducts />
     </div>
   );
 };

@@ -246,6 +246,7 @@ export const products = [
     category: "Fruits",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -256,6 +257,7 @@ export const products = [
     category: "Fruits",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -266,6 +268,7 @@ export const products = [
     category: "Fruits",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -276,6 +279,7 @@ export const products = [
     category: "Fruits",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -286,6 +290,7 @@ export const products = [
     category: "leafy Green",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -296,6 +301,7 @@ export const products = [
     category: "leafy Green",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -306,6 +312,7 @@ export const products = [
     category: "leafy Green",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -316,6 +323,7 @@ export const products = [
     category: "leafy Green",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -326,6 +334,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -336,6 +345,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -346,6 +356,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -356,6 +367,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -366,6 +378,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -376,6 +389,7 @@ export const products = [
     category: "Cookies",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -386,6 +400,7 @@ export const products = [
     category: "leafy Green",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -396,6 +411,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -406,6 +422,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -416,6 +433,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -426,6 +444,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -436,6 +455,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -446,6 +466,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -456,6 +477,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -466,6 +488,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -476,6 +499,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -486,6 +510,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -496,6 +521,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -506,6 +532,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -516,6 +543,7 @@ export const products = [
     category: "Vegan Cuisine",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: true,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
@@ -526,6 +554,7 @@ export const products = [
     category: "Marrow",
     basePrice: 15, sizes: [{ label: "Small", multiplier: 1 }, { label: "Medium", multiplier: 1.3 }, { label: "Large", multiplier: 1.6 }],
     modifiers: modifiersList,
+    is_signature: false,
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Replace this text with product description from your data.",
   },
