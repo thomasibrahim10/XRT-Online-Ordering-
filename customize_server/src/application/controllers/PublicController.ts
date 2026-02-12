@@ -146,7 +146,7 @@ export class PublicController {
 
     const filters: any = {
       is_active: true,
-      is_available: true,
+      // is_available: true, // Removed to show all active items (e.g. out of stock)
       limit: 1000, // Fetch all for now
       page: 1,
       orderBy: 'sort_order',

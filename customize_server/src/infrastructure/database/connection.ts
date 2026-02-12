@@ -81,7 +81,12 @@ export const connectDatabase = async (): Promise<void> => {
   try {
     logger.info('🔌 Attempting to connect to MongoDB...');
 
-    if (mongoose.connection.readyState !== 0) {
+    // Only disconnect if we are in a state that requires it (e.g. disconnecting)
+    // If we are connecting (2), we might want to wait, but for now let's assume we want a fresh start
+    // or if we rely on the check at the top (isConnected && readyState === 1), we are good.
+    // However, specifically for serverless, frequent disconnects/reconnects are bad if we are just "connecting".
+
+    if (mongoose.connection.readyState !== 0 && mongoose.connection.readyState !== 2) {
       await mongoose.disconnect();
     }
 

@@ -123,6 +123,26 @@ app.get('/api-docs.json', (req, res) => {
   res.send(specs);
 });
 
+// Middleware to ensure database connection in serverless environment
+app.use(async (req, res, next) => {
+  if (process.env.VERCEL) {
+    try {
+      await connectDatabase();
+      next();
+    } catch (error) {
+      logger.error('Database connection failed in middleware:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? error : undefined,
+      });
+      return; // Ensure no further processing
+    }
+  } else {
+    next();
+  }
+});
+
 // API Routes
 app.use(`${env.API_BASE_URL}/auth`, authRoutes);
 app.use(`${env.API_BASE_URL}/businesses`, businessRoutes);
@@ -166,11 +186,14 @@ app.use(errorHandler);
 
 let server: any;
 
+// Middleware to ensure database connection in serverless environment
+
 const startServer = async () => {
   try {
     await connectDatabase();
 
-    // Start server if not running on Vercel
+    // Start server only if not running on Vercel
+    // In Vercel, the app is exported and handled by the platform
     if (!process.env.VERCEL) {
       const PORT = env.PORT;
       server = app.listen(PORT, () => {
@@ -194,11 +217,16 @@ const startServer = async () => {
     }
   } catch (error) {
     logger.error('Failed to start server:', error);
-    process.exit(1);
+    // Only exit in standard environment, not Vercel
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {

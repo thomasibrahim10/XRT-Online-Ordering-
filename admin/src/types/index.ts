@@ -2531,6 +2531,7 @@ export interface CreateItemInput {
   base_price?: number; // Used ONLY if is_sizeable = false
   category_id: string;
   image?: AttachmentInput;
+  image_public_id?: string;
   is_available?: boolean;
   is_signature?: boolean;
   max_per_order?: number;
