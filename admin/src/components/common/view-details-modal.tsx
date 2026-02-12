@@ -124,36 +124,35 @@ const ViewDetailsModal = ({ entityType }: ViewDetailsModalProps) => {
   const router = useRouter();
   const { locale } = router;
 
-  // FETCH GLOBAL SIZES for lookup
-  const { sizes: globalSizes } = useItemSizesQuery(undefined, {
-    enabled: true, // Always fetch to ensure we can resolve IDs
-  });
-
-  if (!data) {
-    return null;
-  }
-
-  const isCategory = isCategoryData(data);
-  // Simple check for item: has base_price/price and category/category_id
-  const isItem = Boolean(
+  const isCategory: boolean = data ? isCategoryData(data) : false;
+  const isItem: boolean = Boolean(
     data &&
     ('base_price' in data || 'price' in data) &&
     ('category_id' in data || 'category' in data),
   );
-  const isModifierGroup = Boolean(
+  const isModifierGroup: boolean = Boolean(
     data && 'min_select' in data && 'max_select' in data,
   );
-  const isModifier = Boolean(
+  const isModifier: boolean = Boolean(
     data && 'modifier_group_id' in data && !isModifierGroup,
   );
+
+  // ALL hooks must be called before any early returns
+  const { sizes: globalSizes } = useItemSizesQuery(undefined, {
+    enabled: true,
+  });
 
   const { item: fetchedItem, isLoading: loadingItem } = useItemQuery(
     { id: data?.id, language: locale! },
     {
       enabled: isItem && Boolean(data?.id),
-      staleTime: 0, // Always check for fresh data
+      staleTime: 0,
     },
   );
+
+  if (!data) {
+    return null;
+  }
 
   // Use fetched item if available, otherwise fall back to modal data
   let displayData = isItem && fetchedItem ? fetchedItem : data;

@@ -48,7 +48,7 @@ const TestimonialList = ({
     },
   });
 
-  const columns = [
+  const columns: any[] = [
     {
       title: t('table:table-item-name'),
       dataIndex: 'name',
