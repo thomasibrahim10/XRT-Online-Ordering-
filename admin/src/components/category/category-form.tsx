@@ -108,12 +108,11 @@ export default function CreateOrUpdateCategoriesForm({
     }));
   }, [kitchenSectionsData]);
 
-  const {
-    // @ts-ignore
-    settings: { options },
-  } = useSettingsQuery({
+  const { settings } = useSettingsQuery({
     language: locale!,
   });
+
+  const options = settings?.options;
 
   const { groups: modifierGroups, loading: loadingModifierGroups } =
     useModifierGroupsQuery({
