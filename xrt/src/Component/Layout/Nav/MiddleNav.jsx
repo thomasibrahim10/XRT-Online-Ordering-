@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useSiteSettingsQuery } from "@/api/hooks/useSiteSettings";
-import { logo as defaultLogo } from "@/config/constants";
+import { resolveImageUrl } from "@/utils/resolveImageUrl";
 import { Menu } from "lucide-react";
 import { COLORS } from "../../../config/colors";
 
 const MiddleNav = ({ count, total, link, setclickfun, onCartClick }) => {
   const { logo: settingsLogo } = useSiteSettingsQuery();
-  const logoSrc = settingsLogo?.original;
+  const logoSrc = resolveImageUrl(settingsLogo?.original ?? settingsLogo?.thumbnail ?? "");
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
@@ -21,10 +21,10 @@ const MiddleNav = ({ count, total, link, setclickfun, onCartClick }) => {
       />
 
       <a href={link} className="relative block w-[120px] md:w-[150px]">
-        {!settingsLogo && (
+        {!logoSrc && (
            <div className="w-full h-[40px] bg-gray-200 animate-pulse rounded"></div>
         )}
-        {logoSrc && (
+        {logoSrc ? (
           <>
             <img
               src={logoSrc}
@@ -39,7 +39,7 @@ const MiddleNav = ({ count, total, link, setclickfun, onCartClick }) => {
               <div className="w-full h-[40px] bg-gray-200 animate-pulse rounded absolute top-0 left-0"></div>
             )}
           </>
-        )}
+        ) : null}
       </a>
       <div onClick={onCartClick} className="flex cursor-pointer -translate-y-1 group">
         <i className="fa-thin fa-bag-shopping cursor-pointer text-gray-600 mt-[15px] text-[30px] group-hover:text-[var(--primary-hover)] duration-200 "></i>

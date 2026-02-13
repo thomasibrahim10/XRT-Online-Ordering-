@@ -1,9 +1,10 @@
 import { Quote, UserCircle } from "lucide-react";
 import React from "react";
+import { resolveImageUrl } from "@/utils/resolveImageUrl";
 
 export default function ViewTestimonials({ item }) {
-  // Normalise field: server sends `role`, legacy constants use `Role`
   const role = item.role || item.Role;
+  const imageSrc = resolveImageUrl(typeof item.image === "string" ? item.image : item.image?.original || item.image?.thumbnail || "");
 
   return (
     <div className="flex flex-col items-center text-center px-4">
@@ -12,9 +13,9 @@ export default function ViewTestimonials({ item }) {
         {item.feedback}
       </p>
 
-      {item.image ? (
+      {imageSrc ? (
         <img
-          src={item.image}
+          src={imageSrc}
           alt={item.name}
           className="w-[80px] h-[80px] rounded-full mb-5 object-cover"
         />
