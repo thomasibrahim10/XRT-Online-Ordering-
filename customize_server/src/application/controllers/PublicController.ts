@@ -10,7 +10,10 @@ function getBaseUrl(req: Request): string {
   if (fromEnv && typeof fromEnv === 'string' && fromEnv.trim()) {
     return fromEnv.trim().replace(/\/$/, '');
   }
-  return `${req.protocol}://${req.get('host') || `localhost:${process.env.PORT || 3001}`}`.replace(/\/$/, '');
+  return `${req.protocol}://${req.get('host') || `localhost:${process.env.PORT || 3001}`}`.replace(
+    /\/$/,
+    ''
+  );
 }
 
 /** Rewrite relative or localhost image URLs to the public API origin so disk uploads and frontends load correctly. */
@@ -87,7 +90,13 @@ export class PublicController {
     const logo = settings.logo;
     const logoNormalized =
       logo && typeof logo === 'object' && logo.original
-        ? { ...logo, original: imageUrlForRequest(logo.original, req), thumbnail: imageUrlForRequest((logo as any).thumbnail, req) || imageUrlForRequest(logo.original, req) }
+        ? {
+            ...logo,
+            original: imageUrlForRequest(logo.original, req),
+            thumbnail:
+              imageUrlForRequest((logo as any).thumbnail, req) ||
+              imageUrlForRequest(logo.original, req),
+          }
         : logo;
     const promoPopup = settings.promoPopup;
     const promoPopupNormalized =
@@ -97,7 +106,9 @@ export class PublicController {
             image: {
               ...(promoPopup as any).image,
               original: imageUrlForRequest((promoPopup as any).image?.original, req),
-              thumbnail: imageUrlForRequest((promoPopup as any).image?.thumbnail, req) || imageUrlForRequest((promoPopup as any).image?.original, req),
+              thumbnail:
+                imageUrlForRequest((promoPopup as any).image?.thumbnail, req) ||
+                imageUrlForRequest((promoPopup as any).image?.original, req),
             },
           }
         : promoPopup;
@@ -113,6 +124,7 @@ export class PublicController {
       copyrightText: settings.copyrightText ?? 'Powered by XRT',
       orders: settings.orders ?? null,
       messages: settings.messages ?? null,
+      operating_hours: settings.operating_hours ?? null,
     };
 
     return sendSuccess(res, 'Site settings retrieved', publicSettings);

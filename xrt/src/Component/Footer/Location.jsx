@@ -33,6 +33,40 @@ export default function Location() {
           {contactDetails?.contact}
         </span>
       </li>
+      {/* Operating Hours */}
+      {/* Operating Hours List */}
+      {/* Operating Hours - Current Day Only */}
+      {(() => {
+        if (!settings?.operating_hours?.schedule) return null;
+
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDayName = days[new Date().getDay()];
+        const todaySlot = settings.operating_hours.schedule.find(s => s.day === currentDayName);
+
+        if (!todaySlot) return null;
+
+        const to12Hour = (timeStr) => {
+          if (!timeStr) return '';
+          const [hour, minute] = timeStr.split(':');
+          const h = parseInt(hour, 10);
+          const ampm = h >= 12 ? 'PM' : 'AM';
+          const h12 = h % 12 || 12;
+          return `${h12}:${minute} ${ampm}`;
+        };
+
+        return (
+          <li className="flex mt-4 flex-col">
+             <h4 className="text-[#FFA900] font-bold text-[17px] mb-2">OPENING HOURS</h4>
+             <div className="text-[#E1E1E1] text-[15px]">
+               {todaySlot.is_closed ? (
+                 <span>{todaySlot.day}: Closed</span>
+               ) : (
+                 <span>{todaySlot.day}: {to12Hour(todaySlot.open_time)} - {to12Hour(todaySlot.close_time)}</span>
+               )}
+             </div>
+          </li>
+        );
+      })()}
     </>
   );
 }

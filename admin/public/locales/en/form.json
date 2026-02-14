@@ -146,6 +146,8 @@
   "input-label-coupons": "Coupons",
   "input-label-orders": "Orders",
   "input-label-order-id": "Order ID",
+  "form-input-label-max-days": "Max Days (0 for unlimited)",
+  "form-input-label-notification-time": "Notification Time (in minutes)",
   "input-label-sku": "SKU",
   "input-note-multilang-sku": "Make sure SKU is identical for all languages.",
   "input-label-name": "Name",

@@ -23,5 +23,6 @@ export function useSiteSettingsQuery(options = {}) {
     siteTitle: query.data?.siteTitle ?? "",
     siteSubtitle: query.data?.siteSubtitle ?? "",
     logo: query.data?.logo ?? null,
+    operating_hours: query.data?.operating_hours ?? null,
   };
 }

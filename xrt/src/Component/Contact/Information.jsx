@@ -59,14 +59,34 @@ export default function Information() {
           />
           <h3 className="font-bold text-[#2F3E30] text-[20px]">Hour of operation</h3>
           <div className="text-[#656766] w-[250px] py-2">
-            {schedule?.map((item, index) => (
-                !item.is_closed && (
-                    <div key={index} className="mb-1">
-                        <span className="font-semibold">{item.day}:</span> {item.open_time} - {item.close_time}
-                    </div>
-                )
-            ))}
-            {(!schedule || schedule.every(s => s.is_closed)) && <p>Closed</p>}
+            {(() => {
+              if (!schedule) return null;
+
+              const checkIsOpen = () => {
+                const now = new Date();
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const currentDay = days[now.getDay()];
+                const currentHours = now.getHours().toString().padStart(2, '0');
+                const currentMinutes = now.getMinutes().toString().padStart(2, '0');
+                const currentTime = `${currentHours}:${currentMinutes}`;
+
+                const todaySchedule = schedule.find(s => s.day === currentDay);
+
+                if (!todaySchedule || todaySchedule.is_closed) return false;
+                return currentTime >= todaySchedule.open_time && currentTime <= todaySchedule.close_time;
+              };
+
+              const isOpen = checkIsOpen();
+
+              return (
+                 <div className="flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full ${isOpen ? 'bg-[#5C9963]' : 'bg-red-500'}`}></span>
+                    <span className={`font-bold text-[17px] ${isOpen ? 'text-[#5C9963]' : 'text-red-500'}`}>
+                      {isOpen ? 'Open Now' : 'Closed'}
+                    </span>
+                 </div>
+              );
+            })()}
           </div>
         </div>
       </div>

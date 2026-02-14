@@ -7,11 +7,21 @@ const DefaultSeo = () => {
     <NextDefaultSeo
       title={settings.siteTitle ?? 'XRT Restaurant System'}
       titleTemplate={`%s | ${settings?.seo?.metaTitle ?? 'XRT Restaurant System'}`}
-      description={settings?.seo?.metaDescription || settings?.siteSubtitle || 'Restaurant Management Platform'}
+      description={
+        settings?.seo?.metaDescription ||
+        settings?.siteSubtitle ||
+        'Restaurant Management Platform'
+      }
       canonical={settings?.seo?.canonicalUrl}
       openGraph={{
-        title: settings?.seo?.ogTitle || settings?.siteTitle || 'XRT Restaurant System',
-        description: settings?.seo?.ogDescription || settings?.siteSubtitle || 'Restaurant Management Platform',
+        title:
+          settings?.seo?.ogTitle ||
+          settings?.siteTitle ||
+          'XRT Restaurant System',
+        description:
+          settings?.seo?.ogDescription ||
+          settings?.siteSubtitle ||
+          'Restaurant Management Platform',
         type: 'website',
         locale: 'en_US',
         site_name: settings?.siteTitle || 'XRT Restaurant System',
@@ -51,6 +61,13 @@ const DefaultSeo = () => {
         {
           rel: 'apple-touch-icon',
           href: 'icons/apple-icon-180.png',
+        },
+        {
+          rel: 'icon',
+          href:
+            settings?.logo?.thumbnail ||
+            settings?.logo?.original ||
+            'icons/apple-icon-180.png',
         },
         {
           rel: 'manifest',

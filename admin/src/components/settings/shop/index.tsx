@@ -98,8 +98,6 @@ type ShopFormValues = {
   siteLink?: string;
   copyrightText?: string;
   footer_text?: string;
-  externalText?: string;
-  externalLink?: string;
 };
 
 export const updatedIcons = socialIcon.map((item: any) => {
@@ -200,8 +198,6 @@ export default function SettingsForm({ settings }: IProps) {
       siteLink: options?.siteLink ?? '',
       copyrightText: options?.copyrightText ?? 'Powered by XRT',
       footer_text: options?.footer_text ?? '',
-      externalText: options?.externalText ?? '',
-      externalLink: options?.externalLink ?? '',
     },
   });
 
@@ -695,20 +691,6 @@ export default function SettingsForm({ settings }: IProps) {
             label={t('Copyright Text')}
             toolTipText={t('Copyright notice displayed in footer')}
             {...register('copyrightText')}
-            variant="outline"
-            className="mb-5"
-          />
-          <Input
-            label={t('External Text')}
-            toolTipText={t('Text for external link displayed in footer')}
-            {...register('externalText')}
-            variant="outline"
-            className="mb-5"
-          />
-          <Input
-            label={t('External Link')}
-            toolTipText={t('External URL displayed in footer')}
-            {...register('externalLink')}
             variant="outline"
             className="mb-5"
           />

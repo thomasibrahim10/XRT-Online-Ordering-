@@ -135,6 +135,8 @@ const getDefaultOptions = () => ({
     upload_max_filesize: 10240, // 10MB in KB
   },
   heroSlides: [] as any[],
+  siteLink: '',
+  enableReviewPopup: false,
 });
 
 export class SettingsController {
