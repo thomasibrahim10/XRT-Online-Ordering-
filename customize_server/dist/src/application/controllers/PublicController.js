@@ -38,12 +38,36 @@ const response_1 = require("../../shared/utils/response");
 const asyncHandler_1 = require("../../shared/utils/asyncHandler");
 const BusinessRepository_1 = require("../../infrastructure/repositories/BusinessRepository");
 const BusinessSettingsRepository_1 = require("../../infrastructure/repositories/BusinessSettingsRepository");
-/**
- * Public site settings for the storefront (no auth).
- * Returns hero slides, site title, logo, etc. from BusinessSettings.
- * Hero slides are the single source of truth: only slides added in the admin dashboard
- * (Settings > Hero Slider) are returned; the xrt storefront shows only these.
- */
+const env_1 = require("../../shared/config/env");
+function getBaseUrl(req) {
+    const fromEnv = env_1.env.PUBLIC_ORIGIN;
+    if (fromEnv && typeof fromEnv === 'string' && fromEnv.trim()) {
+        return fromEnv.trim().replace(/\/$/, '');
+    }
+    return `${req.protocol}://${req.get('host') || `localhost:${process.env.PORT || 3001}`}`.replace(/\/$/, '');
+}
+/** Rewrite relative or localhost image URLs to the public API origin so disk uploads and frontends load correctly. */
+function imageUrlForRequest(url, req) {
+    if (!url || typeof url !== 'string')
+        return '';
+    const trimmed = url.trim();
+    if (!trimmed)
+        return '';
+    const baseUrl = getBaseUrl(req);
+    if (trimmed.startsWith('/'))
+        return `${baseUrl}${trimmed}`;
+    try {
+        const parsed = new URL(trimmed);
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+            return `${baseUrl}${parsed.pathname}${parsed.search}`;
+        }
+    }
+    catch {
+        // not a valid URL
+    }
+    return trimmed;
+}
+/** Default when no settings in DB. Hero slides = admin Settings > Hero Slider. */
 function getDefaultPublicSiteSettings() {
     return {
         heroSlides: [],
@@ -55,7 +79,7 @@ function getDefaultPublicSiteSettings() {
 }
 class PublicController {
     constructor() {
-        this.getSiteSettings = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
+        this.getSiteSettings = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const businessRepository = new BusinessRepository_1.BusinessRepository();
             const businessSettingsRepository = new BusinessSettingsRepository_1.BusinessSettingsRepository();
             const business = await businessRepository.findOne();
@@ -68,13 +92,13 @@ class PublicController {
                 const defaults = getDefaultPublicSiteSettings();
                 return (0, response_1.sendSuccess)(res, 'Site settings retrieved', defaults);
             }
-            // Normalize heroSlides so each slide has bgImage as { original, thumbnail } for the storefront
             const rawSlides = settings.heroSlides ?? [];
             const heroSlides = rawSlides.map((slide) => {
                 const bg = slide?.bgImage;
                 const url = typeof bg === 'string'
                     ? bg
                     : ((bg && (typeof bg === 'object' ? (bg.original ?? bg.thumbnail) : undefined)) ?? '');
+                const normalized = imageUrlForRequest(url, req);
                 return {
                     title: slide?.title ?? '',
                     subtitle: slide?.subtitle ?? '',
@@ -82,20 +106,51 @@ class PublicController {
                     btnText: slide?.btnText ?? '',
                     btnLink: slide?.btnLink ?? '',
                     offer: slide?.offer ?? '',
-                    bgImage: url ? { original: url, thumbnail: url } : {},
+                    bgImage: normalized ? { original: normalized, thumbnail: normalized } : {},
                 };
             });
+            const logo = settings.logo;
+            const logoNormalized = logo && typeof logo === 'object' && logo.original
+                ? {
+                    ...logo,
+                    original: imageUrlForRequest(logo.original, req),
+                    thumbnail: imageUrlForRequest(logo.thumbnail, req) ||
+                        imageUrlForRequest(logo.original, req),
+                }
+                : logo;
+            const promoPopup = settings.promoPopup;
+            const promoPopupNormalized = promoPopup && typeof promoPopup === 'object' && promoPopup.image?.original
+                ? {
+                    ...promoPopup,
+                    image: {
+                        ...promoPopup.image,
+                        original: imageUrlForRequest(promoPopup.image?.original, req),
+                        thumbnail: imageUrlForRequest(promoPopup.image?.thumbnail, req) ||
+                            imageUrlForRequest(promoPopup.image?.original, req),
+                    },
+                }
+                : promoPopup;
             const publicSettings = {
                 heroSlides,
                 siteTitle: settings.siteTitle ?? 'XRT Online Ordering',
                 siteSubtitle: settings.siteSubtitle ?? '',
-                logo: settings.logo ?? null,
-                promoPopup: settings.promoPopup ?? null,
+                logo: logoNormalized ?? null,
+                promoPopup: promoPopupNormalized ?? null,
                 contactDetails: settings.contactDetails ?? null,
                 footer_text: settings.footer_text ?? '',
                 copyrightText: settings.copyrightText ?? 'Powered by XRT',
                 orders: settings.orders ?? null,
                 messages: settings.messages ?? null,
+                operating_hours: settings.operating_hours ?? null,
+                siteLink: settings.siteLink ?? '',
+                timezone: settings.timezone ?? 'America/New_York',
+                isProductReview: settings.isProductReview ?? false,
+                enableTerms: settings.enableTerms ?? false,
+                enableCoupons: settings.enableCoupons ?? false,
+                enableEmailForDigitalProduct: settings.enableEmailForDigitalProduct ?? false,
+                enableReviewPopup: settings.enableReviewPopup ?? false,
+                reviewSystem: settings.reviewSystem ?? 'review_single_time',
+                maxShopDistance: settings.maxShopDistance ?? 0,
             };
             return (0, response_1.sendSuccess)(res, 'Site settings retrieved', publicSettings);
         });
@@ -106,7 +161,7 @@ class PublicController {
             const testimonials = await testimonialRepository.findAll({ is_active: true });
             return (0, response_1.sendSuccess)(res, 'Testimonials retrieved successfully', testimonials);
         });
-        this.getCategories = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
+        this.getCategories = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { GetCategoriesUseCase } = await Promise.resolve().then(() => __importStar(require('../../domain/usecases/categories/GetCategoriesUseCase')));
             const { CategoryRepository } = await Promise.resolve().then(() => __importStar(require('../../infrastructure/repositories/CategoryRepository')));
             const { BusinessRepository } = await Promise.resolve().then(() => __importStar(require('../../infrastructure/repositories/BusinessRepository')));
@@ -127,11 +182,15 @@ class PublicController {
                 page: 1,
             };
             const result = await getCategoriesUseCase.execute(filters);
-            // Handle both paginated and non-paginated responses just in case
-            const categories = result.data || result;
+            const rawCategories = result.data || result;
+            const categories = (Array.isArray(rawCategories) ? rawCategories : []).map((cat) => ({
+                ...cat,
+                image: cat?.image ? imageUrlForRequest(cat.image, req) : cat?.image,
+                icon: cat?.icon ? imageUrlForRequest(cat.icon, req) : cat?.icon,
+            }));
             return (0, response_1.sendSuccess)(res, 'Categories retrieved successfully', categories);
         });
-        this.getProducts = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
+        this.getProducts = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { GetItemsUseCase } = await Promise.resolve().then(() => __importStar(require('../../domain/usecases/items/GetItemsUseCase')));
             const { ItemRepository } = await Promise.resolve().then(() => __importStar(require('../../infrastructure/repositories/ItemRepository')));
             const { BusinessRepository } = await Promise.resolve().then(() => __importStar(require('../../infrastructure/repositories/BusinessRepository')));
@@ -144,9 +203,11 @@ class PublicController {
             }
             const filters = {
                 is_active: true,
-                is_available: true,
+                // is_available: true, // Removed to show all active items (e.g. out of stock)
                 limit: 1000, // Fetch all for now
                 page: 1,
+                orderBy: 'sort_order',
+                sortedBy: 'asc',
             };
             // The ItemRepository filters by business implicitly via categories?
             // Wait, ItemRepository doesn't filter by business_id directly usually, it filters by category which has business_id.
@@ -205,7 +266,13 @@ class PublicController {
                 category_id: { $in: categoryIds },
             };
             const result = await getItemsUseCase.execute(queryFilters);
-            const products = result.data || result.items || result;
+            const rawProducts = result.data || result.items || result;
+            const products = (Array.isArray(rawProducts) ? rawProducts : []).map((item) => {
+                const image = item?.image;
+                const imageStr = typeof image === 'string' ? image : (image?.original ?? image?.thumbnail ?? '');
+                const absoluteImage = imageUrlForRequest(imageStr || '', req) || imageStr || item?.image;
+                return { ...item, image: absoluteImage };
+            });
             return (0, response_1.sendSuccess)(res, 'Products retrieved successfully', products);
         });
     }

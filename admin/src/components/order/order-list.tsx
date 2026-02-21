@@ -2,7 +2,7 @@ import Pagination from '@/components/ui/pagination';
 import dayjs from 'dayjs';
 import { Table } from '@/components/ui/table';
 import ActionButtons from '@/components/common/action-buttons';
-import usePrice from '@/utils/use-price';
+import ListItemPrice from '@/components/price/list-item-price';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -28,6 +28,7 @@ type IProps = {
   onPagination: (current: number) => void;
   onSort: (current: any) => void;
   onOrder: (current: string) => void;
+  status?: string;
 };
 
 const OrderList = ({
@@ -36,11 +37,12 @@ const OrderList = ({
   onPagination,
   onSort,
   onOrder,
+  status,
 }: IProps) => {
   // const { data, paginatorInfo } = orders! ?? {};
   const router = useRouter();
   const { t } = useTranslation();
-  const rowExpandable = (record: any) => record.children?.length;
+  const rowExpandable = (record: any) => record?.children?.length;
   const { alignLeft, alignRight } = useIsRTL();
   const { permissions } = getAuthCredentials();
   const { mutate: createConversations, isPending: creating } =
@@ -65,7 +67,9 @@ const OrderList = ({
   const onHeaderClick = (column: string | null) => ({
     onClick: () => {
       onSort((currentSortDirection: SortOrder) =>
-        currentSortDirection === SortOrder.Desc ? SortOrder.Asc : SortOrder.Desc
+        currentSortDirection === SortOrder.Desc
+          ? SortOrder.Asc
+          : SortOrder.Desc,
       );
       onOrder(column!);
 
@@ -162,13 +166,7 @@ const OrderList = ({
       dataIndex: 'delivery_fee',
       key: 'delivery_fee',
       align: 'center',
-      render: function Render(value: any) {
-        const delivery_fee = value ? value : 0;
-        const { price } = usePrice({
-          amount: delivery_fee,
-        });
-        return <span>{price}</span>;
-      },
+      render: (value: any) => <ListItemPrice value={value} />,
     },
     {
       title: (
@@ -187,12 +185,9 @@ const OrderList = ({
       align: 'center',
       width: 120,
       onHeaderCell: () => onHeaderClick('total'),
-      render: function Render(value: any) {
-        const { price } = usePrice({
-          amount: value,
-        });
-        return <span className="whitespace-nowrap">{price}</span>;
-      },
+      render: (value: any) => (
+        <ListItemPrice value={value} className="whitespace-nowrap" />
+      ),
     },
     {
       title: t('table:table-item-status'),

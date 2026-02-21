@@ -15,6 +15,8 @@ import {
   checkIsMaintenanceModeComing,
   checkIsMaintenanceModeStart,
 } from '@/utils/constants';
+import NewOrderNotification from '@/components/order/new-order-notification';
+import NewOrderModal from '@/components/order/new-order-modal';
 
 interface MenuItemsProps {
   [key: string]: {
@@ -103,10 +105,11 @@ const SideBarGroup = ({ userRole }: { userRole?: string }) => {
   );
 };
 
-const AdminLayout: React.FC<{ children?: React.ReactNode; userRole?: string; userPermissions?: string[] }> = ({
-  children,
-  userRole,
-}) => {
+const AdminLayout: React.FC<{
+  children?: React.ReactNode;
+  userRole?: string;
+  userPermissions?: string[];
+}> = ({ children, userRole }) => {
   const { locale } = useRouter();
 
   const dir = locale === 'ar' || locale === 'he' ? 'rtl' : 'ltr';
@@ -165,6 +168,10 @@ const AdminLayout: React.FC<{ children?: React.ReactNode; userRole?: string; use
           <Footer />
         </main>
       </div>
+
+      {/* Global Notification Components */}
+      <NewOrderNotification />
+      <NewOrderModal />
     </div>
   );
 };

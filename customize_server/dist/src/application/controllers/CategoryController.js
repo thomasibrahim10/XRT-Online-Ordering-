@@ -10,7 +10,6 @@ const DeleteCategoryUseCase_1 = require("../../domain/usecases/categories/Delete
 const CategoryRepository_1 = require("../../infrastructure/repositories/CategoryRepository");
 const ItemRepository_1 = require("../../infrastructure/repositories/ItemRepository");
 const KitchenSectionRepository_1 = require("../../infrastructure/repositories/KitchenSectionRepository");
-const ModifierGroupRepository_1 = require("../../infrastructure/repositories/ModifierGroupRepository");
 const CloudinaryStorage_1 = require("../../infrastructure/cloudinary/CloudinaryStorage");
 const response_1 = require("../../shared/utils/response");
 const asyncHandler_1 = require("../../shared/utils/asyncHandler");
@@ -20,10 +19,10 @@ class CategoryController {
     constructor() {
         this.create = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { name, description, details, kitchen_section_id, sort_order, is_active, image, image_public_id, icon, icon_public_id, language, modifier_groups, } = req.body;
-            const business_id = req.user?.business_id || req.body.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            const business_id = req.user?.business_id || req.body.business_id || 'default';
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             // Parse modifier_groups if it's a string (common in form data)
             let parsedModifierGroups = undefined;
             if (modifier_groups !== undefined) {
@@ -60,12 +59,10 @@ class CategoryController {
             }
         });
         this.getAll = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const business_id = req.user?.business_id || req.query.business_id;
-            // For super admins, allow getting all categories if no business_id is provided
-            // For other users, business_id is required
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            const business_id = req.user?.business_id || req.query.business_id || 'default';
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const filters = {
                 is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
                 kitchen_section_id: req.query.kitchen_section_id,
@@ -81,17 +78,10 @@ class CategoryController {
             const { id } = req.params;
             const { name, description, details, kitchen_section_id, sort_order, is_active, image, image_public_id, icon, icon_public_id, language, modifier_groups, delete_icon, // Extract flag
              } = req.body;
-            console.log('--- UPDATE CATEGORY REQUEST ---');
-            console.log('Payload Body Keys:', Object.keys(req.body));
-            console.log('Files:', req.files);
-            console.log('Modifier Groups (Raw):', modifier_groups);
-            // @ts-ignore
-            console.log('Apply to Items Flag (Raw):', req.body.apply_modifier_groups_to_items);
-            console.log('-------------------------------');
-            const business_id = req.user?.business_id || req.body.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            const business_id = req.user?.business_id || req.body.business_id || 'default';
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             // Parse modifier_groups if it's a string (common in form data)
             let parsedModifierGroups = undefined;
             if (modifier_groups !== undefined) {
@@ -125,9 +115,9 @@ class CategoryController {
             const { id } = req.params;
             let business_id = req.user?.business_id || req.query.business_id;
             // For super admins, if no business_id, they can get any category
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             if (!business_id && req.user?.role === roles_1.UserRole.SUPER_ADMIN) {
                 business_id = undefined;
             }
@@ -137,9 +127,9 @@ class CategoryController {
         this.delete = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
             const business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             await this.deleteCategoryUseCase.execute(id, business_id);
             return (0, response_1.sendSuccess)(res, 'Category deleted successfully');
         });
@@ -154,9 +144,9 @@ class CategoryController {
         });
         this.exportCategories = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const filters = {
                 is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
                 kitchen_section_id: req.query.kitchen_section_id,
@@ -171,36 +161,15 @@ class CategoryController {
             const categories = result.data || result; // Handle both paginated and non-paginated responses
             // Helper to safely stringify values for CSV
             const safeString = (val) => `"${(val || '').toString().replace(/"/g, '""')}"`;
-            // Helper to format modifier groups comfortably
-            const formatModifierGroups = (groups) => {
-                if (!groups || !Array.isArray(groups))
-                    return '';
-                return groups
-                    .map((g) => {
-                    const name = g.modifier_group?.name || 'Unknown Group';
-                    // We can also show overrides summary if needed, e.g. Max Qty
-                    // For now, just the group name is a good start, or name + overrides count
-                    return name;
-                })
-                    .join('; ');
-            };
-            // Convert to CSV
+            // Basics-only export: name, description, sort_order, is_active, kitchen_section_name (no modifier_groups)
             const csvRows = [
-                [
-                    'name',
-                    'description',
-                    'is_active',
-                    'sort_order',
-                    'kitchen_section_name',
-                    'modifier_groups',
-                ].join(','),
+                ['name', 'description', 'sort_order', 'is_active', 'kitchen_section_name'].join(','),
                 ...categories.map((cat) => [
                     safeString(cat.name),
                     safeString(cat.description),
-                    cat.is_active,
-                    cat.sort_order,
+                    cat.sort_order ?? 0,
+                    cat.is_active ?? true,
                     safeString(cat.kitchen_section_data?.name || ''),
-                    safeString(formatModifierGroups(cat.modifier_groups)),
                 ].join(',')),
             ];
             const csvContent = csvRows.join('\n');
@@ -212,10 +181,11 @@ class CategoryController {
             if (!req.file) {
                 throw new AppError_1.ValidationError('CSV file is required');
             }
-            const business_id = req.user?.business_id || req.body.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // Single-tenant: use default if not provided
+            const business_id = req.user?.business_id || req.body.business_id || 'default';
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const csvContent = req.file.buffer.toString('utf-8');
             const records = (0, sync_1.parse)(csvContent, {
                 columns: true,
@@ -259,44 +229,6 @@ class CategoryController {
                             // Ignore lookup errors
                         }
                     }
-                    // Handle Modifier Groups parsing
-                    if (record.modifier_groups) {
-                        const groupStrings = record.modifier_groups
-                            .split(';')
-                            .map((s) => s.trim())
-                            .filter((s) => s);
-                        const modifierGroupsList = [];
-                        for (const groupStr of groupStrings) {
-                            // Parse "Name (Min:X Max:Y)"
-                            const match = groupStr.match(/^(.*?)(?:\s*\(Min:\s*(\d+)\s*Max:\s*(\d+)\))?$/i);
-                            if (match) {
-                                const name = match[1].trim();
-                                // Lookup group by name
-                                try {
-                                    // Escape regex characters to ensure literal match
-                                    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                                    const groupsFound = await this.modifierGroupRepository.findAll({
-                                        business_id: business_id,
-                                        name: `^${escapedName}$`, // Exact match regex
-                                    });
-                                    if (groupsFound.modifierGroups.length > 0) {
-                                        const group = groupsFound.modifierGroups[0];
-                                        modifierGroupsList.push({
-                                            modifier_group_id: group.id,
-                                            display_order: modifierGroupsList.length,
-                                            modifier_overrides: [],
-                                        });
-                                    }
-                                }
-                                catch (err) {
-                                    // Ignore lookup errors
-                                }
-                            }
-                        }
-                        if (modifierGroupsList.length > 0) {
-                            categoryData.modifier_groups = modifierGroupsList;
-                        }
-                    }
                     const existingCategory = existingCategories.find((c) => c.name.toLowerCase() === record.name.toLowerCase());
                     if (existingCategory) {
                         // Update
@@ -321,7 +253,6 @@ class CategoryController {
         const itemRepository = new ItemRepository_1.ItemRepository();
         const imageStorage = new CloudinaryStorage_1.CloudinaryStorage();
         this.kitchenSectionRepository = new KitchenSectionRepository_1.KitchenSectionRepository();
-        this.modifierGroupRepository = new ModifierGroupRepository_1.ModifierGroupRepository();
         this.createCategoryUseCase = new CreateCategoryUseCase_1.CreateCategoryUseCase(categoryRepository, imageStorage);
         this.getCategoriesUseCase = new GetCategoriesUseCase_1.GetCategoriesUseCase(categoryRepository);
         this.updateCategoryUseCase = new UpdateCategoryUseCase_1.UpdateCategoryUseCase(categoryRepository, imageStorage, itemRepository);

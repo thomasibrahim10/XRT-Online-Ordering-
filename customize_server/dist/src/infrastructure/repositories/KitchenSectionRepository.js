@@ -19,8 +19,7 @@ class KitchenSectionRepository {
     }
     async findAll(filters) {
         const query = {};
-        if (filters.business_id)
-            query.business_id = filters.business_id;
+        // if (filters.business_id) query.business_id = filters.business_id;
         if (filters.name)
             query.name = new RegExp(`^${filters.name}$`, 'i'); // Case insensitive exact match
         const docs = await KitchenSectionModel_1.KitchenSectionModel.find(query);
@@ -28,7 +27,7 @@ class KitchenSectionRepository {
     }
     async findByName(name, business_id) {
         const doc = await KitchenSectionModel_1.KitchenSectionModel.findOne({
-            business_id,
+            // business_id,
             name: { $regex: new RegExp(`^${name}$`, 'i') },
         });
         return doc ? this.toDomain(doc) : null;

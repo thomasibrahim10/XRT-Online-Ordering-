@@ -16,7 +16,6 @@ const CreateLocationRequest_schema_1 = require("./components/schemas/CreateLocat
 const CreateModifierGroupRequest_schema_1 = require("./components/schemas/CreateModifierGroupRequest.schema");
 const CreateModifierRequest_schema_1 = require("./components/schemas/CreateModifierRequest.schema");
 const CreateRoleRequest_schema_1 = require("./components/schemas/CreateRoleRequest.schema");
-const CreateWithdrawRequest_schema_1 = require("./components/schemas/CreateWithdrawRequest.schema");
 const Customer_schema_1 = require("./components/schemas/Customer.schema");
 const ErrorResponse_schema_1 = require("./components/schemas/ErrorResponse.schema");
 const ForgotPasswordRequest_schema_1 = require("./components/schemas/ForgotPasswordRequest.schema");
@@ -51,9 +50,8 @@ const UpdateModifierRequest_schema_1 = require("./components/schemas/UpdateModif
 const UpdatePasswordRequest_schema_1 = require("./components/schemas/UpdatePasswordRequest.schema");
 const UpdatePermissionsRequest_schema_1 = require("./components/schemas/UpdatePermissionsRequest.schema");
 const UpdateRoleRequest_schema_1 = require("./components/schemas/UpdateRoleRequest.schema");
-const UpdateWithdrawStatusRequest_schema_1 = require("./components/schemas/UpdateWithdrawStatusRequest.schema");
 const User_schema_1 = require("./components/schemas/User.schema");
-const Withdraw_schema_1 = require("./components/schemas/Withdraw.schema");
+const Order_schema_1 = require("./components/schemas/Order.schema");
 const bearerAuth_security_1 = require("./components/security/bearerAuth.security");
 const attachments_swagger_1 = require("./modules/attachments.swagger");
 const authentication_swagger_1 = require("./modules/authentication.swagger");
@@ -64,14 +62,13 @@ const customers_swagger_1 = require("./modules/customers.swagger");
 const import_swagger_1 = require("./modules/import.swagger");
 const item_sizes_swagger_1 = require("./modules/item-sizes.swagger");
 const items_swagger_1 = require("./modules/items.swagger");
-const locations_swagger_1 = require("./modules/locations.swagger");
 const modifier_groups_swagger_1 = require("./modules/modifier-groups.swagger");
 const modifiers_swagger_1 = require("./modules/modifiers.swagger");
 const permissions_swagger_1 = require("./modules/permissions.swagger");
 const role_management_swagger_1 = require("./modules/role-management.swagger");
 const roles_swagger_1 = require("./modules/roles.swagger");
 const user_management_swagger_1 = require("./modules/user-management.swagger");
-const withdraws_swagger_1 = require("./modules/withdraws.swagger");
+const orders_swagger_1 = require("./modules/orders.swagger");
 const env_1 = require("../shared/config/env");
 const package_json_1 = __importDefault(require("../../package.json"));
 exports.specs = {
@@ -141,7 +138,6 @@ All responses follow a consistent format:
             CreateModifierGroupRequest: CreateModifierGroupRequest_schema_1.CreateModifierGroupRequest,
             CreateModifierRequest: CreateModifierRequest_schema_1.CreateModifierRequestSchema,
             CreateRoleRequest: CreateRoleRequest_schema_1.CreateRoleRequest,
-            CreateWithdrawRequest: CreateWithdrawRequest_schema_1.CreateWithdrawRequest,
             Customer: Customer_schema_1.Customer,
             ErrorResponse: ErrorResponse_schema_1.ErrorResponse,
             ForgotPasswordRequest: ForgotPasswordRequest_schema_1.ForgotPasswordRequest,
@@ -176,9 +172,8 @@ All responses follow a consistent format:
             UpdatePasswordRequest: UpdatePasswordRequest_schema_1.UpdatePasswordRequest,
             UpdatePermissionsRequest: UpdatePermissionsRequest_schema_1.UpdatePermissionsRequest,
             UpdateRoleRequest: UpdateRoleRequest_schema_1.UpdateRoleRequest,
-            UpdateWithdrawStatusRequest: UpdateWithdrawStatusRequest_schema_1.UpdateWithdrawStatusRequest,
             User: User_schema_1.User,
-            Withdraw: Withdraw_schema_1.Withdraw,
+            Order: Order_schema_1.OrderSchema,
         },
         responses: {},
         parameters: {},
@@ -193,13 +188,12 @@ All responses follow a consistent format:
         ...import_swagger_1.import_paths,
         ...item_sizes_swagger_1.item_sizes_paths,
         ...items_swagger_1.items_paths,
-        ...locations_swagger_1.locations_paths,
         ...modifier_groups_swagger_1.modifier_groups_paths,
         ...modifiers_swagger_1.modifiers_paths,
+        ...orders_swagger_1.orders_paths,
         ...permissions_swagger_1.permissions_paths,
         ...role_management_swagger_1.role_management_paths,
         ...roles_swagger_1.roles_paths,
         ...user_management_swagger_1.user_management_paths,
-        ...withdraws_swagger_1.withdraws_paths,
     },
 };

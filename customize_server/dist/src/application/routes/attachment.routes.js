@@ -4,6 +4,7 @@ const express_1 = require("express");
 const AttachmentController_1 = require("../controllers/AttachmentController");
 const upload_1 = require("../middlewares/upload");
 const auth_1 = require("../middlewares/auth");
+const logger_1 = require("../../shared/utils/logger");
 const router = (0, express_1.Router)();
 const attachmentController = new AttachmentController_1.AttachmentController();
 const UPLOAD_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes for Cloudinary / slow connections
@@ -13,7 +14,7 @@ function uploadTimeout(req, res, next) {
         if (!res.headersSent) {
             res.status(504).json({
                 success: false,
-                message: 'Upload timed out after 5 minutes. Try a smaller image or set ATTACHMENT_STORAGE=disk in the server .env to use local storage.',
+                message: 'Upload timed out after 5 minutes. Try a smaller image or check your Cloudinary connection.',
             });
         }
     });
@@ -27,12 +28,13 @@ function uploadTimeout(req, res, next) {
     });
     next();
 }
-// Use any() to allow dynamic field names (e.g. 'icon', 'image', 'attachment[]') from client
-// uploadAttachment uses Cloudinary or disk storage so we get real URLs for hero slides etc.
-router.post('/', auth_1.requireAuth, uploadTimeout, (req, res, next) => {
+router.post('/', (req, res, next) => {
+    logger_1.logger.info('Upload request: POST /attachments');
+    next();
+}, auth_1.requireAuth, uploadTimeout, (req, res, next) => {
     upload_1.uploadAttachment.any()(req, res, (err) => {
         if (err) {
-            console.error('Multer Upload Error:', err);
+            logger_1.logger.error('Multer upload error:', err.message || err);
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({
                     success: false,
@@ -46,6 +48,9 @@ router.post('/', auth_1.requireAuth, uploadTimeout, (req, res, next) => {
                 error: err.name || 'UploadError',
             });
         }
+        const files = req.files;
+        const count = Array.isArray(files) ? files.length : files && typeof files === 'object' ? Object.values(files).flat().length : 0;
+        logger_1.logger.info('Multer done for /attachments, files:', count);
         next();
     });
 }, attachmentController.upload);

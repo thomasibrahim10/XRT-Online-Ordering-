@@ -43,7 +43,7 @@ const RecentOrders = ({
 }: IProps) => {
   const { t } = useTranslation();
   const { alignLeft, alignRight } = useIsRTL();
-  const rowExpandable = (record: any) => record.children?.length;
+  const rowExpandable = (record: any) => record?.children?.length;
 
   const columns = [
     {
@@ -141,7 +141,7 @@ const RecentOrders = ({
       <div
         className={cn(
           'overflow-hidden rounded-lg bg-white p-6 md:p-7',
-          className
+          className,
         )}
       >
         <div className="flex items-center justify-between pb-6 md:pb-7">

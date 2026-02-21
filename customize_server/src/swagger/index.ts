@@ -10,7 +10,6 @@ import { CreateLocationRequest } from './components/schemas/CreateLocationReques
 import { CreateModifierGroupRequest } from './components/schemas/CreateModifierGroupRequest.schema';
 import { CreateModifierRequestSchema } from './components/schemas/CreateModifierRequest.schema';
 import { CreateRoleRequest } from './components/schemas/CreateRoleRequest.schema';
-import { CreateWithdrawRequest } from './components/schemas/CreateWithdrawRequest.schema';
 import { Customer } from './components/schemas/Customer.schema';
 import { ErrorResponse } from './components/schemas/ErrorResponse.schema';
 import { ForgotPasswordRequest } from './components/schemas/ForgotPasswordRequest.schema';
@@ -45,9 +44,8 @@ import { UpdateModifierRequestSchema } from './components/schemas/UpdateModifier
 import { UpdatePasswordRequest } from './components/schemas/UpdatePasswordRequest.schema';
 import { UpdatePermissionsRequest } from './components/schemas/UpdatePermissionsRequest.schema';
 import { UpdateRoleRequest } from './components/schemas/UpdateRoleRequest.schema';
-import { UpdateWithdrawStatusRequest } from './components/schemas/UpdateWithdrawStatusRequest.schema';
 import { User } from './components/schemas/User.schema';
-import { Withdraw } from './components/schemas/Withdraw.schema';
+import { OrderSchema } from './components/schemas/Order.schema';
 import { bearerAuth } from './components/security/bearerAuth.security';
 import { attachments_paths } from './modules/attachments.swagger';
 import { authentication_paths } from './modules/authentication.swagger';
@@ -58,14 +56,13 @@ import { customers_paths } from './modules/customers.swagger';
 import { import_paths } from './modules/import.swagger';
 import { item_sizes_paths } from './modules/item-sizes.swagger';
 import { items_paths } from './modules/items.swagger';
-import { locations_paths } from './modules/locations.swagger';
 import { modifier_groups_paths } from './modules/modifier-groups.swagger';
 import { modifiers_paths } from './modules/modifiers.swagger';
 import { permissions_paths } from './modules/permissions.swagger';
 import { role_management_paths } from './modules/role-management.swagger';
 import { roles_paths } from './modules/roles.swagger';
 import { user_management_paths } from './modules/user-management.swagger';
-import { withdraws_paths } from './modules/withdraws.swagger';
+import { orders_paths } from './modules/orders.swagger';
 import { env } from '../shared/config/env';
 import packageJson from '../../package.json';
 
@@ -137,7 +134,6 @@ All responses follow a consistent format:
       CreateModifierGroupRequest,
       CreateModifierRequest: CreateModifierRequestSchema,
       CreateRoleRequest,
-      CreateWithdrawRequest,
       Customer,
       ErrorResponse,
       ForgotPasswordRequest,
@@ -172,9 +168,8 @@ All responses follow a consistent format:
       UpdatePasswordRequest,
       UpdatePermissionsRequest,
       UpdateRoleRequest,
-      UpdateWithdrawStatusRequest,
       User,
-      Withdraw,
+      Order: OrderSchema,
     },
     responses: {},
     parameters: {},
@@ -189,13 +184,12 @@ All responses follow a consistent format:
     ...import_paths,
     ...item_sizes_paths,
     ...items_paths,
-    ...locations_paths,
     ...modifier_groups_paths,
     ...modifiers_paths,
+    ...orders_paths,
     ...permissions_paths,
     ...role_management_paths,
     ...roles_paths,
     ...user_management_paths,
-    ...withdraws_paths,
   },
 };

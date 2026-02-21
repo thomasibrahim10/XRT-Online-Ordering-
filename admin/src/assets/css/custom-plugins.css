@@ -555,7 +555,7 @@ group
 }
 
 .Toastify__toast-theme--colored.Toastify__toast--info {
-  @apply !bg-blue-500;
+  @apply !bg-accent;
 }
 
 .Toastify__toast-theme--colored.Toastify__toast--warning {

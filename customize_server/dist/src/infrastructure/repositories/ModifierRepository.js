@@ -28,6 +28,7 @@ class ModifierRepository {
             // Add modifier-level pricing fields
             quantity_levels: document.quantity_levels || [],
             prices_by_size: document.prices_by_size || [],
+            price: document.price != null ? document.price : undefined,
             created_at: document.created_at,
             updated_at: document.updated_at,
             deleted_at: document.deleted_at,

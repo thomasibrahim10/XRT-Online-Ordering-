@@ -53,7 +53,6 @@ import { EyeIcon } from '@/components/icons/category/eyes-icon';
 import { LongArrowPrev } from '@/components/icons/long-arrow-prev';
 import Link from 'next/link';
 import { formatSlug } from '@/utils/use-slug';
-import ProductFlashSaleBox from '@/components/product/product-flash-sale-box';
 import { UpdateIcon } from '@/components/icons/update';
 import StickyFooterPanel from '@/components/ui/sticky-footer-panel';
 import { ProductDescriptionSuggestion } from '@/components/product/product-ai-prompt';
@@ -510,39 +509,6 @@ export default function CreateOrUpdateProductForm({
               </div>
             </Card>
           </div>
-
-          {initialValues?.in_flash_sale ? (
-            <>
-              <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
-                <Description
-                  title={t('form:promotional-title')}
-                  details={t('form:promotional-details')}
-                  className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-                />
-                <Card className="w-full sm:w-8/12 md:w-2/3">
-                  <ProductFlashSaleBox
-                    initialValues={initialValues}
-                    shop={shopData}
-                  />
-                </Card>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
-                <Description
-                  title={t('form:promotional-title')}
-                  details={t('form:promotional-details-select')}
-                  className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-                />
-                <Card className="w-full sm:w-8/12 md:w-2/3">
-                  <Alert
-                    message={t('form:message-product-not-selected-in-campaign')}
-                  />
-                </Card>
-              </div>
-            </>
-          )}
 
           <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:my-8">
             <Description

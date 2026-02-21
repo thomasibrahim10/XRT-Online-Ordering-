@@ -7,11 +7,14 @@ exports.CloudinaryStorage = exports.storage = void 0;
 const cloudinary_1 = require("cloudinary");
 const multer_storage_cloudinary_1 = __importDefault(require("multer-storage-cloudinary"));
 const env_1 = require("../../shared/config/env");
-cloudinary_1.v2.config({
-    cloud_name: env_1.env.CLOUDINARY_NAME,
-    api_key: env_1.env.CLOUDINARY_API_KEY,
-    api_secret: env_1.env.CLOUDINARY_API_SECRET,
-});
+const logger_1 = require("../../shared/utils/logger");
+if (env_1.env.CLOUDINARY_NAME && env_1.env.CLOUDINARY_API_KEY && env_1.env.CLOUDINARY_API_SECRET) {
+    cloudinary_1.v2.config({
+        cloud_name: env_1.env.CLOUDINARY_NAME,
+        api_key: env_1.env.CLOUDINARY_API_KEY,
+        api_secret: env_1.env.CLOUDINARY_API_SECRET,
+    });
+}
 exports.storage = (0, multer_storage_cloudinary_1.default)({
     cloudinary: cloudinary_1.v2,
     params: async (req, file) => {
@@ -73,7 +76,9 @@ exports.storage = (0, multer_storage_cloudinary_1.default)({
 });
 class CloudinaryStorage {
     async uploadImage(file, folder) {
-        console.log(`[Cloudinary] Starting upload for ${file.originalname}`);
+        if (!env_1.env.CLOUDINARY_NAME || !env_1.env.CLOUDINARY_API_KEY || !env_1.env.CLOUDINARY_API_SECRET) {
+            throw new Error('Cloudinary is not configured. Set CLOUDINARY_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in .env');
+        }
         if (file.path) {
             return {
                 url: file.path,
@@ -81,45 +86,50 @@ class CloudinaryStorage {
                 public_id: file.filename,
             };
         }
+        if (!file.buffer || !Buffer.isBuffer(file.buffer)) {
+            return Promise.reject(new Error('No file buffer. Ensure the request uses multipart/form-data and body parsing is skipped for this route.'));
+        }
+        logger_1.logger.info('Cloudinary upload start:', file.originalname);
         return new Promise((resolve, reject) => {
             const uploadOptions = {
                 resource_type: 'image',
                 folder: folder ? (folder.startsWith('xrttech') ? folder : `xrttech/${folder}`) : 'xrttech',
             };
+            const timeoutMs = 30000;
             const timeoutId = setTimeout(() => {
-                console.error(`[Cloudinary] Upload timed out for ${file.originalname}`);
-                reject(new Error('Cloudinary upload timed out'));
-            }, 10000);
-            const stream = cloudinary_1.v2.uploader.upload_stream(uploadOptions, (error, result) => {
+                reject(new Error(`Cloudinary upload timed out after ${timeoutMs / 1000}s`));
+            }, timeoutMs);
+            const done = (err, result) => {
                 clearTimeout(timeoutId);
-                if (error) {
-                    console.error(`[Cloudinary] Upload failed for ${file.originalname}:`, error);
-                    return reject(error);
+                if (err) {
+                    logger_1.logger.error('Cloudinary upload failed:', file.originalname, err.message);
+                    reject(err);
+                    return;
                 }
                 if (!result) {
-                    console.error(`[Cloudinary] No result for ${file.originalname}`);
-                    return reject(new Error('Upload failed: No result from Cloudinary'));
+                    logger_1.logger.error('Cloudinary upload: no result for', file.originalname);
+                    reject(new Error('Upload failed: No result from Cloudinary'));
+                    return;
                 }
-                console.log(`[Cloudinary] Upload success for ${file.originalname}: ${result.public_id}`);
+                logger_1.logger.info('Cloudinary upload done:', file.originalname, result.public_id);
                 resolve({
                     url: result.url,
                     public_id: result.public_id,
                     secure_url: result.secure_url,
                 });
+            };
+            const stream = cloudinary_1.v2.uploader.upload_stream(uploadOptions, (error, result) => {
+                done(error || null, result);
             });
             stream.on('error', (err) => {
-                clearTimeout(timeoutId);
-                console.error(`[Cloudinary] Stream error for ${file.originalname}:`, err);
-                reject(err);
+                done(err);
             });
             stream.end(file.buffer);
         });
     }
     async deleteImage(public_id) {
         try {
-            console.log(`[Cloudinary] Deleting image ${public_id}`);
             await cloudinary_1.v2.uploader.destroy(public_id);
-            console.log(`[Cloudinary] Deleted image ${public_id}`);
         }
         catch (error) {
             console.error('Error deleting image from Cloudinary:', error);

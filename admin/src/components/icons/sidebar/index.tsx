@@ -1,5 +1,4 @@
 export { AttributeIcon } from '@/components/icons/sidebar/attribute';
-export { FaqIcon } from '@/components/icons/sidebar/faq';
 export { AuthorIcon } from '@/components/icons/sidebar/author';
 export { HomeIcon } from '@/components/icons/sidebar/home';
 export { AttributeValueIcon } from '@/components/icons/sidebar/attribute-value';
@@ -28,7 +27,6 @@ export { VendorsIcon } from '@/components/icons/sidebar/vendors';
 export { ShippingsIcon } from '@/components/icons/sidebar/shippings';
 export { InformationIcon } from '@/components/icons/sidebar/information';
 export { FlashDealsIcon } from '@/components/icons/sidebar/flash-deals';
-export { WithdrawIcon } from '@/components/icons/sidebar/withdraw';
 export { RefundsIcon } from '@/components/icons/sidebar/refunds';
 export { TaxesIcon } from '@/components/icons/sidebar/taxes';
 export { DiaryIcon } from '@/components/icons/sidebar/diary-icon';

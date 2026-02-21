@@ -332,19 +332,14 @@ class PriceController {
         this.getHistory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 10;
-            console.log('--- getHistory Debug ---');
             // Simplified Logic: Always use the default business ID for history
             const defaultBusiness = await BusinessModel_1.BusinessModel.findOne();
             if (!defaultBusiness) {
-                console.log('No default business found in DB');
                 return (0, response_1.sendSuccess)(res, 'History retrieved', { history: [], total: 0 });
             }
             // We search by both strict string ID and ObjectId to be safe
             const businessIds = [defaultBusiness.id, defaultBusiness._id.toString()];
-            console.log('Forcing Default Business IDs for History Search:', businessIds);
-            // We pass the array to the repository which now supports $in query
             const result = await this.priceChangeHistoryRepository.findAll(businessIds, page, limit);
-            console.log('History Result Count:', result.history.length, 'Total:', result.total);
             return (0, response_1.sendSuccess)(res, 'History retrieved', result);
         });
         this.deleteHistory = (0, asyncHandler_1.asyncHandler)(async (req, res) => {

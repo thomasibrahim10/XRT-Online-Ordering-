@@ -82,7 +82,7 @@ export function hasAccess(
   if (
     !_allowedRoles ||
     !Array.isArray(_allowedRoles) ||
-    !_allowedRoles.length
+    !_allowedRoles?.length
   ) {
     return true;
   }
@@ -102,7 +102,7 @@ export function hasPermission(
   if (
     !_allowedPermissions ||
     !Array.isArray(_allowedPermissions) ||
-    !_allowedPermissions.length
+    !_allowedPermissions?.length
   ) {
     return true;
   }
@@ -123,7 +123,7 @@ export function isAuthenticated(_cookies: any) {
     return (
       !!_cookies.token &&
       Array.isArray(_cookies.permissions) &&
-      !!_cookies.permissions.length
+      !!_cookies?.permissions?.length
     );
   } else if (_cookies.AUTH_CRED) {
     // New format: single AUTH_CRED cookie

@@ -1,6 +1,5 @@
 import ActionButtons from '@/components/common/action-buttons';
 import { NoShop } from '@/components/icons/no-shop';
-import PriorityColor from '@/components/store-notice/priority-color';
 import Badge from '@/components/ui/badge/badge';
 import LanguageSwitcher from '@/components/ui/lang-action/action';
 import Pagination from '@/components/ui/pagination';

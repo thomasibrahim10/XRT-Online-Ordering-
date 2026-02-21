@@ -7,7 +7,6 @@ exports.upload = exports.uploadAttachment = exports.uploadImage = void 0;
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const CloudinaryStorage_1 = require("../../infrastructure/cloudinary/CloudinaryStorage");
 const env_1 = require("../../shared/config/env");
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -18,11 +17,19 @@ const fileFilter = (req, file, cb) => {
     }
 };
 const memoryStorage = multer_1.default.memoryStorage();
-/** Disk storage for attachments when Cloudinary is not configured (e.g. local dev) */
-const uploadsDir = path_1.default.join(process.cwd(), 'uploads');
-if (!fs_1.default.existsSync(uploadsDir)) {
-    fs_1.default.mkdirSync(uploadsDir, { recursive: true });
+// Local disk for attachments when not using Cloudinary. Vercel FS is read-only so we use tmp or skip.
+const uploadsDir = process.env.VERCEL
+    ? path_1.default.join(process.cwd(), 'tmp', 'uploads')
+    : path_1.default.join(process.cwd(), 'uploads');
+try {
+    if (!fs_1.default.existsSync(uploadsDir)) {
+        fs_1.default.mkdirSync(uploadsDir, { recursive: true });
+    }
 }
+catch {
+    // mkdir can fail on read-only FS; we fall back to memory/cloudinary below.
+}
+const useDiskStorage = env_1.env.ATTACHMENT_STORAGE !== 'cloudinary' && !process.env.VERCEL;
 const diskStorage = multer_1.default.diskStorage({
     destination: (_req, _file, cb) => cb(null, uploadsDir),
     filename: (_req, file, cb) => {
@@ -31,8 +38,17 @@ const diskStorage = multer_1.default.diskStorage({
         cb(null, `${unique}${ext}`);
     },
 });
-/** Attachments (hero slides, logos, etc.): local disk by default. Set ATTACHMENT_STORAGE=cloudinary to use Cloudinary. */
-const attachmentStorage = env_1.env.ATTACHMENT_STORAGE === 'cloudinary' ? CloudinaryStorage_1.storage : diskStorage;
+// Use Cloudinary for attachments when configured; otherwise disk (or memory on Vercel)
+const useCloudinaryForAttachments = env_1.env.ATTACHMENT_STORAGE === 'cloudinary' &&
+    !!env_1.env.CLOUDINARY_NAME &&
+    !!env_1.env.CLOUDINARY_API_KEY &&
+    !!env_1.env.CLOUDINARY_API_SECRET;
+// Use memory when Cloudinary configured; upload to Cloudinary in controller (avoids multer-storage-cloudinary hanging)
+const attachmentStorage = useCloudinaryForAttachments
+    ? memoryStorage
+    : useDiskStorage
+        ? diskStorage
+        : memoryStorage;
 exports.uploadImage = (0, multer_1.default)({
     storage: memoryStorage,
     fileFilter,
@@ -40,7 +56,6 @@ exports.uploadImage = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024, // 5MB
     },
 });
-/** Multer for attachment route: Cloudinary or disk so response has thumbnail/original URLs */
 exports.uploadAttachment = (0, multer_1.default)({
     storage: attachmentStorage,
     fileFilter,
@@ -48,18 +63,16 @@ exports.uploadAttachment = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024, // 5MB
     },
 });
-// Memory storage for CSV/ZIP imports (no need to save to cloud)
+// CSV imports only: keep in memory
 const importFileFilter = (req, file, cb) => {
-    // Allow CSV and ZIP files
+    // Allow CSV files only
     if (file.mimetype === 'text/csv' ||
         file.mimetype === 'application/csv' ||
-        file.mimetype === 'application/zip' ||
-        file.originalname.endsWith('.csv') ||
-        file.originalname.endsWith('.zip')) {
+        file.originalname.endsWith('.csv')) {
         cb(null, true);
     }
     else {
-        cb(new Error('Only CSV or ZIP files are allowed for imports'));
+        cb(new Error('Only CSV files are allowed for imports'));
     }
 };
 exports.upload = (0, multer_1.default)({

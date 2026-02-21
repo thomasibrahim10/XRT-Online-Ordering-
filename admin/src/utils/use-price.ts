@@ -17,6 +17,7 @@ export function formatPrice({
     const formatCurrency = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currencyCode,
+      numberingSystem: 'latn',
       maximumFractionDigits:
         fractions > 20 || fractions < 0 || !fractions ? 2 : fractions,
     });
@@ -40,7 +41,10 @@ export function formatVariantPrice({
   fractions: number;
 }) {
   const hasDiscount = baseAmount < amount;
-  const formatDiscount = new Intl.NumberFormat(locale, { style: 'percent' });
+  const formatDiscount = new Intl.NumberFormat(locale, {
+    style: 'percent',
+    numberingSystem: 'latn',
+  });
   const discount = hasDiscount
     ? formatDiscount.format((amount - baseAmount) / amount)
     : null;

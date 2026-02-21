@@ -1,7 +1,3 @@
-// Removed invariant checks to prevent build failures
-// Environment variables should be set in Vercel, but we provide defaults
-// If variables are missing, the app will use fallback values defined below
-
 export const Config = {
   broadcastDriver: process.env.NEXT_PUBLIC_API_BROADCAST_DRIVER ?? 'log',
   pusherEnable: process.env.NEXT_PUBLIC_PUSHER_ENABLED ?? 'false',

@@ -1,35 +1,59 @@
 import Card from '@/components/common/card';
 import Layout from '@/components/layouts/admin';
 import Search from '@/components/common/search';
-import OrderList from '@/components/order/order-list';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import ErrorMessage from '@/components/ui/error-message';
-import Loader from '@/components/ui/loader/loader';
 import { useOrdersQuery } from '@/data/order';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { SortOrder } from '@/types';
 import { adminOnly } from '@/utils/auth-utils';
-import { MoreIcon } from '@/components/icons/more-icon';
 import { useExportOrderQuery } from '@/data/export';
 import { useRouter } from 'next/router';
-import { useShopQuery } from '@/data/shop';
-import { Menu, Transition } from '@headlessui/react';
+import { Tab } from '@headlessui/react';
+import OrderBucketList from '@/components/order/order-bucket-list';
 import classNames from 'classnames';
 import { DownloadIcon } from '@/components/icons/download-icon';
+import Button from '@/components/ui/button';
 import PageHeading from '@/components/common/page-heading';
+import Modal from '@/components/ui/modal/modal';
+import OrderDetailsView from '@/components/order/order-details-view';
+import { Order } from '@/types';
+import { useScheduledOrderNotifier } from '@/hooks/useScheduledOrderNotifier';
+
+/** Server status filter per tab (custom server API: pending, accepted, inkitchen, ready, out of delivery, completed, canceled) */
+const TAB_SERVER_STATUS: Record<number, string> = {
+  0: '__new__', // New: all pending orders (including scheduled pending)
+  1: '__inprogress__', // In Progress: accepted/inkitchen/ready/out of delivery
+  2: '__scheduled__', // Scheduled: has schedule_time + accepted or later (not pending)
+  3: 'completed', // Completed
+  4: 'canceled', // Canceled
+};
 
 export default function Orders() {
   const router = useRouter();
-  const { locale } = useRouter();
-  const {
-    query: { shop },
-  } = router;
+  const { locale } = router;
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const status = TAB_SERVER_STATUS[selectedIndex];
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  useScheduledOrderNotifier();
+
+  const tabs = [
+    { title: t('common:text-new-orders') },
+    { title: t('common:text-in-progress') },
+    { title: t('common:text-scheduled') },
+    { title: t('common:text-completed') },
+    { title: t('common:text-canceled') },
+  ];
 
   function handleSearch({ searchText }: { searchText: string }) {
     setSearchTerm(searchText);
@@ -40,33 +64,22 @@ export default function Orders() {
     setPage(current);
   }
 
-  const { data: shopData, isLoading: fetchingShop } = useShopQuery(
-    {
-      slug: shop as string,
-    },
-    {
-      enabled: !!shop,
-    }
-  );
-  const shopId = (shopData as any)?.id!;
+  function handleTabChange(index: number) {
+    setSelectedIndex(index);
+    setPage(1);
+  }
+
   const { orders, loading, paginatorInfo, error } = useOrdersQuery({
     language: locale,
-    limit: 20,
+    limit: selectedIndex === 1 ? 8 : 20,
     page,
     orderBy,
     sortedBy,
     tracking_number: searchTerm,
+    status,
   });
-  const { refetch } = useExportOrderQuery(
-    {
-      ...(shopId && { shop_id: shopId }),
-    },
-    { enabled: false }
-  );
+  const { refetch } = useExportOrderQuery({}, { enabled: false });
 
-  if (loading) return <Loader text={t('common:text-loading')} />;
-
-  if (loading) return <Loader text={t('common:text-loading')} />;
   if (error) return <ErrorMessage message={error.message} />;
 
   async function handleExportOrder() {
@@ -80,70 +93,190 @@ export default function Orders() {
     }
   }
 
+  function handleViewDetails(order: Order) {
+    setSelectedOrder(order);
+  }
+
+  function closeModal() {
+    setSelectedOrder(null);
+  }
+
   return (
     <>
-      <Card className="mb-8 flex flex-col items-center justify-between md:flex-row">
-        <div className="mb-4 md:mb-0 md:w-1/4">
-          <PageHeading title={t('form:input-label-orders')} />
+      <Card className="mb-6 md:mb-8 p-4 sm:p-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-0">
+        <div className="flex-shrink-0 md:w-1/4">
+          <PageHeading
+            title={t('form:input-label-orders')}
+            className="text-xl sm:text-lg"
+          />
         </div>
 
-        <div className="flex w-full flex-row items-center md:w-1/2">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 md:w-1/2">
           <Search
             onSearch={handleSearch}
-            className="w-full"
+            className="w-full min-w-0"
             placeholderText={t('form:input-placeholder-search-tracking-number')}
           />
-          <Menu
-            as="div"
-            className="relative inline-block ltr:text-left rtl:text-right"
+          <Button
+            onClick={handleExportOrder}
+            className="h-11 sm:h-12 w-full sm:w-auto sm:flex-shrink-0"
           >
-            <Menu.Button className="group p-2">
-              <MoreIcon className="w-3.5 text-body" />
-            </Menu.Button>
-            <Transition
-              as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-            >
-              <Menu.Items
-                as="ul"
-                className={classNames(
-                  'shadow-700 absolute z-50 mt-2 w-52 overflow-hidden rounded border border-border-200 bg-light py-2 focus:outline-none ltr:right-0 ltr:origin-top-right rtl:left-0 rtl:origin-top-left'
-                )}
-              >
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={handleExportOrder}
-                      className={classNames(
-                        'flex w-full items-center space-x-3 px-5 py-2.5 text-sm font-semibold capitalize transition duration-200 hover:text-accent focus:outline-none rtl:space-x-reverse',
-                        active ? 'text-accent' : 'text-body'
-                      )}
-                    >
-                      <DownloadIcon className="w-5 shrink-0" />
-                      <span className="whitespace-nowrap">
-                        {t('common:text-export-orders')}
-                      </span>
-                    </button>
-                  )}
-                </Menu.Item>
-              </Menu.Items>
-            </Transition>
-          </Menu>
+            <DownloadIcon className="h-4 w-4 me-2 flex-shrink-0" />
+            <span className="hidden md:block">
+              {t('common:text-export-orders')}
+            </span>
+            <span className="md:hidden">{t('common:text-export')}</span>
+          </Button>
         </div>
       </Card>
 
-      <OrderList
-        orders={orders}
-        paginatorInfo={paginatorInfo}
-        onPagination={handlePagination}
-        onOrder={setOrder}
-        onSort={setColumn}
-      />
+      <div className="mb-8">
+        <Tab.Group selectedIndex={selectedIndex} onChange={handleTabChange}>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+            <Tab.List
+              className={classNames(
+                'inline-flex w-full min-w-0 flex-wrap gap-1 rounded-xl bg-white p-1 sm:gap-0.5',
+                'shadow-sm',
+              )}
+            >
+              {tabs.map((tab, idx) => (
+                <Tab
+                  key={tab.title + idx}
+                  className={({ selected }) =>
+                    classNames(
+                      'min-w-0 flex-1 rounded-lg py-3 px-3 text-center text-sm font-medium transition-all duration-200',
+                      'focus:outline-none',
+                      'sm:px-4',
+                      selected
+                        ? 'bg-accent text-white shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-heading',
+                    )
+                  }
+                >
+                  {tab.title}
+                </Tab>
+              ))}
+            </Tab.List>
+            <div
+              className="flex shrink-0 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 p-0.5 shadow-sm"
+              role="group"
+              aria-label={t('common:text-grid-view')}
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                title={t('common:text-grid-view')}
+                className={classNames(
+                  'rounded-md p-2.5 transition-colors',
+                  viewMode === 'grid'
+                    ? 'bg-white text-accent shadow-sm ring-1 ring-gray-200'
+                    : 'text-gray-500 hover:bg-white hover:text-heading',
+                )}
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                title={t('common:text-list-view')}
+                className={classNames(
+                  'rounded-md p-2.5 transition-colors',
+                  viewMode === 'list'
+                    ? 'bg-white text-accent shadow-sm ring-1 ring-gray-200'
+                    : 'text-gray-500 hover:bg-white hover:text-heading',
+                )}
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <Tab.Panels>
+            <Tab.Panel>
+              <OrderBucketList
+                orders={orders ?? []}
+                paginatorInfo={paginatorInfo}
+                onPagination={handlePagination}
+                viewMode={viewMode}
+                onViewDetails={handleViewDetails}
+                loading={loading}
+              />
+            </Tab.Panel>
+            <Tab.Panel>
+              <OrderBucketList
+                orders={orders ?? []}
+                paginatorInfo={paginatorInfo}
+                onPagination={handlePagination}
+                viewMode={viewMode}
+                onViewDetails={handleViewDetails}
+                pageSize={8}
+                loading={loading}
+              />
+            </Tab.Panel>
+            <Tab.Panel>
+              <OrderBucketList
+                orders={orders ?? []}
+                paginatorInfo={paginatorInfo}
+                onPagination={handlePagination}
+                viewMode={viewMode}
+                onViewDetails={handleViewDetails}
+                loading={loading}
+              />
+            </Tab.Panel>
+            <Tab.Panel>
+              <OrderBucketList
+                orders={orders ?? []}
+                paginatorInfo={paginatorInfo}
+                onPagination={handlePagination}
+                viewMode={viewMode}
+                onViewDetails={handleViewDetails}
+                loading={loading}
+              />
+            </Tab.Panel>
+            <Tab.Panel>
+              <OrderBucketList
+                orders={orders ?? []}
+                paginatorInfo={paginatorInfo}
+                onPagination={handlePagination}
+                viewMode={viewMode}
+                onViewDetails={handleViewDetails}
+                loading={loading}
+              />
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
+      </div>
+
+      {selectedOrder && (
+        <Modal open={true} onClose={closeModal}>
+          <OrderDetailsView order={selectedOrder} onClose={closeModal} />
+        </Modal>
+      )}
     </>
   );
 }

@@ -62,11 +62,7 @@ exports.rateLimitMiddleware = (0, express_rate_limit_1.default)({
     max: env_1.env.NODE_ENV === 'development' ? 10000 : 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.',
 });
-// Request logging (basic)
 const requestLogger = (req, res, next) => {
-    if (env_1.env.NODE_ENV === 'development') {
-        console.log(`${req.method} ${req.path}`);
-    }
     next();
 };
 exports.requestLogger = requestLogger;

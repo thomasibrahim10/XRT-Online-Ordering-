@@ -17,29 +17,29 @@ if (process.env.NEXT_PUBLIC_PUSHER_DEV_MOOD === 'true') {
 // you can include your custom configuration options
 let option = {};
 
-export const PusherConfig = new Pusher(
-  `${process.env.NEXT_PUBLIC_PUSHER_APP_KEY}`,
-  {
-    ...option,
-    cluster: `${process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER}`,
-    authEndpoint: `${process.env.NEXT_PUBLIC_BROADCAST_AUTH_URL}`,
-    // forceTLS: true,
-    auth: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Access-Control-Allow-Origin': '*',
-        Accept: 'application/json',
-      },
-    },
-
-    enabledTransports: ['ws', 'wss'],
-  },
-);
+export const PusherConfig =
+  process.env.NEXT_PUBLIC_PUSHER_APP_KEY &&
+  process.env.NEXT_PUBLIC_PUSHER_APP_KEY.indexOf('your-pusher-app-key') === -1
+    ? new Pusher(`${process.env.NEXT_PUBLIC_PUSHER_APP_KEY}`, {
+        ...option,
+        cluster: `${process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER}`,
+        authEndpoint: `${process.env.NEXT_PUBLIC_BROADCAST_AUTH_URL}`,
+        // forceTLS: true,
+        auth: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Access-Control-Allow-Origin': '*',
+            Accept: 'application/json',
+          },
+        },
+        enabledTransports: ['ws', 'wss'],
+      })
+    : null;
 
 if (
   !process.env.NEXT_PUBLIC_PUSHER_APP_KEY?.includes('your-pusher-app-key') &&
   process.env.NEXT_PUBLIC_API_BROADCAST_DRIVER === 'pusher' &&
   process.env.NEXT_PUBLIC_PUSHER_ENABLED === 'true'
 ) {
-  PusherConfig.connect();
+  PusherConfig?.connect();
 }

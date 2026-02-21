@@ -127,6 +127,11 @@ const ItemSchema = new mongoose_1.Schema({
                                 ref: 'Modifier',
                                 required: true,
                             },
+                            /** Flat price for non-sizeable modifier (no quantity levels) */
+                            price: {
+                                type: Number,
+                                min: 0,
+                            },
                             prices_by_size: {
                                 type: [
                                     {
@@ -170,6 +175,24 @@ const ItemSchema = new mongoose_1.Schema({
                                         },
                                         price: {
                                             type: Number,
+                                        },
+                                        /** Per-size pricing when item is sizeable (e.g. Light/M/5, Normal/M/6) */
+                                        prices_by_size: {
+                                            type: [
+                                                {
+                                                    sizeCode: {
+                                                        type: String,
+                                                        enum: ['S', 'M', 'L', 'XL', 'XXL'],
+                                                        required: true,
+                                                    },
+                                                    priceDelta: {
+                                                        type: Number,
+                                                        required: true,
+                                                        default: 0,
+                                                    },
+                                                },
+                                            ],
+                                            default: [],
                                         },
                                         is_default: {
                                             type: Boolean,

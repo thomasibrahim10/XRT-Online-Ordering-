@@ -36,12 +36,9 @@ type Props = {
   showAddWalletPoints?: boolean;
   changeRefundStatus?: boolean;
   showMakeAdminButton?: boolean;
-  showReplyQuestion?: boolean;
   customLocale?: string;
   isTermsApproved?: boolean;
   isCouponApprove?: boolean;
-  flashSaleVendorRequestApproveButton?: boolean;
-  isFlashSaleVendorRequestApproved?: boolean;
   transferShopOwnership?: boolean;
   showViewDetails?: boolean;
   viewDetailsData?: any;
@@ -67,13 +64,10 @@ const ActionButtons = ({
   showAddWalletPoints = false,
   changeRefundStatus = false,
   showMakeAdminButton = false,
-  showReplyQuestion = false,
   customLocale,
   isTermsApproved,
   couponApproveButton,
   isCouponApprove,
-  flashSaleVendorRequestApproveButton = false,
-  isFlashSaleVendorRequestApproved,
   transferShopOwnership,
   showViewDetails = false,
   viewDetailsData,
@@ -141,17 +135,6 @@ const ActionButtons = ({
     }
   }
 
-  function handleReplyQuestion() {
-    openModal('REPLY_QUESTION', id);
-  }
-
-  function handleVendorFlashSaleStatus(status: boolean) {
-    if (status !== true) {
-      openModal('VENDOR_FS_REQUEST_APPROVE_VIEW', id);
-    } else {
-      openModal('VENDOR_FS_REQUEST_DISAPPROVE_VIEW', id);
-    }
-  }
   const handleTransferOwnership = () => {
     if (!disabled) {
       openModal('TRANSFER_SHOP_OWNERSHIP_VIEW', data);
@@ -169,14 +152,6 @@ const ActionButtons = ({
           title={t('common:text-view-details')}
         >
           <EyeIcon width={18} />
-        </button>
-      )}
-      {showReplyQuestion && (
-        <button
-          onClick={handleReplyQuestion}
-          className="transition duration-200 text-accent hover:text-accent-hover focus:outline-none"
-        >
-          {t('form:button-text-reply')}
         </button>
       )}
       {showMakeAdminButton && (
@@ -350,25 +325,6 @@ const ActionButtons = ({
           <TrashIcon width={14} />
         </button>
       )} */}
-
-      {flashSaleVendorRequestApproveButton &&
-        (isFlashSaleVendorRequestApproved ? (
-          <button
-            onClick={() => handleVendorFlashSaleStatus(true)}
-            className="transition duration-200 text-red-500 hover:text-red-600 focus:outline-none"
-            title="Disapprove request ?"
-          >
-            <CloseFillIcon width={17} />
-          </button>
-        ) : (
-          <button
-            onClick={() => handleVendorFlashSaleStatus(false)}
-            className="text-green-500 transition duration-200 hover:text-green-600 focus:outline-none"
-            title="Approve request ?"
-          >
-            <CheckMarkCircle width={16} />
-          </button>
-        ))}
 
       {transferShopOwnership && (
         <Tooltip

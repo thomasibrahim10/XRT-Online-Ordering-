@@ -17,7 +17,6 @@ import categoryRoutes from './application/routes/category.routes';
 import settingsRoutes from './application/routes/settings.routes';
 import publicRoutes from './application/routes/public.routes';
 import roleRoutes from './application/routes/role.routes';
-import withdrawRoutes from './application/routes/withdraw.routes';
 import attachmentRoutes from './application/routes/attachment.routes';
 import itemRoutes from './application/routes/item.routes';
 import customerRoutes from './application/routes/customer.routes';
@@ -33,6 +32,7 @@ import taxRoutes from './application/routes/tax.routes';
 import shippingRoutes from './application/routes/shipping.routes';
 import couponRoutes from './application/routes/coupon.routes';
 import testimonialRoutes from './application/routes/testimonial.routes';
+import orderRoutes from './application/routes/order.routes';
 import { env } from './shared/config/env';
 import { logger } from './shared/utils/logger';
 // Import swagger config - using relative path from src to config directory
@@ -155,7 +155,6 @@ app.use(`${env.API_BASE_URL}/settings`, settingsRoutes);
 app.use(`${env.API_BASE_URL}/public`, publicRoutes);
 app.use(`${env.API_BASE_URL}/roles`, roleRoutes);
 app.use(`${env.API_BASE_URL}/permissions`, permissionRoutes);
-app.use(`${env.API_BASE_URL}/withdraws`, withdrawRoutes);
 app.use(
   `${env.API_BASE_URL}/attachments`,
   (req, res, next) => {
@@ -176,6 +175,7 @@ app.use(`${env.API_BASE_URL}/taxes`, taxRoutes);
 app.use(`${env.API_BASE_URL}/shippings`, shippingRoutes);
 app.use(`${env.API_BASE_URL}/coupons`, couponRoutes);
 app.use(`${env.API_BASE_URL}/testimonials`, testimonialRoutes);
+app.use(`${env.API_BASE_URL}/orders`, orderRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -207,7 +207,9 @@ const startServer = async () => {
         if (env.ATTACHMENT_STORAGE === 'cloudinary' && env.CLOUDINARY_NAME) {
           logger.info(`☁️ Image uploads: Cloudinary (${env.CLOUDINARY_NAME})`);
         } else {
-          logger.info(`📁 Image uploads: disk (set CLOUDINARY_* + ATTACHMENT_STORAGE=cloudinary for Cloudinary)`);
+          logger.info(
+            `📁 Image uploads: disk (set CLOUDINARY_* + ATTACHMENT_STORAGE=cloudinary for Cloudinary)`
+          );
         }
       });
 

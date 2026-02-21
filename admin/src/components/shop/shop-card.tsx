@@ -46,7 +46,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
     >
       <div
         className={classNames(
-          'relative flex h-22 justify-end overflow-hidden'
+          'relative flex h-22 justify-end overflow-hidden',
           // shop?.cover_image?.original ? '' : 'flex justify-end'
         )}
       >
@@ -99,7 +99,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
         </div>
       </div>
 
-      <ul className="mt-4 grid grid-cols-4 divide-x divide-[#E7E7E7] px-2 pb-7 text-center">
+      <ul className="mt-4 grid grid-cols-3 divide-x divide-[#E7E7E7] px-2 pb-7 text-center">
         <li>
           <ListItem
             title={t('text-title-commission')}
@@ -116,12 +116,6 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
           <ListItem
             title={t('text-title-balance')}
             info={shop?.balance?.current_balance as number}
-          />
-        </li>
-        <li>
-          <ListItem
-            title={t('text-title-withdraw')}
-            info={shop?.balance?.withdrawn_amount as number}
           />
         </li>
       </ul>

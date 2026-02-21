@@ -3,13 +3,22 @@ import * as yup from 'yup';
 export const shopValidationSchema = yup.object().shape({
   siteTitle: yup.string().required('form:error-site-title-required'),
   siteSubtitle: yup.string().optional(),
+  minimumOrderAmount: yup
+    .number()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .moreThan(-1, 'form:error-sale-price-must-positive')
+    .optional(),
   timezone: yup.mixed().optional(),
   currency: yup.mixed().optional(),
   currencyOptions: yup
     .object()
     .shape({
-      formation: yup.string().optional(),
-      fractions: yup.number().min(0).optional(),
+      formation: yup.mixed().optional(),
+      fractions: yup
+        .number()
+        .transform((value) => (isNaN(value) ? undefined : value))
+        .min(0)
+        .optional(),
     })
     .optional(),
   isProductReview: yup.boolean().optional(),
@@ -18,14 +27,14 @@ export const shopValidationSchema = yup.object().shape({
   enableEmailForDigitalProduct: yup.boolean().optional(),
   useGoogleMap: yup.boolean().optional(),
   enableReviewPopup: yup.boolean().optional(),
-  maxShopDistance: yup.number().positive().optional(),
+  maxShopDistance: yup.number().transform((v) => (isNaN(v) ? undefined : v)).min(0).optional(),
   contactDetails: yup.object().shape({
     location: yup.object().optional(),
-    contact: yup.string().required('form:error-contact-required'),
+    contact: yup.string().optional(),
     website: yup.string().optional(),
     emailAddress: yup.string().email('form:error-email-format').optional(),
     socials: yup.array().optional(),
-  }),
+  }).optional(),
   google: yup
     .object()
     .shape({
@@ -49,36 +58,33 @@ export const shopValidationSchema = yup.object().shape({
       allowScheduleOrder: yup.boolean(),
       maxDays: yup
         .number()
-        .when('allowScheduleOrder', ([allowScheduleOrder], schema) => {
-          return allowScheduleOrder
-            ? schema.min(0, 'Must be positive').required('Required')
-            : schema.nullable();
-        }),
+        .transform((v) => (isNaN(v) ? 0 : v))
+        .min(0, 'Must be positive')
+        .default(0),
       deliveredOrderTime: yup
         .number()
-        .when('allowScheduleOrder', ([allowScheduleOrder], schema) => {
-          return allowScheduleOrder
-            ? schema.min(0, 'Must be positive').required('Required')
-            : schema.nullable();
-        }),
+        .transform((v) => (isNaN(v) ? 0 : v))
+        .min(0, 'Must be positive')
+        .default(0),
     })
     .optional(),
   delivery: yup
     .object()
     .shape({
       enabled: yup.boolean(),
-      radius: yup.number().min(0, 'Must be positive').required('Required'),
-      fee: yup.number().min(0, 'Must be positive').required('Required'),
-      min_order: yup.number().min(0, 'Must be positive').required('Required'),
+      radius: yup.number().transform((v) => (isNaN(v) ? 0 : v)).min(0, 'Must be positive').default(0),
+      fee: yup.number().transform((v) => (isNaN(v) ? 0 : v)).min(0, 'Must be positive').default(0),
+      min_order: yup.number().transform((v) => (isNaN(v) ? 0 : v)).min(0, 'Must be positive').default(0),
     })
     .optional(),
   fees: yup
     .object()
     .shape({
-      service_fee: yup.number().min(0, 'Must be positive'),
+      service_fee: yup.number().transform((v) => (isNaN(v) ? 0 : v)).min(0, 'Must be positive').default(0),
       tip_options: yup.mixed().test({
         message: 'Must be a comma-separated list of numbers',
         test: (value) => {
+          if (value === undefined || value === null || value === '') return true;
           if (Array.isArray(value))
             return value.every((v) => typeof v === 'number');
           if (typeof value === 'string') {
@@ -92,7 +98,7 @@ export const shopValidationSchema = yup.object().shape({
   taxes: yup
     .object()
     .shape({
-      sales_tax: yup.number().min(0, 'Must be positive').required('Required'),
+      sales_tax: yup.number().transform((v) => (isNaN(v) ? 0 : v)).min(0, 'Must be positive').default(0),
     })
     .optional(),
   operating_hours: yup

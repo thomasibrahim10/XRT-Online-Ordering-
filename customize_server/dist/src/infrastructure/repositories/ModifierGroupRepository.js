@@ -17,6 +17,8 @@ class ModifierGroupRepository {
             min_select: document.min_select,
             max_select: document.max_select,
             quantity_levels: document.quantity_levels || [],
+            prices_by_size: document.prices_by_size || [],
+            price: document.price != null ? document.price : undefined,
             modifiers: modifiers || document.modifiers || [],
             is_active: document.is_active,
             sort_order: document.sort_order,
@@ -36,9 +38,9 @@ class ModifierGroupRepository {
     }
     async findById(id, business_id) {
         const query = { _id: id, deleted_at: null };
-        if (business_id) {
-            query.business_id = business_id;
-        }
+        // if (business_id) {
+        //   query.business_id = business_id;
+        // }
         const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOne(query);
         if (!modifierGroupDoc)
             return null;
@@ -48,9 +50,9 @@ class ModifierGroupRepository {
     }
     async findActiveById(id, business_id) {
         const query = { _id: id, is_active: true, deleted_at: null };
-        if (business_id) {
-            query.business_id = business_id;
-        }
+        // if (business_id) {
+        //   query.business_id = business_id;
+        // }
         const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOne(query);
         if (!modifierGroupDoc)
             return null;
@@ -60,9 +62,9 @@ class ModifierGroupRepository {
     }
     async findAll(filters) {
         const query = { deleted_at: null };
-        if (filters.business_id) {
-            query.business_id = filters.business_id;
-        }
+        // if (filters.business_id) {
+        //   query.business_id = filters.business_id;
+        // }
         if (filters.name) {
             query.name = { $regex: filters.name, $options: 'i' };
         }
@@ -105,7 +107,7 @@ class ModifierGroupRepository {
         };
     }
     async update(id, business_id, data) {
-        const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOneAndUpdate({ _id: id, business_id, deleted_at: null }, data, {
+        const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOneAndUpdate({ _id: id, deleted_at: null }, data, {
             new: true,
             runValidators: true,
         });
@@ -116,7 +118,7 @@ class ModifierGroupRepository {
     }
     async delete(id, business_id) {
         // Soft delete - set deleted_at timestamp
-        const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOneAndUpdate({ _id: id, business_id, deleted_at: null }, { deleted_at: new Date() }, { new: true });
+        const modifierGroupDoc = await ModifierGroupModel_1.ModifierGroupModel.findOneAndUpdate({ _id: id, deleted_at: null }, { deleted_at: new Date() }, { new: true });
         if (!modifierGroupDoc) {
             throw new AppError_1.NotFoundError('Modifier Group');
         }

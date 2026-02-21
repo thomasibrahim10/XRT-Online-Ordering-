@@ -112,16 +112,27 @@ class UpdateItemUseCase {
                 throw new AppError_1.ValidationError('base_price is required when is_sizeable is false');
             }
         }
-        let imageUrl = existingItem.image;
-        let imagePublicId = existingItem.image_public_id;
-        if (files && files['image'] && files['image'][0]) {
-            // Delete old image if exists
+        let imageUrl;
+        let imagePublicId;
+        if (files?.['image']?.[0]) {
+            // New file in multipart: upload to Cloudinary and use new URL
             if (existingItem.image_public_id) {
                 await this.imageStorage.deleteImage(existingItem.image_public_id);
             }
             const uploadResult = await this.imageStorage.uploadImage(files['image'][0], `xrttech/items/global`);
             imageUrl = uploadResult.secure_url;
             imagePublicId = uploadResult.public_id;
+        }
+        else if (itemData.image !== undefined) {
+            // No file: use body (URL to set, or empty string to clear)
+            const bodyImage = itemData.image === '' || itemData.image === null ? undefined : itemData.image;
+            imageUrl = bodyImage;
+            imagePublicId = bodyImage ? (itemData.image_public_id || undefined) : undefined;
+        }
+        else {
+            // No file and no image in body: keep existing
+            imageUrl = existingItem.image;
+            imagePublicId = existingItem.image_public_id;
         }
         const updateData = {
             ...itemData,

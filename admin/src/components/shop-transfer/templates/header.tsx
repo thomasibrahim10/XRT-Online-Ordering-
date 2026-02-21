@@ -127,10 +127,6 @@ const Header = ({
                   data.refund_info.some(
                     (item) => !item.status?.includes('approved'),
                   )) ||
-                (data?.withdrawal_info &&
-                  data.withdrawal_info.some(
-                    (item) => !item.status?.includes('approved'),
-                  )) ||
                 Number(data?.balance_info?.current_balance) > 1 ||
                 updating
               }

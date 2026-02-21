@@ -1,23 +1,16 @@
-import StoreNoticeDeleteView from '@/components/store-notice/store-notice-delete-view';
 import Modal from '@/components/ui/modal/modal';
 import dynamic from 'next/dynamic';
 import { MODAL_VIEWS, useModalAction, useModalState } from './modal.context';
 
-const FlashSaleDeleteView = dynamic(
-  () => import('@/components/flash-sale/flash-sale-delete-view'),
-);
 const TestimonialDeleteView = dynamic(
   () => import('@/components/testimonials/testimonial-delete-view'),
-);
-const FaqsDeleteView = dynamic(
-  () => import('@/components/faqs/faq-delete-view'),
 );
 const TermsAndConditionsDeleteView = dynamic(
   () =>
     import('@/components/terms-and-conditions/terms-and-conditions-delete-view'),
 );
 const TagDeleteView = dynamic(() => import('@/components/tag/tag-delete-view'));
-const TaxDeleteView = dynamic(() => import('@/components/tax/tax-delete-view'));
+
 const BanCustomerView = dynamic(
   () => import('@/components/user/user-ban-view'),
 );
@@ -36,9 +29,7 @@ const UserPermissionsView = dynamic(
 const UserUpdateView = dynamic(
   () => import('@/components/user/user-update-view'),
 );
-const ShippingDeleteView = dynamic(
-  () => import('@/components/shipping/shipping-delete-view'),
-);
+
 const CategoryDeleteView = dynamic(
   () => import('@/components/category/category-delete-view'),
 );
@@ -107,20 +98,8 @@ const AttributeExportImport = dynamic(
   () => import('@/components/attribute/attribute-import-export'),
 );
 
-const UpdateRefundConfirmationView = dynamic(
-  () => import('@/components/refund/refund-confirmation-view'),
-);
-const RefundImageModal = dynamic(
-  () => import('@/components/refund/refund-image-modal'),
-);
 const ReviewImageModal = dynamic(
   () => import('@/components/reviews/review-image-modal'),
-);
-const QuestionReplyView = dynamic(
-  () => import('@/components/question/question-reply-view'),
-);
-const QuestionDeleteView = dynamic(
-  () => import('@/components/question/question-delete-view'),
 );
 const ReviewDeleteView = dynamic(
   () => import('@/components/reviews/review-delete-view'),
@@ -137,12 +116,6 @@ const DeclineAbuseReportView = dynamic(
 const CreateOrUpdateAddressForm = dynamic(
   () => import('@/components/address/create-or-update'),
 );
-const AddOrUpdateCheckoutContact = dynamic(
-  () => import('@/components/checkout/contact/add-or-update'),
-);
-const SelectCustomer = dynamic(
-  () => import('@/components/checkout/customer/select-customer'),
-);
 
 const AuthorDeleteView = dynamic(
   () => import('@/components/author/author-delete-view'),
@@ -150,16 +123,7 @@ const AuthorDeleteView = dynamic(
 const ManufacturerDeleteView = dynamic(
   () => import('@/components/manufacturer/manufacturer-delete-view'),
 );
-const RefundPolicyDeleteView = dynamic(
-  () => import('@/components/refund-policy/refund-policy-delete-view'),
-);
-const RefundReasonDeleteView = dynamic(
-  () => import('@/components/refund-reason/refund-reason-delete-view'),
-);
 
-const ProductVariation = dynamic(
-  () => import('@/components/product/variation/variation'),
-);
 const AbuseReport = dynamic(() => import('@/components/reviews/abuse-report'));
 const OpenAiModal = dynamic(() => import('@/components/openAI/openAI.modal'));
 const ComposerMessage = dynamic(
@@ -185,16 +149,6 @@ const DisApproveCouponView = dynamic(
   () => import('@/components/coupon/disapprove-coupon-view'),
 );
 
-const FlashSaleRequestDeleteView = dynamic(
-  () =>
-    import('@/components/flash-sale/vendor-request/flash-sale-vendor-request-delete-view'),
-);
-const ApproveVendorFSRequestView = dynamic(
-  () => import('@/components/flash-sale/vendor-request/approve-view'),
-);
-const DisApproveVendorFSRequestView = dynamic(
-  () => import('@/components/flash-sale/vendor-request/disapprove-view'),
-);
 const TransferShopOwnershipView = dynamic(
   () => import('@/components/shop/transfer-shop-ownership-view'),
 );
@@ -274,8 +228,7 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <ModifierDeleteView />;
     case 'TOGGLE_MODIFIER_STATUS':
       return <ModifierToggleView />;
-    case 'DELETE_TAX':
-      return <TaxDeleteView />;
+
     case 'DELETE_ROLE':
       return <RoleDeleteView />;
     case 'DELETE_ITEM':
@@ -288,10 +241,7 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <ItemPreviewView />;
     case 'DELETE_USER':
       return <UserDeleteView />;
-    case 'DELETE_STORE_NOTICE':
-      return <StoreNoticeDeleteView />;
-    case 'DELETE_SHIPPING':
-      return <ShippingDeleteView />;
+
     case 'DELETE_TAG':
       return <TagDeleteView />;
     case 'DELETE_MANUFACTURER':
@@ -306,14 +256,10 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <DisApproveShopView />;
     case 'DELETE_STAFF':
       return <RemoveStaffView />;
-    case 'UPDATE_REFUND':
-      return <UpdateRefundConfirmationView />;
+
     case 'ADD_OR_UPDATE_ADDRESS':
       return <CreateOrUpdateAddressForm />;
-    case 'ADD_OR_UPDATE_CHECKOUT_CONTACT':
-      return <AddOrUpdateCheckoutContact />;
-    case 'REFUND_IMAGE_POPOVER':
-      return <RefundImageModal />;
+
     case 'MAKE_ADMIN':
       return <MakeAdminView />;
     case 'ASSIGN_ROLE':
@@ -328,14 +274,7 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <AttributeExportImport />;
     case 'ADD_WALLET_POINTS':
       return <UserWalletPointsAddView />;
-    case 'SELECT_PRODUCT_VARIATION':
-      return <ProductVariation productSlug={data} />;
-    case 'SELECT_CUSTOMER':
-      return <SelectCustomer />;
-    case 'REPLY_QUESTION':
-      return <QuestionReplyView />;
-    case 'DELETE_QUESTION':
-      return <QuestionDeleteView />;
+
     case 'DELETE_REVIEW':
       return <ReviewDeleteView />;
     case 'DELETE_TESTIMONIAL':
@@ -352,8 +291,6 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <OpenAiModal />;
     case 'COMPOSE_MESSAGE':
       return <ComposerMessage />;
-    case 'DELETE_FAQ':
-      return <FaqsDeleteView />;
     case 'DELETE_TERMS_AND_CONDITIONS':
       return <TermsAndConditionsDeleteView />;
     case 'TERM_APPROVE_VIEW':
@@ -362,26 +299,15 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <DisApproveTermView />;
     case 'SEARCH_VIEW':
       return <SearchModal />;
-    case 'DELETE_FLASH_SALE':
-      return <FlashSaleDeleteView />;
     case 'DESCRIPTION_VIEW':
       return <DescriptionView />;
-    case 'DELETE_REFUND_POLICY':
-      return <RefundPolicyDeleteView />;
-    case 'DELETE_REFUND_REASON':
-      return <RefundReasonDeleteView />;
+
     case 'COUPON_APPROVE_VIEW':
       return <ApproveCouponView />;
     case 'COUPON_DISAPPROVE_VIEW':
       return <DisApproveCouponView />;
     case 'DELETE_COUPON':
       return <CouponDeleteView />;
-    case 'DELETE_FLASH_SALE_REQUEST':
-      return <FlashSaleRequestDeleteView />;
-    case 'VENDOR_FS_REQUEST_APPROVE_VIEW':
-      return <ApproveVendorFSRequestView />;
-    case 'VENDOR_FS_REQUEST_DISAPPROVE_VIEW':
-      return <DisApproveVendorFSRequestView />;
     case 'TRANSFER_SHOP_OWNERSHIP_VIEW':
       return <TransferShopOwnershipView />;
     case 'DELETE_OWNERSHIP_TRANSFER_REQUEST':

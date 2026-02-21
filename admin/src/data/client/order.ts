@@ -4,18 +4,87 @@ import {
   OrderQueryOptions,
   OrderPaginator,
   QueryOptions,
-  InvoiceTranslatedText,
   GenerateInvoiceDownloadUrlInput,
 } from '@/types';
 import { API_ENDPOINTS } from './api-endpoints';
 import { crudFactory } from './curd-factory';
 import { HttpClient } from './http-client';
+import {
+  ServerOrder,
+  ServerOrderResponse,
+  serverOrderToAdminOrder,
+} from '@/data/order/server-order-mapper';
+
+/** Custom server list response shape */
+interface OrdersListApiResponse {
+  success?: boolean;
+  message?: string;
+  data?: ServerOrderResponse;
+}
+
+export interface OrdersListParams {
+  status?: string;
+  order_type?: string;
+  page?: number;
+  limit?: number;
+  customer_id?: string;
+}
+
+export interface OrdersListResult {
+  data: Order[];
+  paginatorInfo: {
+    currentPage: number;
+    lastPage: number;
+    total: number;
+    perPage: number;
+    hasMorePages: boolean;
+  };
+}
 
 export const orderClient = {
   ...crudFactory<Order, QueryOptions, CreateOrderInput>(API_ENDPOINTS.ORDERS),
   get: ({ id, language }: { id: string; language: string }) => {
     return HttpClient.get<Order>(`${API_ENDPOINTS.ORDERS}/${id}`, {
       language,
+    });
+  },
+  /** Fetch orders from custom server (GET /orders). Returns admin Order[] and paginatorInfo. */
+  getList: async (params: OrdersListParams): Promise<OrdersListResult> => {
+    const res = await HttpClient.get<OrdersListApiResponse>(
+      API_ENDPOINTS.ORDERS,
+      {
+        status: params.status,
+        order_type: params.order_type,
+        page: params.page ?? 1,
+        limit: params.limit ?? 20,
+        customer_id: params.customer_id,
+      }
+    );
+    const payload = (res as any)?.data ?? res;
+    const list = Array.isArray(payload?.data) ? payload.data : payload?.data?.data ?? [];
+    const total = payload?.total ?? payload?.data?.total ?? 0;
+    const page = params.page ?? 1;
+    const perPage = params.limit ?? 20;
+    const lastPage = Math.max(1, Math.ceil(total / perPage));
+    const serverOrders = (list as ServerOrder[]) ?? [];
+    return {
+      data: serverOrders.map(serverOrderToAdminOrder),
+      paginatorInfo: {
+        currentPage: page,
+        lastPage,
+        total,
+        perPage,
+        hasMorePages: page < lastPage,
+      },
+    };
+  },
+  /** Update order status (PUT /orders/:id/status). Use server status values: pending, accepted, inkitchen, ready, out of delivery, completed, canceled */
+  updateStatus: (id: string, status: string, body?: { cancelled_reason?: string; cancelled_by?: string; ready_time?: string; clear_schedule?: boolean }) => {
+    const orderId = String(id).trim();
+    if (!orderId) return Promise.reject(new Error('Order id is required'));
+    return HttpClient.put<Order>(`${API_ENDPOINTS.ORDERS}/${orderId}/status`, {
+      status,
+      ...body,
     });
   },
   paginated: ({ tracking_number, ...params }: Partial<OrderQueryOptions>) => {

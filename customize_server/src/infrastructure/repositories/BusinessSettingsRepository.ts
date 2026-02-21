@@ -20,6 +20,7 @@ export class BusinessSettingsRepository implements IBusinessSettingsRepository {
       fees: document.fees,
       taxes: document.taxes,
       orders: document.orders,
+      minimumOrderAmount: document.minimumOrderAmount,
       siteTitle: document.siteTitle,
       siteSubtitle: document.siteSubtitle,
       logo: document.logo,

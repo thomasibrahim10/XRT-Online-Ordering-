@@ -8,9 +8,7 @@ const BusinessSettingsRepository_1 = require("../../infrastructure/repositories/
 const response_1 = require("../../shared/utils/response");
 const response_2 = require("../../shared/utils/response");
 const asyncHandler_1 = require("../../shared/utils/asyncHandler");
-/**
- * Single-tenant: one business only. No creating or deleting businesses.
- */
+/** Single-tenant: one business; no create/delete. */
 class BusinessController {
     constructor() {
         /** Single-tenant: creating additional businesses is disabled */

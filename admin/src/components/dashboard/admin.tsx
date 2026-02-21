@@ -5,7 +5,7 @@ import ErrorMessage from '@/components/ui/error-message';
 import Loader from '@/components/ui/loader/loader';
 import ColumnChart from '@/components/widgets/column-chart';
 import StickerCard from '@/components/widgets/sticker-card';
-import WithdrawTable from '@/components/withdraw/withdraw-table';
+
 import Button from '@/components/ui/button';
 import {
   useAnalyticsQuery,
@@ -15,7 +15,7 @@ import {
   useTopRatedProductsQuery,
 } from '@/data/dashboard';
 import { useOrdersQuery } from '@/data/order';
-import { useWithdrawsQuery } from '@/data/withdraw';
+
 import usePrice from '@/utils/use-price';
 import { useTranslation } from 'next-i18next';
 import cn from 'classnames';
@@ -48,9 +48,7 @@ const OrderStatusWidget = dynamic(
 
 const ProductCountByCategory = dynamic(
   () =>
-    import(
-      '@/components/dashboard/widgets/table/widget-product-count-by-category'
-    ),
+    import('@/components/dashboard/widgets/table/widget-product-count-by-category'),
 );
 
 const TopRatedProducts = dynamic(
@@ -107,27 +105,20 @@ export default function Dashboard() {
     error: productByCategoryError,
   } = useProductByCategoryQuery({ limit: 10, language: locale });
 
-  const {
-    withdraws,
-    loading: withdrawLoading,
-    paginatorInfo: withdrawPaginatorInfo,
-  } = useWithdrawsQuery({
-    limit: 10,
-  });
-
   // Always call the hook, but pass empty array if not authenticated
   const { token } = getAuthCredentials();
   useDashboardLoading({
-    loadingStates: token ? [
-      loading,
-      orderLoading,
-      popularProductLoading,
-      withdrawLoading,
-      topRatedProductsLoading,
-      lowStockProductLoading,
-      productByCategoryLoading
-    ] : [],
-    loadingMessage: 'Loading dashboard data...'
+    loadingStates: token
+      ? [
+          loading,
+          orderLoading,
+          popularProductLoading,
+          topRatedProductsLoading,
+          lowStockProductLoading,
+          productByCategoryLoading,
+        ]
+      : [],
+    loadingMessage: 'Loading dashboard data...',
   });
 
   const { price: total_revenue } = usePrice(
@@ -142,18 +133,25 @@ export default function Dashboard() {
   );
 
   let salesByYear: number[] = Array.from({ length: 12 }, (_) => 0);
-  if (analyticsData?.totalYearSaleByMonth && Array.isArray(analyticsData.totalYearSaleByMonth)) {
+  if (
+    analyticsData?.totalYearSaleByMonth &&
+    Array.isArray(analyticsData.totalYearSaleByMonth)
+  ) {
     // Map the monthly data, ensuring we don't exceed 12 months and provide a fallback for NaN
     analyticsData.totalYearSaleByMonth.forEach((item: any, index: number) => {
       if (index < 12) {
         const total = item?.total ?? item?.value ?? 0;
-        const value = typeof total === 'number' ? total : parseFloat(String(total || '0'));
-        salesByYear[index] = isNaN(value) || !isFinite(value) ? 0 : Math.max(0, value);
+        const value =
+          typeof total === 'number' ? total : parseFloat(String(total || '0'));
+        salesByYear[index] =
+          isNaN(value) || !isFinite(value) ? 0 : Math.max(0, value);
       }
     });
   }
   // Ensure all values are valid numbers (no NaN, null, or undefined)
-  salesByYear = salesByYear.map((val) => (typeof val === 'number' && !isNaN(val) && isFinite(val) ? val : 0));
+  salesByYear = salesByYear.map((val) =>
+    typeof val === 'number' && !isNaN(val) && isFinite(val) ? val : 0,
+  );
 
   function handleSearch({ searchText }: { searchText: string }) {
     setSearchTerm(searchText);
@@ -212,7 +210,6 @@ export default function Dashboard() {
     loading ||
     orderLoading ||
     popularProductLoading ||
-    withdrawLoading ||
     topRatedProductsLoading
   ) {
     return <Loader text={t('common:text-loading')} />;
@@ -276,23 +273,23 @@ export default function Dashboard() {
           <div className="mt-3.5 inline-flex rounded-full bg-gray-100/80 p-1.5 sm:mt-0">
             {timeFrame
               ? timeFrame.map((time) => (
-                <div key={time.day} className="relative">
-                  <Button
-                    className={cn(
-                      '!focus:ring-0  relative z-10 !h-7 rounded-full !px-2.5 text-sm font-medium text-gray-500',
-                      time.day === activeTimeFrame ? 'text-accent' : '',
-                    )}
-                    type="button"
-                    onClick={() => setActiveTimeFrame(time.day)}
-                    variant="custom"
-                  >
-                    {time.name}
-                  </Button>
-                  {time.day === activeTimeFrame ? (
-                    <motion.div className="absolute bottom-0 left-0 right-0 z-0 h-full rounded-3xl bg-accent/10" />
-                  ) : null}
-                </div>
-              ))
+                  <div key={time.day} className="relative">
+                    <Button
+                      className={cn(
+                        '!focus:ring-0  relative z-10 !h-7 rounded-full !px-2.5 text-sm font-medium text-gray-500',
+                        time.day === activeTimeFrame ? 'text-accent' : '',
+                      )}
+                      type="button"
+                      onClick={() => setActiveTimeFrame(time.day)}
+                      variant="custom"
+                    >
+                      {time.name}
+                    </Button>
+                    {time.day === activeTimeFrame ? (
+                      <motion.div className="absolute bottom-0 left-0 right-0 z-0 h-full rounded-3xl bg-accent/10" />
+                    ) : null}
+                  </div>
+                ))
               : null}
           </div>
         </div>
@@ -357,7 +354,7 @@ export default function Dashboard() {
         //@ts-ignore
         products={lowStockProduct ?? []}
         title={'text-low-stock-products'}
-        paginatorInfo={withdrawPaginatorInfo}
+        paginatorInfo={null as any}
         onPagination={handlePagination}
         className="col-span-full"
         searchElement={
@@ -379,14 +376,6 @@ export default function Dashboard() {
         products={productByCategory ?? []}
         title={'text-most-category-products'}
         className="col-span-full 2xl:col-span-7 2xl:ltr:-ml-20 2xl:rtl:-mr-20"
-      />
-
-      <WithdrawTable
-        withdraws={withdraws}
-        title={t('table:withdraw-table-title')}
-        paginatorInfo={withdrawPaginatorInfo}
-        onPagination={handlePagination}
-        className="col-span-full"
       />
     </div>
   );

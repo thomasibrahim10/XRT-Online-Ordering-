@@ -1,17 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CSVParser = void 0;
 const sync_1 = require("csv-parse/sync");
-const adm_zip_1 = __importDefault(require("adm-zip"));
 class CSVParser {
-    /**
-     * Parse CSV file or ZIP containing CSV files.
-     * @param entityType – When provided, forces all rows to be parsed as that entity
-     *                     instead of auto-detecting from filename/headers.
-     */
+    /** CSV only. Optional entityType forces that entity instead of filename detection. */
     static async parseUpload(file, entityType) {
         const files = [];
         let parsedData = {
@@ -25,49 +17,28 @@ class CSVParser {
         if (!file.buffer || !Buffer.isBuffer(file.buffer)) {
             throw new Error('File buffer is missing. Ensure the file is sent as multipart/form-data with field name "file".');
         }
-        // Check if file is ZIP
+        // Reject ZIP files - only CSV allowed
         if (file.mimetype === 'application/zip' || file.originalname?.endsWith('.zip')) {
-            try {
-                const zip = new adm_zip_1.default(file.buffer);
-                const zipEntries = zip.getEntries();
-                for (const entry of zipEntries) {
-                    if (entry.entryName.endsWith('.csv') && !entry.isDirectory) {
-                        files.push(entry.entryName);
-                        const csvContent = entry.getData().toString('utf-8');
-                        const fileData = this.parseCSVContent(csvContent, entry.entryName, entityType);
-                        parsedData = this.mergeParsedData(parsedData, fileData);
-                    }
-                }
+            throw new Error('ZIP files are not supported. Please upload CSV files only.');
+        }
+        // Single CSV file
+        try {
+            files.push(file.originalname || 'import.csv');
+            const csvContent = file.buffer.toString('utf-8');
+            if (this.isTypeBasedCSV(csvContent)) {
+                parsedData = this.parseGenericCSV(csvContent, file.originalname || 'import.csv');
             }
-            catch (err) {
-                const message = err?.message || 'Invalid or corrupt ZIP file.';
-                throw new Error(message);
+            else {
+                const fileData = this.parseCSVContent(csvContent, file.originalname || 'import.csv', entityType);
+                parsedData = this.mergeParsedData(parsedData, fileData);
             }
         }
-        else {
-            // Single CSV file
-            try {
-                files.push(file.originalname || 'import.csv');
-                const csvContent = file.buffer.toString('utf-8');
-                if (this.isTypeBasedCSV(csvContent)) {
-                    parsedData = this.parseGenericCSV(csvContent, file.originalname || 'import.csv');
-                }
-                else {
-                    const fileData = this.parseCSVContent(csvContent, file.originalname || 'import.csv', entityType);
-                    parsedData = this.mergeParsedData(parsedData, fileData);
-                }
-            }
-            catch (err) {
-                const message = err?.message || 'Invalid or corrupt file.';
-                throw new Error(message);
-            }
+        catch (err) {
+            const message = err?.message || 'Invalid or corrupt file.';
+            throw new Error(message);
         }
         return { data: parsedData, files };
     }
-    /**
-     * Determine which entity type this file belongs to based on filename.
-     * Used to validate and route rows only to the matching data type.
-     */
     static getEntityTypeFromFilename(filename) {
         const lower = filename.toLowerCase();
         if (lower.includes('modifier') && lower.includes('group'))
@@ -82,9 +53,6 @@ class CSVParser {
             return 'items';
         return null;
     }
-    /**
-     * Parse CSV content and identify entity type by filename or headers
-     */
     static parseCSVContent(content, filename, forcedEntityType) {
         const records = (0, sync_1.parse)(content, {
             columns: (headers) => headers.map((h) => h.toLowerCase().trim()),
@@ -132,19 +100,8 @@ class CSVParser {
         const looksLikeModifierItem = (r) => this.rowLooksLikeModifierItem(r);
         for (const record of records) {
             if (entityFromFilename === 'modifierGroups') {
-                const groupKeyVal = record.group_key ?? record.groupKey ?? record['group key'] ?? record['Group Key'] ?? '';
-                const nameVal = record.name ?? record.Name ?? '';
-                const hasGroupKey = !!String(groupKeyVal).trim();
-                const hasName = !!String(nameVal).trim();
-                // For modifier groups files, if we have a name and it looks like a group (has display_type or min/max_select), accept it
-                // Use name as group_key if group_key is not present
-                if (!looksLikeModifierItem(record) &&
-                    hasName &&
-                    (hasGroupKey || looksLikeModifierGroup(record))) {
-                    // If no group_key, use name as the group_key
-                    if (!hasGroupKey) {
-                        record.group_key = nameVal;
-                    }
+                const hasName = !!(record.name ?? record.Name ?? '').toString().trim();
+                if (!looksLikeModifierItem(record) && hasName && looksLikeModifierGroup(record)) {
                     result.modifierGroups.push(this.parseModifierGroup(record));
                 }
                 continue;
@@ -200,11 +157,9 @@ class CSVParser {
             else if (record.name && !record.group_key) {
                 result.items.push(this.parseItem(record));
             }
-            // Priority 5: Categories (Generic fallback for rows with name but no other indicators)
+            // Priority 5: Categories vs Modifier Groups (by display_type/min/max_select)
             else if (record.name && String(record.name).trim()) {
-                const groupKeyVal = record.group_key ?? record.groupkey ?? '';
-                const hasGroupKey = !!String(groupKeyVal).trim();
-                if (hasGroupKey) {
+                if (looksLikeModifierGroup(record)) {
                     result.modifierGroups.push(this.parseModifierGroup(record));
                 }
                 else {
@@ -285,26 +240,20 @@ class CSVParser {
                     name: name,
                     description: record.description,
                     category_name: parent, // Parent column is Category Name
-                    base_price: record.price || record.value,
                     is_active: record.active !== undefined ? record.active : true,
-                    // Defaults
-                    is_sizeable: false,
                     sort_order: record.sort_order,
                 });
             }
             if (type === 'SIZE') {
                 result.itemSizes.push({
-                    item_name: parent || '',
                     size_code: name,
                     name: name,
-                    price: record.price || record.value,
+                    display_order: record.sort_order,
                     is_active: record.active !== undefined ? record.active : true,
-                    is_default: record.is_default,
                 });
             }
             if (type === 'MOD_GROUP') {
                 result.modifierGroups.push({
-                    group_key: name,
                     business_id: '',
                     name: name,
                     display_name: record.display_name,
@@ -339,7 +288,6 @@ class CSVParser {
                 ? record.is_active === true || record.is_active === 'true'
                 : true,
             kitchen_section_name: record.kitchen_section_name,
-            modifier_groups: record.modifier_groups,
         };
     }
     static parseItem(record) {
@@ -347,10 +295,8 @@ class CSVParser {
             business_id: record.business_id || record.businessid || '',
             name: record.name || '',
             description: record.description,
-            base_price: record.base_price !== undefined ? parseFloat(record.base_price) : undefined,
             category_id: record.category_id || record.categoryid,
             category_name: record.category_name || record.categoryname,
-            is_sizeable: record.is_sizeable === true || record.is_sizeable === 'true' || record.is_sizeable === '1',
             is_customizable: record.is_customizable !== undefined
                 ? record.is_customizable === true || record.is_customizable === 'true'
                 : undefined,
@@ -365,29 +311,20 @@ class CSVParser {
                 record.is_signature === '1',
             max_per_order: record.max_per_order ? parseInt(record.max_per_order) : undefined,
             sort_order: record.sort_order ? parseInt(record.sort_order) : 0,
-            default_size_code: record.default_size_code ||
-                record.defaultsizecode ||
-                record.default_size ||
-                record.defaultsize,
         };
     }
     static parseItemSize(record) {
         return {
-            item_name: record.item_name || record.itemname || record.item_key || record.itemkey || '',
-            item_category_name: record.item_category_name || record.itemcategoryname || undefined,
             size_code: record.size_code || record.sizecode || record.code || '',
             name: record.name || record.code || record.sizeCode || '',
-            price: parseFloat(record.price) || 0,
             display_order: record.display_order ? parseInt(record.display_order) : 0,
             is_active: record.is_active !== undefined
                 ? record.is_active === true || record.is_active === 'true'
                 : true,
-            is_default: record.is_default === true || record.is_default === 'true' || record.is_default === '1',
         };
     }
-    /** Row has group_key, name, and display_type (or min/max_select) and no modifier_key */
+    /** Row has name and display_type (or min/max_select) and no modifier_key */
     static rowLooksLikeModifierGroup(record) {
-        const hasGroupKey = !!(record.group_key || record.groupkey || record['group key']);
         const hasName = !!(record.name && String(record.name).trim());
         const hasDisplayType = !!(record.display_type ||
             record.displaytype ||
@@ -396,7 +333,7 @@ class CSVParser {
             record.minselect !== undefined ||
             record.max_select !== undefined ||
             record.maxselect !== undefined);
-        return !!(hasGroupKey && hasName && hasDisplayType);
+        return !!(hasName && hasDisplayType);
     }
     /** Row has group_key (or modifier_group_name), name, and modifier_key or max_quantity */
     static rowLooksLikeModifierItem(record) {
@@ -416,10 +353,8 @@ class CSVParser {
         return !!(hasGroupRef && hasName && hasModifierKeyOrQty);
     }
     static parseModifierGroup(record) {
-        const groupKey = record.group_key || record.groupkey || record['group key'] || record.name || '';
         const name = record.name || '';
         return {
-            group_key: String(groupKey).trim(),
             business_id: record.business_id || record.businessid || '',
             name: String(name).trim(),
             display_name: record.display_name || record.displayname || record['display name'] || undefined,

@@ -1,49 +1,21 @@
 import AdminLayout from '@/components/layouts/admin';
-import GeneralSettingsForm from '@/components/settings/settings-form';
-import ErrorMessage from '@/components/ui/error-message';
 import Loader from '@/components/ui/loader/loader';
-import { useSettingsQuery } from '@/data/settings';
-import { useShippingClassesQuery } from '@/data/shipping';
-import { useTaxesQuery } from '@/data/tax';
 import { adminOnly } from '@/utils/auth-utils';
+import { Routes } from '@/config/routes';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-import SettingsPageHeader from '@/components/settings/settings-page-header';
+import { useEffect } from 'react';
 
 export default function Settings() {
   const { t } = useTranslation();
-  const { locale } = useRouter();
-  const { taxes, loading: taxLoading } = useTaxesQuery({
-    limit: 999,
-  });
+  const router = useRouter();
 
-  const { shippingClasses, loading: shippingLoading } =
-    useShippingClassesQuery();
+  useEffect(() => {
+    router.replace(Routes.shopSettings);
+  }, [router]);
 
-  const { settings, loading, error } = useSettingsQuery({
-    language: locale!,
-  });
-
-  if (loading || shippingLoading || taxLoading)
-    return <Loader text={t('common:text-loading')} />;
-  if (error) return <ErrorMessage message={error.message} />;
-  if (!settings)
-    return (
-      <ErrorMessage message={t('common:error-load-data') ?? 'Failed to load settings from server.'} />
-    );
-
-  return (
-    <>
-      <SettingsPageHeader pageTitle="form:form-title-settings" />
-      <GeneralSettingsForm
-        // @ts-ignore
-        settings={settings}
-        taxClasses={taxes}
-        shippingClasses={shippingClasses}
-      />
-    </>
-  );
+  return <Loader text={t('common:text-loading')} />;
 }
 Settings.authenticate = {
   permissions: adminOnly,

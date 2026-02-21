@@ -7,8 +7,13 @@ export const useFormatPhoneNumber = ({
   customer_contact: string;
 }) => {
   const phoneNumber = useMemo(() => {
-    const number = parsePhoneNumber(`+${customer_contact as string}`);
-    return number?.formatInternational();
+    if (!customer_contact) return '';
+    try {
+      const number = parsePhoneNumber(`+${customer_contact}`);
+      return number?.formatInternational() ?? customer_contact;
+    } catch (error) {
+      return customer_contact;
+    }
   }, [customer_contact]);
 
   return phoneNumber;

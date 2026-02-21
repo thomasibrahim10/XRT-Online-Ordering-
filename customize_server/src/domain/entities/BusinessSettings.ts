@@ -29,6 +29,7 @@ export interface BusinessSettings {
     maxDays?: number;
     deliveredOrderTime?: number;
   };
+  minimumOrderAmount?: number;
   siteLink?: string;
   isProductReview?: boolean;
   enableTerms?: boolean;
@@ -137,6 +138,7 @@ export interface CreateBusinessSettingsDTO {
   fees?: BusinessSettings['fees'];
   taxes?: BusinessSettings['taxes'];
   orders?: BusinessSettings['orders'];
+  minimumOrderAmount?: number;
   siteLink?: string;
   isProductReview?: boolean;
   enableTerms?: boolean;
@@ -170,6 +172,7 @@ export interface UpdateBusinessSettingsDTO {
   fees?: BusinessSettings['fees'];
   taxes?: BusinessSettings['taxes'];
   orders?: BusinessSettings['orders'];
+  minimumOrderAmount?: number;
   siteLink?: string;
   isProductReview?: boolean;
   enableTerms?: boolean;

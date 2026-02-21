@@ -216,22 +216,3 @@ export const useProductStockQuery = (options: Partial<ProductQueryOptions>) => {
   };
 };
 
-// Read All products by flash sale
-
-export const useProductsByFlashSaleQuery = (options: any) => {
-  const { data, error, isPending: isLoading } = useQuery<ProductPaginator, Error>({
-    queryKey: [API_ENDPOINTS.PRODUCTS_BY_FLASH_SALE, options],
-    queryFn: ({ queryKey }) =>
-      productClient.getProductsByFlashSale(
-        Object.assign({}, queryKey[1])
-      ),
-    placeholderData: (previousData: any) => previousData,
-  });
-
-  return {
-    products: data?.data ?? [],
-    paginatorInfo: mapPaginatorData(data),
-    error,
-    loading: isLoading,
-  };
-};

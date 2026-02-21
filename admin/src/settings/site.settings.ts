@@ -100,6 +100,24 @@ export const siteSettings = {
       //   ],
       // },
 
+      order: {
+        href: Routes.order.list,
+        label: 'text-order-management',
+        icon: 'OrdersIcon',
+        childMenu: [
+          {
+            href: Routes.order.list,
+            label: 'sidebar-nav-item-orders',
+            icon: 'OrdersIcon',
+          },
+          {
+            href: Routes.transaction,
+            label: 'text-transactions',
+            icon: 'TransactionsIcon',
+          },
+        ],
+      },
+
       menu: {
         href: '',
         label: 'text-content-management',
@@ -157,125 +175,20 @@ export const siteSettings = {
         ],
       },
 
-      financial: {
-        href: '',
-        label: 'text-e-commerce-management',
-        icon: 'WithdrawIcon',
-        childMenu: [
-          {
-            href: Routes.tax.list,
-            label: 'sidebar-nav-item-taxes',
-            icon: 'TaxesIcon',
-          },
-          {
-            href: Routes.shipping.list,
-            label: 'sidebar-nav-item-shippings',
-            icon: 'ShippingsIcon',
-          },
-          {
-            href: Routes.withdraw.list,
-            label: 'sidebar-nav-item-withdraws',
-            icon: 'WithdrawIcon',
-          },
-          {
-            href: '',
-            label: 'sidebar-nav-item-refunds',
-            icon: 'RefundsIcon',
-            childMenu: [
-              {
-                href: Routes.refund.list,
-                label: 'text-reported-refunds',
-                icon: 'RefundsIcon',
-              },
-              {
-                href: Routes.refundPolicies.list,
-                label: 'sidebar-nav-item-refund-policy',
-                icon: 'AuthorIcon',
-              },
-              {
-                href: Routes.refundPolicies.create,
-                label: 'text-new-refund-policy',
-                icon: 'RefundsIcon',
-              },
-              {
-                href: Routes.refundReasons.list,
-                label: 'text-refund-reasons',
-                icon: 'RefundsIcon',
-              },
-              {
-                href: Routes.refundReasons.create,
-                label: 'text-new-refund-reasons',
-                icon: 'RefundsIcon',
-              },
-            ],
-          },
-        ],
-      },
-
-      order: {
-        href: Routes.order.list,
-        label: 'text-order-management',
-        icon: 'OrdersIcon',
-        childMenu: [
-          {
-            href: Routes.order.list,
-            label: 'sidebar-nav-item-orders',
-            icon: 'OrdersIcon',
-          },
-          {
-            href: Routes.order.create,
-            label: 'sidebar-nav-item-create-order',
-            icon: 'CreateOrderIcon',
-          },
-          {
-            href: Routes.transaction,
-            label: 'text-transactions',
-            icon: 'TransactionsIcon',
-          },
-          // {
-          //   href: '',
-          //   label: 'Order tracking',
-          //   icon: 'OrderTrackingIcon',
-          // },
-          // {
-          //   href: '',
-          //   label: 'Delivery policies',
-          //   icon: 'ShippingsIcon',
-          // },
-          // {
-          //   href: '',
-          //   label: 'Cancelation policies',
-          //   icon: 'CancelationIcon',
-          // },
-        ],
-      },
-
       layout: {
         href: '',
-        label: 'text-page-control',
+        label: 'text-landing-control',
         icon: 'SettingsIcon',
         childMenu: [
           {
-            href: Routes.type.list,
-            label: 'text-groups',
+            href: Routes.landingSettings,
+            label: 'text-landing-settings',
             icon: 'HomeIcon',
           },
           {
-            href: '',
-            label: 'text-faqs',
-            icon: 'FaqIcon',
-            childMenu: [
-              {
-                href: Routes.faqs.list,
-                label: 'text-all-faqs',
-                icon: 'FaqIcon',
-              },
-              {
-                href: Routes.faqs.create,
-                label: 'text-new-faq',
-                icon: 'TypesIcon',
-              },
-            ],
+            href: Routes.testimonials.list,
+            label: 'sidebar-nav-item-testimonials',
+            icon: 'ReviewIcon',
           },
           {
             href: '',
@@ -293,11 +206,6 @@ export const siteSettings = {
                 icon: 'TermsIcon',
               },
             ],
-          },
-          {
-            href: Routes.becomeSeller,
-            label: 'Become a seller Page',
-            icon: 'TermsIcon',
           },
         ],
       },
@@ -326,24 +234,6 @@ export const siteSettings = {
         ],
       },
 
-      feedback: {
-        href: '',
-        label: 'text-feedback-control',
-        icon: 'SettingsIcon',
-        childMenu: [
-          {
-            href: Routes.testimonials.list,
-            label: 'sidebar-nav-item-testimonials',
-            icon: 'ReviewIcon',
-          },
-          {
-            href: Routes.question.list,
-            label: 'sidebar-nav-item-questions',
-            icon: 'QuestionIcon',
-          },
-        ],
-      },
-
       promotional: {
         href: '',
         label: 'text-promotional-management',
@@ -362,28 +252,6 @@ export const siteSettings = {
               {
                 href: Routes.coupon.create,
                 label: 'text-new-coupon',
-                icon: 'CouponsIcon',
-              },
-            ],
-          },
-          {
-            href: '',
-            label: 'text-flash-sale',
-            icon: 'FlashDealsIcon',
-            childMenu: [
-              {
-                href: Routes.flashSale.list,
-                label: 'text-all-campaigns',
-                icon: 'FlashDealsIcon',
-              },
-              {
-                href: Routes.flashSale.create,
-                label: 'text-new-campaigns',
-                icon: 'FlashDealsIcon',
-              },
-              {
-                href: Routes.vendorRequestForFlashSale.list,
-                label: 'Vendor requests',
                 icon: 'CouponsIcon',
               },
             ],
@@ -412,11 +280,6 @@ export const siteSettings = {
             label: 'sidebar-nav-item-message',
             icon: 'ChatIcon',
           },
-          {
-            href: Routes.storeNotice.list,
-            label: 'sidebar-nav-item-store-notice',
-            icon: 'StoreNoticeIcon',
-          },
         ],
       },
 
@@ -431,9 +294,9 @@ export const siteSettings = {
             icon: 'SettingsIcon',
             childMenu: [
               {
-                href: Routes.settings,
-                label: 'text-general-settings',
-                icon: 'SettingsIcon',
+                href: Routes.shopSettings,
+                label: 'text-shop-settings',
+                icon: 'RefundsIcon',
               },
               {
                 href: Routes.paymentSettings,
@@ -448,11 +311,6 @@ export const siteSettings = {
               {
                 href: Routes.printerSettings,
                 label: 'text-printer-settings',
-                icon: 'RefundsIcon',
-              },
-              {
-                href: Routes.shopSettings,
-                label: 'text-shop-settings',
                 icon: 'RefundsIcon',
               },
               {
@@ -514,7 +372,7 @@ export const siteSettings = {
         permissions: ownerAndStaffOnly,
       },
       {
-        href: Routes?.ownerDashboardNotice,
+        href: Routes?.ownerDashboardNotifyLogs,
         label: 'common:sidebar-nav-item-store-notice',
         icon: 'StoreNoticeOwnerIcon',
         permissions: ownerAndStaffOnly,

@@ -10,7 +10,6 @@ class UpdateCategoryUseCase {
     }
     async execute(id, business_id, // Allow undefined for super admins
     categoryData, files) {
-        console.log(`[UpdateCategoryUseCase] Executing for ID: ${id}, Business ID: ${business_id || 'Any'}`);
         const existingCategory = await this.categoryRepository.findById(id, business_id);
         if (!existingCategory) {
             throw new AppError_1.NotFoundError('Category');
@@ -32,12 +31,10 @@ class UpdateCategoryUseCase {
             // Delete old image if exists
             if (existingCategory.image_public_id) {
                 // Fire and forget delete
-                console.log('[UpdateCategory] Triggering delete for old image:', existingCategory.image_public_id);
                 this.imageStorage
                     .deleteImage(existingCategory.image_public_id)
                     .catch((err) => console.error('Background delete failed for image:', err));
             }
-            console.log('[UpdateCategory] Uploading new image');
             const uploadResult = await this.imageStorage.uploadImage(files['image'][0], `xrttech/categories/${targetBusinessId}`);
             imageUrl = uploadResult.secure_url;
             imagePublicId = uploadResult.public_id;
@@ -46,12 +43,10 @@ class UpdateCategoryUseCase {
             // Delete old icon if exists
             if (existingCategory.icon_public_id) {
                 // Fire and forget delete
-                console.log('[UpdateCategory] Triggering delete for old icon:', existingCategory.icon_public_id);
                 this.imageStorage
                     .deleteImage(existingCategory.icon_public_id)
                     .catch((err) => console.error('Background delete failed for icon:', err));
             }
-            console.log('[UpdateCategory] Uploading new icon');
             const uploadResult = await this.imageStorage.uploadImage(files['icon'][0], `xrttech/categories/${targetBusinessId}/icons`);
             iconUrl = uploadResult.secure_url;
             iconPublicId = uploadResult.public_id;
@@ -59,7 +54,6 @@ class UpdateCategoryUseCase {
         else if (categoryData.delete_icon) {
             // Explicit deletion requested
             if (existingCategory.icon_public_id) {
-                console.log('[UpdateCategory] Explicit delete requested for icon:', existingCategory.icon_public_id);
                 this.imageStorage
                     .deleteImage(existingCategory.icon_public_id)
                     .catch((err) => console.error('Background delete failed for icon:', err));

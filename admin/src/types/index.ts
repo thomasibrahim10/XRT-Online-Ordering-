@@ -58,31 +58,10 @@ export enum ProductStatus {
   UnPublish = 'unpublish',
   Rejected = 'rejected',
 }
-export enum WithdrawStatus {
-  Approved = 'APPROVED',
-  Pending = 'PENDING',
-  OnHold = 'ON_HOLD',
-  Rejected = 'REJECTED',
-  Processing = 'PROCESSING',
-}
-
-export enum ShippingType {
-  Fixed = 'fixed',
-  Percentage = 'percentage',
-  Free = 'free_shipping',
-}
 
 export enum AddressType {
   Billing = 'billing',
   Shipping = 'shipping',
-}
-export enum RefundPolicyTarget {
-  vendor = 'vendor',
-  customer = 'customer',
-}
-export enum RefundPolicyStatus {
-  Approved = 'approved',
-  Pending = 'pending',
 }
 
 export interface GoogleMapLocation {
@@ -112,7 +91,7 @@ export enum OrderStatus {
   PROCESSING = 'order-processing',
   COMPLETED = 'order-completed',
   CANCELLED = 'order-cancelled',
-  REFUNDED = 'order-refunded',
+
   FAILED = 'order-failed',
   AT_LOCAL_FACILITY = 'order-at-local-facility',
   OUT_FOR_DELIVERY = 'order-out-for-delivery',
@@ -131,10 +110,10 @@ export interface TodayTotalOrderByStatus {
   processing: number;
   complete: number;
   cancelled: number;
-  refunded: number;
   failed: number;
   localFacility: number;
   outForDelivery: number;
+  refunded: number;
 }
 
 export interface CategoryProductCount {
@@ -415,7 +394,6 @@ export interface Balance {
   admin_commission_rate?: number;
   shop?: Shop;
   total_earnings?: number;
-  withdrawn_amount?: number;
   current_balance?: number;
   payment_info?: PaymentInfo;
 }
@@ -485,6 +463,7 @@ export interface UserAddress {
   state?: string;
   zip?: string;
   street_address?: string;
+  formatted_address?: string;
 }
 
 export interface MakeAdminInput {
@@ -737,10 +716,14 @@ export interface Order {
   translated_languages: string[];
   language: string;
   order_status: string;
+  order_type?: string;
+  schedule_time?: string | null;
   payment_status: string;
   shop_id?: string;
   shop?: Shop;
   note?: string;
+  cancelled_reason?: string;
+  cancelled_by?: string;
 }
 
 export interface NotifyLogs {
@@ -946,20 +929,6 @@ export interface CreateAuthorInput {
   shop_id?: string;
   socials?: ShopSocialInput[];
 }
-export interface CreateRefundPolicyInput {
-  title: string;
-  slug: string;
-  target: string;
-  status: string;
-  language: string;
-  description?: string;
-  shop_id?: string;
-}
-export interface CreateRefundReasonInput {
-  name: string;
-  slug: string;
-  language: string;
-}
 
 export interface CreateCategoryInput {
   name: string;
@@ -971,20 +940,6 @@ export interface CreateCategoryInput {
   kitchen_section_id?: string;
   sort_order?: number;
   is_active?: boolean;
-}
-
-export interface CreateWithdrawInput {
-  amount: number;
-  shop_id: number;
-  payment_method?: string;
-  details?: string;
-  note?: string;
-}
-
-export interface ApproveWithdrawInput {
-  id: string;
-  status: WithdrawStatus;
-  note?: string;
 }
 
 // -> TODO: Simplify this
@@ -1094,19 +1049,6 @@ export interface CreateManufacturerInput {
   website?: string;
 }
 
-export interface Withdraw {
-  id?: string;
-  amount?: number;
-  status?: WithdrawStatus;
-  shop_id?: number;
-  shop?: Shop;
-  payment_method?: string;
-  details?: string;
-  note?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
 export interface Review {
   id: number;
   user_id: number;
@@ -1147,12 +1089,6 @@ export interface CreateMessageInput {
 }
 export interface CreateMessageSeenInput {
   id: string;
-}
-
-export interface Tax {
-  id?: string;
-  name?: string;
-  rate?: number;
 }
 
 export interface ContactDetails {
@@ -1253,53 +1189,6 @@ export interface SettingsInput {
   options?: SettingsOptionsInput;
 }
 
-export interface Tax {
-  id?: string;
-  name?: string;
-  rate?: number;
-  is_global?: boolean;
-  country?: string;
-  state?: string;
-  zip?: string;
-  city?: string;
-  priority?: number;
-  on_shipping?: boolean;
-}
-
-export interface TaxInput {
-  name?: string;
-  rate?: number;
-  is_global?: boolean;
-  country?: string;
-  state?: string;
-  zip?: string;
-  city?: string;
-  priority?: number;
-  on_shipping?: boolean;
-}
-
-export interface Shipping {
-  id?: string;
-  name?: string;
-  amount?: number;
-  is_global?: boolean;
-  type?: ShippingType;
-}
-
-export interface ShippingInput {
-  name: string;
-  amount: number;
-  is_global?: boolean;
-  type: ShippingType;
-}
-
-export interface ShippingUpdateInput {
-  name?: string;
-  amount?: number;
-  is_global?: boolean;
-  type?: ShippingType;
-}
-
 export interface SeoSettingsInput {
   metaTitle?: string;
   metaDescription?: string;
@@ -1333,25 +1222,33 @@ export interface SettingsOptions {
   siteTitle?: string;
   siteSubtitle?: string;
   currency?: string;
-  defaultAi?: string;
   paymentGateway?: any;
   defaultPaymentGateway?: string;
-  useOtp?: boolean;
   useAi?: boolean;
   contactDetails?: ContactDetails;
   minimumOrderAmount?: number;
   currencyToWalletRatio?: number;
   signupPoints?: number;
   maxShopDistance?: number;
+  delivery?: {
+    enabled?: boolean;
+    radius?: number;
+    fee?: number;
+    min_order?: number;
+    min_order_free_delivery?: number;
+    amount_per_km?: number;
+  };
+  fees?: {
+    service_fee?: number;
+    tip_options?: number[];
+  };
+  taxes?: {
+    sales_tax?: number;
+  };
   maximumQuestionLimit?: number;
   deliveryTime?: DeliveryTime[];
   logo?: Attachment;
   collapseLogo?: Attachment;
-  taxClass?: string;
-  shippingClass?: string;
-  seo?: SeoSettings;
-  google?: GoogleSettings;
-  facebook?: FacebookSettings;
   useEnableGateway?: boolean;
   currencyOptions?: SettingCurrencyOptions;
   guestCheckout: boolean;
@@ -1366,8 +1263,6 @@ export interface SettingsOptions {
   reviewSystem?: string;
   useGoogleMap?: boolean;
   isProductReview?: boolean;
-  freeShipping?: boolean;
-  freeShippingAmount?: number;
   isMultiCommissionRate?: boolean;
   footer_text?: string;
   printer?: PrinterSettings;
@@ -1389,21 +1284,6 @@ export interface SettingsOptions {
       close_time: string;
       is_closed: boolean;
     }[];
-  };
-  delivery?: {
-    enabled?: boolean;
-    radius?: number;
-    fee?: number;
-    min_order?: number;
-  };
-  fees?: {
-    service_fee?: number;
-    tip_options?: number[];
-    tip?: number;
-    tip_type?: string;
-  };
-  taxes?: {
-    sales_tax?: number;
   };
   pushNotification?: any;
   // Company Information fields
@@ -1452,10 +1332,6 @@ export interface PrinterSettings {
 //   maximumQuestionLimit?: number;
 //   deliveryTime?: DeliveryTime[];
 //   logo?: Attachment;
-//   taxClass?: string;
-//   shippingClass?: string;
-//   seo?: SeoSettings;
-//   google?: GoogleSettings;
 //   facebook?: FacebookSettings;
 //   paymentGateway?: any;
 //   defaultPaymentGateway?: string;
@@ -1501,25 +1377,18 @@ export interface SettingsOptionsInput {
   siteTitle?: string;
   siteSubtitle?: string;
   currency?: string;
-  useOtp?: boolean;
   printer?: PrinterSettings;
-  useAi?: boolean;
-  defaultAi?: any;
-  freeShipping?: boolean;
   useCashOnDelivery?: boolean;
   paymentGateway?: any;
   defaultPaymentGateway?: string;
   contactDetails?: ContactDetailsInput;
   minimumOrderAmount?: number;
-  freeShippingAmount?: number;
   currencyToWalletRatio?: number;
   signupPoints?: number;
   maxShopDistance?: number;
   maximumQuestionLimit?: number;
   deliveryTime?: DeliveryTimeInput[];
   logo?: AttachmentInput;
-  taxClass?: string;
-  shippingClass?: string;
   seo?: SeoSettingsInput;
   google?: GoogleSettingsInput;
   facebook?: FacebookSettingsInput;
@@ -1561,14 +1430,6 @@ export interface SettingsOptionsInput {
     radius?: number;
     fee?: number;
     min_order?: number;
-  };
-  fees?: {
-    service_fee?: number;
-    tip?: number;
-    tip_type?: string;
-  };
-  taxes?: {
-    sales_tax?: number;
   };
 }
 
@@ -1834,44 +1695,6 @@ export interface UserAddressUpsertInput {
   address: UserAddressInput;
   type: string;
 }
-export interface Refund {
-  id: number;
-  amount: number;
-  status: string;
-  title?: string;
-  description?: string;
-  images?: Attachment;
-  order_id?: Order;
-  customer_id?: User;
-  refund_policy_id?: number;
-}
-
-export interface RefundPolicy {
-  id: string;
-  title: string;
-  slug: string;
-  target: string;
-  status: string;
-  description?: string;
-  language: string;
-  shop_id?: string;
-  shop?: Shop;
-  refunds?: Refund[];
-  translated_languages: Array<string>;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string;
-}
-export interface RefundReason {
-  id: string;
-  name: string;
-  slug: string;
-  language: string;
-  translated_languages: Array<string>;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string;
-}
 
 export interface SocialInput {
   type?: string;
@@ -1934,26 +1757,10 @@ export interface AttributeValueQueryOptions extends QueryOptions {
   name: string;
 }
 
-export interface TaxQueryOptions extends QueryOptions {
-  name: string;
-}
-
-export interface ShippingQueryOptions extends QueryOptions {
-  name: string;
-}
-
 export interface AuthorQueryOptions extends QueryOptions {
   type: string;
   name: string;
   is_approved?: boolean;
-}
-export interface RefundPolicyQueryOptions extends QueryOptions {
-  title: string;
-  target: string;
-  status: string;
-}
-export interface RefundReasonQueryOptions extends QueryOptions {
-  name: string;
 }
 
 export interface TypeQueryOptions extends QueryOptions {
@@ -2009,18 +1816,12 @@ export interface StaffQueryOptions extends Omit<QueryOptions, 'language'> {
   shop_id: string;
 }
 
-export interface WithdrawQueryOptions extends Omit<QueryOptions, 'language'> {
-  name: string;
-  shop_id: string;
-  parent: number | null;
-}
-
 export interface OrderQueryOptions extends QueryOptions {
   type: string;
   name: string;
   shop_id: string;
   tracking_number: string;
-  refund_reason: string;
+
   with: string;
 }
 
@@ -2156,8 +1957,6 @@ export interface CustomerPaginator extends PaginatorInfo<Customer> {}
 
 export interface ShopPaginator extends PaginatorInfo<Shop> {}
 
-export interface WithdrawPaginator extends PaginatorInfo<Withdraw> {}
-
 export interface UserPaginator extends PaginatorInfo<User> {}
 
 export interface LicensedDomainPaginator extends PaginatorInfo<Domain> {}
@@ -2184,8 +1983,6 @@ export interface ProductPaginator extends PaginatorInfo<Product> {}
 
 export interface CategoryPaginator extends PaginatorInfo<Category> {}
 
-export interface TaxPaginator extends PaginatorInfo<Tax> {}
-
 export interface ReviewPaginator extends PaginatorInfo<Review> {}
 
 export interface TagPaginator extends PaginatorInfo<Tag> {}
@@ -2194,13 +1991,7 @@ export interface AttributePaginator extends PaginatorInfo<Attribute> {}
 
 export interface AttributeValuePaginator extends PaginatorInfo<AttributeValue> {}
 
-export interface ShippingPaginator extends PaginatorInfo<Shipping> {}
-
 export interface AuthorPaginator extends PaginatorInfo<Author> {}
-
-export interface RefundPolicyPaginator extends PaginatorInfo<RefundPolicy> {}
-
-export interface RefundReasonPaginator extends PaginatorInfo<RefundReason> {}
 
 export interface ManufacturerPaginator extends PaginatorInfo<Manufacturer> {}
 
@@ -2384,6 +2175,19 @@ export enum OwnerShipTransferStatus {
   REJECTED = 'rejected',
 }
 
+export interface Refund {
+  id: string | number;
+  amount: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  customer?: User;
+  order?: Order;
+  shop?: Shop;
+  title?: string;
+  description?: string;
+}
+
 export interface OwnershipTransfer {
   created_by: string;
   created_at: string;
@@ -2396,10 +2200,9 @@ export interface OwnershipTransfer {
   message?: string;
   status: string;
   shop: Shop;
-  refund_info?: Refund[];
-  withdrawal_info?: Withdraw[];
   order_info: TodayTotalOrderByStatus;
   balance_info: Balance;
+  refund_info?: Refund[];
 }
 
 export interface OwnershipTransferInput {
@@ -2448,7 +2251,6 @@ export interface OrderStickerCardProps extends StickerCardProps {
     | 'processing'
     | 'complete'
     | 'cancelled'
-    | 'refunded'
     | 'failed'
     | 'localFacility'
     | 'outForDelivery'

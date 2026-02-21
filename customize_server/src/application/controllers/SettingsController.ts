@@ -11,11 +11,7 @@ const getDefaultOptions = () => ({
   siteSubtitle: 'Enterprise Ordering System',
   timezone: 'America/New_York', // Default timezone
   currency: 'USD',
-  useOtp: false,
-  useAi: false,
   guestCheckout: true,
-  freeShipping: false,
-  freeShippingAmount: 0,
   minimumOrderAmount: 0,
   currencyToWalletRatio: 1,
   signupPoints: 0,

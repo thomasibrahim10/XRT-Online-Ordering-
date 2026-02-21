@@ -13,7 +13,11 @@ class UpdateImportSessionUseCase {
         }
         // If parsedData is being updated, re-validate
         if (data.parsedData) {
-            const validation = ImportValidationService_1.ImportValidationService.validate(data.parsedData, session.business_id, session.originalFiles[0] || 'import.csv');
+            const parsedData = data.parsedData;
+            if (typeof parsedData !== 'object' || parsedData === null) {
+                throw new Error('Invalid parsedData: must be an object');
+            }
+            const validation = ImportValidationService_1.ImportValidationService.validate(parsedData, session.business_id, (session.originalFiles && session.originalFiles[0]) || 'import.csv');
             data.validationErrors = validation.errors;
             data.validationWarnings = validation.warnings;
             // Update status based on validation

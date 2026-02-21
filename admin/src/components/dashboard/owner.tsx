@@ -24,9 +24,6 @@ import { useDashboardLoading } from '@/hooks/use-app-loading';
 import { TodayTotalOrderByStatus } from '@/types';
 const ShopList = dynamic(() => import('@/components/dashboard/shops/shops'));
 const Message = dynamic(() => import('@/components/dashboard/shops/message'));
-const StoreNotices = dynamic(
-  () => import('@/components/dashboard/shops/store-notices'),
-);
 const OrderStatusWidget = dynamic(
   () => import('@/components/dashboard/widgets/box/widget-order-by-status'),
 );
@@ -42,7 +39,6 @@ const TopRatedProducts = dynamic(
 const MAP_PAGE_LIST: Record<string, any> = {
   ShopList: ShopList,
   Message: Message,
-  StoreNotices: StoreNotices,
 };
 
 const OwnerShopLayout = () => {

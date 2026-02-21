@@ -80,10 +80,4 @@ export const orderSummaryWidgetContent = [
     icon: <BasketIcon className="h-8 w-8" />,
     color: '#9333EA',
   },
-  {
-    key: 'withdrawn_amount',
-    titleTransKey: 'Withdraw Amount',
-    icon: <ChecklistIcon className="h-8 w-8" />,
-    color: '#38BDF8',
-  },
 ] as OrderStickerCardProps[];

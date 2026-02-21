@@ -123,6 +123,12 @@ const ModifierSchema = new mongoose_1.Schema({
         type: [PricesBySizeSchema],
         default: [],
     },
+    /** Base price when modifier has no quantity_levels */
+    price: {
+        type: Number,
+        min: 0,
+        default: undefined,
+    },
     deleted_at: {
         type: Date,
         default: null,

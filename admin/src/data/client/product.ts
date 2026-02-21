@@ -130,21 +130,6 @@ export const productClient = {
       },
     );
   },
-  getProductsByFlashSale: ({ user_id, slug, name, ...params }: any) => {
-    return HttpClient.get<ProductPaginator>(
-      API_ENDPOINTS.PRODUCTS_BY_FLASH_SALE,
-      {
-        searchJoin: 'and',
-        user_id,
-        slug,
-        name,
-        ...params,
-        search: HttpClient.formatSearchParams({
-          name,
-        }),
-      },
-    );
-  },
   topRated({ ...params }: Partial<ProductQueryOptions>) {
     return HttpClient.get<Product[]>(API_ENDPOINTS.TOP_RATED_PRODUCTS, {
       searchJoin: 'and',

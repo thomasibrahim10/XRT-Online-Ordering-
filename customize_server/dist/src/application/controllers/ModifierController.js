@@ -13,7 +13,7 @@ class ModifierController {
     constructor() {
         this.create = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { groupId } = req.params;
-            const { name, display_order, is_active, sides_config, quantity_levels, prices_by_size } = req.body;
+            const { name, display_order, is_active, sides_config, quantity_levels, prices_by_size, price } = req.body;
             if (!groupId) {
                 throw new AppError_1.ValidationError('groupId is required');
             }
@@ -35,6 +35,7 @@ class ModifierController {
                 sides_config: parsedSidesConfig,
                 quantity_levels: quantity_levels || [],
                 prices_by_size: prices_by_size || [],
+                price: price != null ? Number(price) : undefined,
             });
             return (0, response_1.sendSuccess)(res, 'Modifier created successfully', modifier, 201);
         });
@@ -69,7 +70,7 @@ class ModifierController {
         this.update = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
             const { groupId } = req.params;
-            const { name, display_order, is_active, sides_config, quantity_levels, prices_by_size } = req.body;
+            const { name, display_order, is_active, sides_config, quantity_levels, prices_by_size, price } = req.body;
             if (!groupId) {
                 throw new AppError_1.ValidationError('groupId is required');
             }
@@ -98,6 +99,8 @@ class ModifierController {
                 updateData.quantity_levels = quantity_levels;
             if (prices_by_size !== undefined)
                 updateData.prices_by_size = prices_by_size;
+            if (price !== undefined)
+                updateData.price = price != null ? Number(price) : undefined;
             const modifier = await this.updateModifierUseCase.execute(id, groupId, updateData);
             return (0, response_1.sendSuccess)(res, 'Modifier updated successfully', modifier);
         });
@@ -126,49 +129,15 @@ class ModifierController {
             const modifiers = await this.modifierRepository.findAll(filters);
             // Helper to safely stringify values for CSV
             const safeString = (val) => `"${(val || '').toString().replace(/"/g, '""')}"`;
-            // Helpers for formatting
-            const formatSidesConfig = (config) => {
-                if (!config || !config.enabled)
-                    return 'Disabled';
-                const sides = (config.allowed_sides || []).join(', ');
-                return `Enabled (${sides})`;
-            };
-            const formatQuantityLevels = (levels) => {
-                if (!levels || !Array.isArray(levels))
-                    return '';
-                return levels
-                    .map((ql) => {
-                    const qty = ql.quantity;
-                    const price = ql.price !== undefined ? `$${ql.price}` : '';
-                    const name = ql.name ? ` (${ql.name})` : '';
-                    return `${qty}x${name}: ${price}`;
-                })
-                    .join('; ');
-            };
-            const formatPricesBySize = (prices) => {
-                if (!prices || !Array.isArray(prices))
-                    return '';
-                return prices.map((p) => `${p.sizeCode}: +$${p.priceDelta}`).join('; ');
-            };
-            // Convert to CSV
+            // Basics-only export: group_key, modifier_key, name, display_order, is_active (no quantity_levels, prices, sides)
             const csvRows = [
-                [
-                    'modifier_group_name',
-                    'name',
-                    'display_order',
-                    'is_active',
-                    'sides_config',
-                    'quantity_levels',
-                    'prices_by_size',
-                ].join(','),
+                ['group_key', 'modifier_key', 'name', 'display_order', 'is_active'].join(','),
                 ...modifiers.map((mod) => [
-                    safeString(mod.modifier_group?.name),
+                    safeString(mod.modifier_group?.name || mod.modifier_group_id),
                     safeString(mod.name),
-                    mod.display_order,
-                    mod.is_active,
-                    safeString(formatSidesConfig(mod.sides_config)),
-                    safeString(formatQuantityLevels(mod.quantity_levels)),
-                    safeString(formatPricesBySize(mod.prices_by_size)),
+                    safeString(mod.name),
+                    mod.display_order ?? 0,
+                    mod.is_active ?? true,
                 ].join(',')),
             ];
             const csvContent = csvRows.join('\n');

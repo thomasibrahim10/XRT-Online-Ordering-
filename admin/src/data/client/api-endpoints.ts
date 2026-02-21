@@ -95,10 +95,6 @@ export const API_ENDPOINTS = {
   CATEGORY_WISE_PRODUCTS_SALE: 'products/category-wise-sale',
   TOP_RATED_PRODUCTS: 'products/top-rated',
 
-  // Withdraw endpoints
-  WITHDRAWS: 'withdraws',
-  APPROVE_WITHDRAW: 'withdraws/:id/approve',
-
   // Additional placeholder endpoints
   AUTHORS: 'authors',
   TAGS: 'tags',
@@ -106,24 +102,15 @@ export const API_ENDPOINTS = {
   VERIFY_COUPONS: 'coupons/verify',
   APPROVE_COUPON: 'coupons/approve',
   DISAPPROVE_COUPON: 'coupons/disapprove',
-  TAXES: 'taxes',
-  SHIPPINGS: 'shippings',
+
   MANUFACTURERS: 'manufacturers',
   GROUPS: 'groups',
-  QUESTIONS: 'questions',
   REVIEWS: 'reviews',
   TESTIMONIALS: 'testimonials',
-  FLASH_SALE: 'flash-sale',
-  REFUNDS: 'refunds',
+
   ORDER_STATUS: 'order-status',
   TERMS_AND_CONDITIONS: 'terms-and-conditions',
-  FAQS: 'faqs',
-  STORE_NOTICES: 'store-notices',
-  STORE_NOTICE_GET_STORE_NOTICE_TYPE: 'store-notices/get-store-notice-type',
-  STORE_NOTICES_USER_OR_SHOP_LIST: 'store-notices/user-or-shop-list',
-  STORE_NOTICES_IS_READ: 'store-notices/is-read',
 
-  BECAME_SELLER: 'become-seller',
   CONVERSATIONS: 'conversations',
   MESSAGES: 'messages',
   NOTIFY_LOGS: 'notify-logs',
@@ -133,11 +120,6 @@ export const API_ENDPOINTS = {
   DOWNLOADS: 'downloads',
   GENERATE_DESCRIPTION: 'generate-description',
 
-  REQUEST_LISTS_FOR_FLASH_SALE: 'flash-sale/requests',
-  APPROVE_FLASH_SALE_REQUESTED_PRODUCTS: 'flash-sale/requests/approve',
-  DISAPPROVE_FLASH_SALE_REQUESTED_PRODUCTS: 'flash-sale/requests/disapprove',
-  REQUESTED_PRODUCTS_FOR_FLASH_SALE: 'flash-sale/requested-products',
-  PRODUCT_FLASH_SALE_INFO: 'flash-sale/product-flash-sale-info',
   ATTRIBUTE_VALUES: 'attribute-values',
   UPLOAD: 'upload',
   CREATE_ORDER: 'orders',
@@ -171,9 +153,7 @@ export const API_ENDPOINTS = {
   ORDER_INVOICE_DOWNLOAD: 'orders/invoice/download',
   ORDER_SEEN: 'orders/seen',
   OWNERSHIP_TRANSFER: 'ownership-transfer',
-  PRODUCTS_BY_FLASH_SALE: 'products/flash-sale',
-  REFUND_POLICIES: 'refund-policies',
-  REFUND_REASONS: 'refund-reasons',
+
   TRANSFER_SHOP_OWNERSHIP: 'shops/transfer-ownership',
   PRICES_BULK_UPDATE: 'prices/bulk-update',
   PRICES_ROLLBACK: 'prices/rollback/:id',

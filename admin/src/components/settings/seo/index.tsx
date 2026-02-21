@@ -56,7 +56,7 @@ export default function SeoSettingsForm({ settings }: IProps) {
     //@ts-ignore
     resolver: yupResolver(seoValidationSchema),
     defaultValues: {
-      ...options,
+      ...(options as any),
     },
   });
 
@@ -144,7 +144,6 @@ export default function SeoSettingsForm({ settings }: IProps) {
             {...register('seo.twitterHandle')}
             variant="outline"
             className="mb-5"
-            
           />
           <Input
             label={t('form:input-label-twitter-card-type')}
@@ -152,7 +151,6 @@ export default function SeoSettingsForm({ settings }: IProps) {
             {...register('seo.twitterCardType')}
             variant="outline"
             className="mb-5"
-            
           />
         </Card>
       </div>

@@ -106,12 +106,6 @@ export const PERMISSION_KEYS = {
   BUSINESS_READ: 'business:read',
   BUSINESS_UPDATE: 'business:update',
 
-  // Withdrawals Module
-  WITHDRAWS_READ: 'withdraws:read',
-  WITHDRAWS_CREATE: 'withdraws:create',
-  WITHDRAWS_UPDATE: 'withdraws:update',
-  WITHDRAWS_DELETE: 'withdraws:delete',
-
   // Content Module
   CONTENT_READ: 'content:read',
   CONTENT_CREATE: 'content:create',
@@ -135,4 +129,5 @@ export const PERMISSION_KEYS = {
   ADMIN_ANALYTICS: 'admin:analytics',
 } as const;
 
-export type PermissionKey = typeof PERMISSION_KEYS[keyof typeof PERMISSION_KEYS];
+export type PermissionKey =
+  (typeof PERMISSION_KEYS)[keyof typeof PERMISSION_KEYS];

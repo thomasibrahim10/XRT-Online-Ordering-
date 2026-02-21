@@ -9,12 +9,9 @@ const BusinessSettingsRepository_1 = require("../../infrastructure/repositories/
 const getDefaultOptions = () => ({
     siteTitle: 'XRT Online Ordering',
     siteSubtitle: 'Enterprise Ordering System',
+    timezone: 'America/New_York', // Default timezone
     currency: 'USD',
-    useOtp: false,
-    useAi: false,
     guestCheckout: true,
-    freeShipping: false,
-    freeShippingAmount: 0,
     minimumOrderAmount: 0,
     currencyToWalletRatio: 1,
     signupPoints: 0,
@@ -126,7 +123,6 @@ const getDefaultOptions = () => ({
     taxes: {
         sales_tax: 0,
     },
-    timezone: 'America/New_York',
     server_info: {
         phpVersion: null,
         phpMaxExecutionTime: null,
@@ -135,6 +131,8 @@ const getDefaultOptions = () => ({
         upload_max_filesize: 10240, // 10MB in KB
     },
     heroSlides: [],
+    siteLink: '',
+    enableReviewPopup: false,
 });
 class SettingsController {
     constructor() {

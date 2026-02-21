@@ -16,11 +16,11 @@ const roles_1 = require("../../shared/constants/roles");
 class ModifierGroupController {
     constructor() {
         this.create = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-            const { name, display_name, display_type, min_select, max_select, quantity_levels, prices_by_size, is_active, sort_order, } = req.body;
-            const business_id = req.user?.business_id || req.body.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            const { name, display_name, display_type, min_select, max_select, quantity_levels, prices_by_size, price, is_active, sort_order, } = req.body;
+            const business_id = req.user?.business_id || req.body.business_id || 'default';
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const modifierGroup = await this.createModifierGroupUseCase.execute({
                 business_id: business_id,
                 name,
@@ -30,6 +30,7 @@ class ModifierGroupController {
                 max_select: Number(max_select),
                 quantity_levels: quantity_levels || [],
                 prices_by_size: prices_by_size || [],
+                price: price != null ? Number(price) : undefined,
                 is_active: is_active !== undefined ? is_active === true || is_active === 'true' : true,
                 sort_order: sort_order ? Number(sort_order) : 0,
             });
@@ -37,9 +38,9 @@ class ModifierGroupController {
         });
         this.getAll = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const filters = {
                 business_id: business_id,
                 name: req.query.name,
@@ -58,9 +59,9 @@ class ModifierGroupController {
         this.getById = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
             let business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             if (!business_id && req.user?.role === roles_1.UserRole.SUPER_ADMIN) {
                 business_id = undefined;
             }
@@ -69,11 +70,11 @@ class ModifierGroupController {
         });
         this.update = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
-            const { name, display_name, display_type, min_select, max_select, quantity_levels, prices_by_size, is_active, sort_order, } = req.body;
+            const { name, display_name, display_type, min_select, max_select, quantity_levels, prices_by_size, price, is_active, sort_order, } = req.body;
             const business_id = req.user?.business_id || req.body.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const updateData = {};
             if (name !== undefined)
                 updateData.name = name;
@@ -89,6 +90,8 @@ class ModifierGroupController {
                 updateData.quantity_levels = quantity_levels;
             if (prices_by_size !== undefined)
                 updateData.prices_by_size = prices_by_size;
+            if (price !== undefined)
+                updateData.price = price != null ? Number(price) : undefined;
             if (is_active !== undefined)
                 updateData.is_active = is_active === true || is_active === 'true';
             if (sort_order !== undefined)
@@ -99,9 +102,9 @@ class ModifierGroupController {
         this.delete = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const { id } = req.params;
             const business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             await this.deleteModifierGroupUseCase.execute(id, business_id);
             return (0, response_1.sendSuccess)(res, 'Modifier group deleted successfully');
         });
@@ -124,9 +127,9 @@ class ModifierGroupController {
         });
         this.exportModifierGroups = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             const business_id = req.user?.business_id || req.query.business_id;
-            if (!business_id && req.user?.role !== roles_1.UserRole.SUPER_ADMIN) {
-                throw new AppError_1.ValidationError('business_id is required');
-            }
+            // if (!business_id && req.user?.role !== UserRole.SUPER_ADMIN) {
+            //   throw new ValidationError('business_id is required');
+            // }
             const filters = {
                 business_id: business_id,
                 limit: 1000,
@@ -140,42 +143,17 @@ class ModifierGroupController {
             }
             // Helper to safely stringify values for CSV
             const safeString = (val) => `"${(val || '').toString().replace(/"/g, '""')}"`;
-            // Helper to format quantity levels
-            const formatQuantityLevels = (levels) => {
-                if (!levels || !Array.isArray(levels))
-                    return '';
-                return levels
-                    .map((ql) => {
-                    const qty = ql.quantity;
-                    const price = ql.price !== undefined ? `$${ql.price}` : '';
-                    const name = ql.name ? ` (${ql.name})` : '';
-                    return `${qty}x${name}: ${price}`;
-                })
-                    .join('; ');
-            };
-            // Convert to CSV
+            // Basics-only export: name, display_name, display_type, min_select, max_select, sort_order, is_active (no group_key, quantity_levels/pricing)
             const csvRows = [
-                [
-                    'group_key',
-                    'name',
-                    'display_name',
-                    'display_type',
-                    'min_select',
-                    'max_select',
-                    'is_active',
-                    'sort_order',
-                    'quantity_levels',
-                ].join(','),
+                ['name', 'display_name', 'display_type', 'min_select', 'max_select', 'sort_order', 'is_active'].join(','),
                 ...modifierGroups.map((group) => [
-                    safeString(group.name), // Using name as group_key for now, if intended
                     safeString(group.name),
                     safeString(group.display_name),
                     group.display_type || 'CHECKBOX',
                     group.min_select || 0,
                     group.max_select || 1,
-                    group.is_active,
                     group.sort_order || 0,
-                    safeString(formatQuantityLevels(group.quantity_levels)),
+                    group.is_active ?? true,
                 ].join(',')),
             ];
             const csvContent = csvRows.join('\n');

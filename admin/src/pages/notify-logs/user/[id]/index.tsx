@@ -56,10 +56,6 @@ const NotifyLogItem = ({ item }: any) => {
     case 'message':
       notifyLogText = 'text-sent-new-message';
       break;
-
-    case 'store_notice':
-      notifyLogText = 'text-sent-new-store-notice';
-      break;
   }
 
   const handleClickOnNotification = (value: any) => {
@@ -80,16 +76,14 @@ const NotifyLogItem = ({ item }: any) => {
         //@ts-ignore
         redirectTo = Routes?.shopMessage?.details(value?.notify_tracker);
         break;
-
-      case 'store_notice':
-        //@ts-ignore
-        redirectTo =
-          '/shops/' + Routes?.storeNotice?.details(value?.notify_tracker);
-
+      default:
+        redirectTo = Routes?.dashboard ?? '/';
         break;
     }
 
-    router.push('/' + redirectTo);
+    if (redirectTo) {
+      router.push(redirectTo.startsWith('/') ? redirectTo : '/' + redirectTo);
+    }
   };
 
   return (
@@ -158,10 +152,6 @@ function NotificationFilter({ onTargetFilter, className }: Props) {
             {
               name: 'Order',
               value: 'order',
-            },
-            {
-              name: 'Store Notice',
-              value: 'store_notice',
             },
             {
               name: 'Messages',

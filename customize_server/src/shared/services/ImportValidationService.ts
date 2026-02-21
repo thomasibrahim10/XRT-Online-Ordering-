@@ -27,7 +27,9 @@ export class ImportValidationService {
       itemSizes: Array.isArray(data?.itemSizes) ? data.itemSizes : [],
       modifierGroups: Array.isArray(data?.modifierGroups) ? data.modifierGroups : [],
       modifiers: Array.isArray(data?.modifiers) ? data.modifiers : [],
-      itemModifierOverrides: Array.isArray(data?.itemModifierOverrides) ? data.itemModifierOverrides : [],
+      itemModifierOverrides: Array.isArray(data?.itemModifierOverrides)
+        ? data.itemModifierOverrides
+        : [],
     };
     data = safe;
 
@@ -408,7 +410,7 @@ export class ImportValidationService {
       if (override.prices_by_size && override.prices_by_size.length > 0) {
         const itemSizes = data.itemSizes.filter(
           (s) =>
-            itemCompositeKey(s.item_name, s.item_category_name) ===
+            itemCompositeKey((s as any).item_name, (s as any).item_category_name) ===
             itemCompositeKey(override.item_name, override.item_category_name)
         );
         const itemSizeCodes = new Set(itemSizes.map((s) => s.size_code));

@@ -111,6 +111,15 @@ const BusinessSettingsSchema = new mongoose_1.Schema({
             default: 0,
         },
     },
+    siteLink: { type: String, default: '' },
+    isProductReview: { type: Boolean, default: false },
+    enableTerms: { type: Boolean, default: false },
+    enableCoupons: { type: Boolean, default: false },
+    enableEmailForDigitalProduct: { type: Boolean, default: false },
+    enableReviewPopup: { type: Boolean, default: false },
+    reviewSystem: { type: String, default: 'review_single_time' },
+    maxShopDistance: { type: Number, default: 0 },
+    minimumOrderAmount: { type: Number, default: 0 },
     siteTitle: { type: String, default: '' },
     siteSubtitle: { type: String, default: '' },
     logo: {
@@ -134,6 +143,7 @@ const BusinessSettingsSchema = new mongoose_1.Schema({
         website: { type: String, default: '' },
         emailAddress: { type: String, default: '' },
     },
+    timezone: { type: String, default: 'America/New_York' },
     currency: { type: String, default: 'USD' },
     heroSlides: [
         {

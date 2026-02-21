@@ -2,7 +2,7 @@ import Pagination from '@/components/ui/pagination';
 import dayjs from 'dayjs';
 import { Table } from '@/components/ui/table';
 import ActionButtons from '@/components/common/action-buttons';
-import usePrice from '@/utils/use-price';
+import ListItemPrice from '@/components/price/list-item-price';
 import { formatAddress } from '@/utils/format-address';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
@@ -42,7 +42,7 @@ const OrderTransactionList = ({
   // const { data, paginatorInfo } = orders! ?? {};
   const router = useRouter();
   const { t } = useTranslation();
-  const rowExpandable = (record: any) => record.children?.length;
+  const rowExpandable = (record: any) => record?.children?.length;
   const { alignLeft, alignRight } = useIsRTL();
   const { permissions } = getAuthCredentials();
   const { mutate: createConversations, isPending: creating } =
@@ -68,7 +68,9 @@ const OrderTransactionList = ({
   const onHeaderClick = (column: string | null) => ({
     onClick: () => {
       onSort((currentSortDirection: SortOrder) =>
-        currentSortDirection === SortOrder.Desc ? SortOrder.Asc : SortOrder.Desc
+        currentSortDirection === SortOrder.Desc
+          ? SortOrder.Asc
+          : SortOrder.Desc,
       );
       onOrder(column!);
 
@@ -106,65 +108,37 @@ const OrderTransactionList = ({
       align: 'center',
       width: 120,
       onHeaderCell: () => onHeaderClick('paid_total'),
-      render: function Render(paid_total: any) {
-        const paid_total_amount = paid_total ? paid_total : 0;
-        const { price } = usePrice({
-          amount: paid_total_amount,
-        });
-        return <span className="whitespace-nowrap">{price}</span>;
-      },
+      render: (paid_total: any) => (
+        <ListItemPrice value={paid_total} className="whitespace-nowrap" />
+      ),
     },
     {
       title: t('table:table-item-product-price'),
       dataIndex: 'amount',
       key: 'amount',
       align: 'center',
-      render: function Render(amount: any) {
-        const sales_tax_amount = amount ? amount : 0;
-        const { price } = usePrice({
-          amount: sales_tax_amount,
-        });
-        return <span>{price}</span>;
-      },
+      render: (amount: any) => <ListItemPrice value={amount} />,
     },
     {
       title: t('table:table-item-delivery-fee'),
       dataIndex: 'delivery_fee',
       key: 'delivery_fee',
       align: 'center',
-      render: function Render(value: any) {
-        const delivery_fee = value ? value : 0;
-        const { price } = usePrice({
-          amount: delivery_fee,
-        });
-        return <span>{price}</span>;
-      },
+      render: (value: any) => <ListItemPrice value={value} />,
     },
     {
       title: t('table:table-item-taxable-amount'),
       dataIndex: 'sales_tax',
       key: 'sales_tax',
       align: 'center',
-      render: function Render(sales_tax: any) {
-        const sales_tax_amount = sales_tax ? sales_tax : 0;
-        const { price } = usePrice({
-          amount: sales_tax_amount,
-        });
-        return <span>{price}</span>;
-      },
+      render: (sales_tax: any) => <ListItemPrice value={sales_tax} />,
     },
     {
       title: t('table:table-item-discount'),
       dataIndex: 'discount',
       key: 'discount',
       align: 'center',
-      render: function Render(discount: any) {
-        const sales_tax_amount = discount ? discount : 0;
-        const { price } = usePrice({
-          amount: sales_tax_amount,
-        });
-        return <span>{price}</span>;
-      },
+      render: (discount: any) => <ListItemPrice value={discount} />,
     },
     {
       title: t('table:table-item-payment-gateway'),

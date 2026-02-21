@@ -14,6 +14,7 @@
     "seed:categories": "tsx scripts/seedCategories.ts",
     "seed:items": "tsx scripts/seedItems.ts",
     "seed:modifiers": "tsx scripts/seedModifiers.ts",
+    "seed:orders": "tsx scripts/seedOrders.ts",
     "migrate:item-images": "tsx scripts/migrateItemImages.ts"
   },
   "dependencies": {

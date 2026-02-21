@@ -123,9 +123,6 @@ class ImportSaveService {
                     });
                 }
                 sizeCodeToId.set(sizeData.size_code, sizeId);
-                if (sizeData.is_default && sizeData.item_name) {
-                    itemNameToDefaultSizeCode.set(itemCompositeKey(sizeData.item_name, sizeData.item_category_name), sizeData.size_code);
-                }
             }
             // 2. Upsert Modifier Groups
             for (const groupData of data.modifierGroups) {
@@ -138,32 +135,34 @@ class ImportSaveService {
                 });
                 const existingGroup = existingGroups.modifierGroups.length > 0 ? existingGroups.modifierGroups[0] : null;
                 if (existingGroup) {
-                    groupKeyToId.set(groupData.group_key, existingGroup.id);
+                    groupKeyToId.set(groupData.name, existingGroup.id);
                     rollbackOps.push({
                         entityType: 'modifier_group',
                         action: 'update',
                         id: existingGroup.id,
                         previousData: existingGroup,
                     });
-                    // Update
-                    await this.modifierGroupRepository.update(existingGroup.id, business_id, {
+                    // Update (basics-only: omit quantity_levels/prices_by_size when not in import)
+                    const groupUpdate = {
                         display_name: groupData.display_name,
                         display_type: groupData.display_type,
                         min_select: groupData.min_select,
                         max_select: groupData.max_select,
                         is_active: groupData.is_active,
                         sort_order: groupData.sort_order,
-                        // Merge or Replace quantity_levels / prices_by_size?
-                        // For now, replacing logic is safer for strict imports.
-                        quantity_levels: groupData.quantity_levels,
-                        prices_by_size: groupData.prices_by_size
-                            ?.map((p) => ({
+                    };
+                    if (groupData.quantity_levels != null)
+                        groupUpdate.quantity_levels = groupData.quantity_levels;
+                    if (groupData.prices_by_size?.length) {
+                        groupUpdate.prices_by_size = groupData.prices_by_size
+                            .map((p) => ({
                             size_id: sizeCodeToId.get(p.sizeCode),
                             sizeCode: p.sizeCode,
                             priceDelta: p.priceDelta,
                         }))
-                            .filter((p) => p.size_id),
-                    });
+                            .filter((p) => p.size_id);
+                    }
+                    await this.modifierGroupRepository.update(existingGroup.id, business_id, groupUpdate);
                 }
                 else {
                     const createGroupDTO = {
@@ -175,17 +174,19 @@ class ImportSaveService {
                         max_select: groupData.max_select,
                         is_active: groupData.is_active ?? true,
                         sort_order: groupData.sort_order ?? 0,
-                        quantity_levels: groupData.quantity_levels,
-                        prices_by_size: groupData.prices_by_size
-                            ?.map((p) => ({
-                            size_id: sizeCodeToId.get(p.sizeCode),
-                            sizeCode: p.sizeCode,
-                            priceDelta: p.priceDelta,
-                        }))
-                            .filter((p) => p.size_id),
+                        ...(groupData.quantity_levels != null && { quantity_levels: groupData.quantity_levels }),
+                        ...(groupData.prices_by_size?.length && {
+                            prices_by_size: groupData.prices_by_size
+                                .map((p) => ({
+                                size_id: sizeCodeToId.get(p.sizeCode),
+                                sizeCode: p.sizeCode,
+                                priceDelta: p.priceDelta,
+                            }))
+                                .filter((p) => p.size_id),
+                        }),
                     };
                     const createdGroup = await this.modifierGroupRepository.create(createGroupDTO);
-                    groupKeyToId.set(groupData.group_key, createdGroup.id);
+                    groupKeyToId.set(groupData.name, createdGroup.id);
                     rollbackOps.push({
                         entityType: 'modifier_group',
                         action: 'create',
@@ -266,26 +267,22 @@ class ImportSaveService {
                         id: existingItem.id,
                         previousData: existingItem,
                     });
-                    // Update
+                    // Update (basics-only: only update basic fields; preserve pricing/sizing)
                     await this.itemRepository.update(existingItem.id, {
                         description: itemData.description,
-                        base_price: itemData.base_price,
-                        is_active: itemData.is_active,
-                        is_available: itemData.is_available,
-                        is_sizeable: itemData.is_sizeable,
-                        is_customizable: itemData.is_customizable,
-                        sort_order: itemData.sort_order,
-                        // Don't override modifier_groups here yet, will link later
+                        is_active: itemData.is_active ?? existingItem.is_active,
+                        sort_order: itemData.sort_order ?? existingItem.sort_order,
+                        // Don't pass base_price, is_sizeable, is_available, is_customizable - preserve existing
                     });
                 }
                 else {
-                    // Create
+                    // Create (basics-only: no pricing/sizing - use defaults)
                     const createItemDTO = {
                         name: itemData.name,
                         description: itemData.description,
-                        base_price: itemData.base_price ?? 0,
+                        base_price: 0,
                         category_id: categoryId,
-                        is_sizeable: itemData.is_sizeable,
+                        is_sizeable: false,
                         is_customizable: itemData.is_customizable ?? false,
                         is_active: itemData.is_active ?? true,
                         is_available: itemData.is_available ?? true,

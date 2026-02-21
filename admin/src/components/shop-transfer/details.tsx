@@ -11,7 +11,6 @@ import { BankAccount } from '@/components/shop-transfer/templates/payment-info';
 import { RefundList } from '@/components/shop-transfer/templates/refund-list';
 import { OrderStickerCard } from '@/components/shop-transfer/templates/sticker-card';
 import { TopBar } from '@/components/shop-transfer/templates/top-bar';
-import { WithdrawList } from '@/components/shop-transfer/templates/withdraw-list';
 import Scrollbar from '@/components/ui/scrollbar';
 import { Routes } from '@/config/routes';
 import {
@@ -20,7 +19,6 @@ import {
   Refund,
   ShopSocials,
   User,
-  Withdraw,
 } from '@/types';
 import { getAuthCredentials } from '@/utils/auth-utils';
 import { STORE_OWNER, SUPER_ADMIN } from '@/utils/constants';
@@ -127,19 +125,6 @@ const Details: React.FC<ShopTransferDetailsProps> = ({ data, userId }) => {
         </div>
       </div>
 
-      <>
-        <p className="text-heading font-extrabold text-lg mb-5">
-          Current Withdraw Status
-        </p>
-        <div className="border border-[#F3F4F6] bg-white rounded shadow-shopTransferTable relative overflow-hidden">
-          <WithdrawList
-            data={data?.withdrawal_info as Withdraw[]}
-            url={Routes.withdraw.list}
-            permission={Boolean(permissions?.includes(SUPER_ADMIN))}
-          />
-        </div>
-      </>
-
       {permissions?.includes(SUPER_ADMIN) || userId === data?.created_by ? (
         <div className="my-12">
           <p className="text-heading font-extrabold text-lg mb-5">
@@ -172,4 +157,3 @@ const Details: React.FC<ShopTransferDetailsProps> = ({ data, userId }) => {
 };
 
 export { Details };
-

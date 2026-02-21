@@ -169,7 +169,6 @@ interface SearchParamOptions {
   tracking_number: string;
   notice: string;
   notify_type: string;
-  faq_title: string;
   is_active: boolean;
   title: string;
   status: string;

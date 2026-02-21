@@ -1,6 +1,6 @@
 export const getPaginatorInfo = (data: any) => {
   if (data?.length) {
-    const dataIndex = data.length - 1;
+    const dataIndex = data!.length - 1;
     const isEmpty = data?.[dataIndex]?.length === 0;
     const fetchedAllData =
       isEmpty ||

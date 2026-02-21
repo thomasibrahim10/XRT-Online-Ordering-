@@ -3,18 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.permissionRegistry = void 0;
 const PermissionRepository_1 = require("../../infrastructure/repositories/PermissionRepository");
 const permissionDefinitions_1 = require("./permissionDefinitions");
-/**
- * Permission Registry
- *
- * Manages the automatic registration and synchronization of permissions
- * from code definitions to the database.
- *
- * Features:
- * - Auto-sync on startup
- * - Never deletes existing permissions
- * - New permissions are disabled by default (except system permissions)
- * - Logs all changes
- */
+/** Syncs permission definitions from code to DB on startup; never deletes existing. */
 class PermissionRegistry {
     constructor() {
         this.registeredPermissions = new Map();
@@ -25,43 +14,22 @@ class PermissionRegistry {
             this.registeredPermissions.set(perm.key, perm);
         }
     }
-    /**
-     * Get all registered permission definitions
-     */
     getAll() {
         return Array.from(this.registeredPermissions.values());
     }
-    /**
-     * Check if a permission key is registered
-     */
     isRegistered(key) {
         return this.registeredPermissions.has(key);
     }
-    /**
-     * Get a specific permission definition
-     */
     get(key) {
         return this.registeredPermissions.get(key);
     }
-    /**
-     * Register a new permission at runtime (for dynamic permissions)
-     * Note: This only adds to the in-memory registry, not the database
-     */
+    /** In-memory only; not persisted to DB. */
     register(permission) {
         if (!this.registeredPermissions.has(permission.key)) {
             this.registeredPermissions.set(permission.key, permission);
         }
     }
-    /**
-     * Sync all registered permissions with the database
-     *
-     * Rules:
-     * 1. INSERT new permissions that don't exist in DB
-     * 2. NEVER delete existing permissions
-     * 3. NEVER modify existing permissions (except enable if system)
-     * 4. New non-system permissions are DISABLED by default
-     * 5. Log all new permissions added
-     */
+    /** Insert new permissions; never delete or change existing. New ones default disabled. */
     async syncWithDatabase() {
         const permissionDTOs = (0, permissionDefinitions_1.getPermissionDTOs)();
         const result = await this.permissionRepository.upsertMany(permissionDTOs);
@@ -72,15 +40,9 @@ class PermissionRegistry {
             total: permissionDTOs.length,
         };
     }
-    /**
-     * Check if permissions have been synced with database
-     */
     isSynced() {
         return this.synced;
     }
-    /**
-     * Get all permissions grouped by module
-     */
     getByModule() {
         const grouped = {};
         for (const perm of this.registeredPermissions.values()) {
@@ -91,10 +53,6 @@ class PermissionRegistry {
         }
         return grouped;
     }
-    /**
-     * Validate an array of permission keys
-     * Returns true if all keys are valid registered permissions
-     */
     validatePermissionKeys(keys) {
         const invalid = [];
         for (const key of keys) {
@@ -107,18 +65,11 @@ class PermissionRegistry {
             invalid,
         };
     }
-    /**
-     * Get all system permission keys
-     * These can only be used by super_admin
-     */
     getSystemPermissionKeys() {
         return Array.from(this.registeredPermissions.values())
             .filter((p) => p.isSystem)
             .map((p) => p.key);
     }
-    /**
-     * Check if a permission is a system-only permission
-     */
     isSystemPermission(key) {
         const perm = this.registeredPermissions.get(key);
         return perm?.isSystem ?? false;

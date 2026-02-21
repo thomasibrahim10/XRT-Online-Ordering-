@@ -27,9 +27,9 @@ class ItemSizeRepository {
     }
     async findAll(filters) {
         const query = {};
-        if (filters.business_id) {
-            query.business_id = filters.business_id;
-        }
+        // if (filters.business_id) {
+        //   query.business_id = filters.business_id;
+        // }
         if (filters.is_active !== undefined) {
             query.is_active = filters.is_active;
         }

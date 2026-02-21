@@ -29,7 +29,7 @@ import { appWithTranslation } from 'next-i18next';
 import { ModalProvider } from '@/components/ui/modal/modal.context';
 import DefaultSeo from '@/components/ui/default-seo';
 import ManagedModal from '@/components/ui/modal/managed-modal';
-import { CartProvider } from '@/contexts/quick-cart/cart.context';
+
 import { AppLoadingProvider } from '@/contexts/app-loading.context';
 import { useState, useEffect } from 'react';
 import type { NextPageWithLayout } from '@/types';
@@ -94,7 +94,9 @@ const AppSettings: React.FC<{ children?: React.ReactNode }> = (props) => {
   }
 
   // @ts-ignore
-  return <SettingsProvider initialValue={settings?.options ?? null} {...props} />;
+  return (
+    <SettingsProvider initialValue={settings?.options ?? null} {...props} />
+  );
 };
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
@@ -138,22 +140,21 @@ const CustomApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                 <AppLoadingProvider>
                   <>
                     <AppLoader />
-                    <CartProvider>
-                      <DefaultSeo />
-                      {authProps ? (
-                        <PrivateRoute authProps={authProps}>
-                          <Layout {...pageProps}>
-                            <Component {...pageProps} key={router.asPath} />
-                          </Layout>
-                        </PrivateRoute>
-                      ) : (
+
+                    <DefaultSeo />
+                    {authProps ? (
+                      <PrivateRoute authProps={authProps}>
                         <Layout {...pageProps}>
                           <Component {...pageProps} key={router.asPath} />
                         </Layout>
-                      )}
-                      <ToastContainer autoClose={2000} theme="colored" />
-                      <ManagedModal />
-                    </CartProvider>
+                      </PrivateRoute>
+                    ) : (
+                      <Layout {...pageProps}>
+                        <Component {...pageProps} key={router.asPath} />
+                      </Layout>
+                    )}
+                    <ToastContainer autoClose={2000} theme="colored" />
+                    <ManagedModal />
                   </>
                 </AppLoadingProvider>
               </ModalProvider>

@@ -15,7 +15,6 @@ const category_routes_1 = __importDefault(require("./application/routes/category
 const settings_routes_1 = __importDefault(require("./application/routes/settings.routes"));
 const public_routes_1 = __importDefault(require("./application/routes/public.routes"));
 const role_routes_1 = __importDefault(require("./application/routes/role.routes"));
-const withdraw_routes_1 = __importDefault(require("./application/routes/withdraw.routes"));
 const attachment_routes_1 = __importDefault(require("./application/routes/attachment.routes"));
 const item_routes_1 = __importDefault(require("./application/routes/item.routes"));
 const customer_routes_1 = __importDefault(require("./application/routes/customer.routes"));
@@ -31,6 +30,7 @@ const tax_routes_1 = __importDefault(require("./application/routes/tax.routes"))
 const shipping_routes_1 = __importDefault(require("./application/routes/shipping.routes"));
 const coupon_routes_1 = __importDefault(require("./application/routes/coupon.routes"));
 const testimonial_routes_1 = __importDefault(require("./application/routes/testimonial.routes"));
+const order_routes_1 = __importDefault(require("./application/routes/order.routes"));
 const env_1 = require("./shared/config/env");
 const logger_1 = require("./shared/utils/logger");
 // Import swagger config - using relative path from src to config directory
@@ -40,11 +40,15 @@ const app = (0, express_1.default)();
 // Database connection
 // Database connection will be established in startServer function
 // Global middlewares
-// Skip body parsing for attachments and import routes so Multer can handle multipart/form-data
+// Skip body parsing for any route that accepts multipart/form-data so Multer gets the raw stream (otherwise upload hangs)
 const skipBodyParsing = (req) => req.path.startsWith('/attachments') ||
     req.originalUrl.includes('/attachments') ||
     req.path.startsWith('/import') ||
-    req.originalUrl.includes('/import');
+    req.originalUrl.includes('/import') ||
+    req.path.startsWith('/items') ||
+    req.originalUrl.includes('/items') ||
+    req.path.startsWith('/categories') ||
+    req.originalUrl.includes('/categories');
 app.use((req, res, next) => {
     if (skipBodyParsing(req)) {
         return next();
@@ -105,6 +109,27 @@ app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swagger_1.specs);
 });
+// Middleware to ensure database connection in serverless environment
+app.use(async (req, res, next) => {
+    if (process.env.VERCEL) {
+        try {
+            await (0, connection_1.connectDatabase)();
+            next();
+        }
+        catch (error) {
+            logger_1.logger.error('Database connection failed in middleware:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal Server Error',
+                error: process.env.NODE_ENV === 'development' ? error : undefined,
+            });
+            return; // Ensure no further processing
+        }
+    }
+    else {
+        next();
+    }
+});
 // API Routes
 app.use(`${env_1.env.API_BASE_URL}/auth`, auth_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/businesses`, business_routes_1.default);
@@ -113,7 +138,6 @@ app.use(`${env_1.env.API_BASE_URL}/settings`, settings_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/public`, public_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/roles`, role_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/permissions`, permission_routes_1.default);
-app.use(`${env_1.env.API_BASE_URL}/withdraws`, withdraw_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/attachments`, (req, res, next) => {
     next();
 }, attachment_routes_1.default);
@@ -130,6 +154,7 @@ app.use(`${env_1.env.API_BASE_URL}/taxes`, tax_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/shippings`, shipping_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/coupons`, coupon_routes_1.default);
 app.use(`${env_1.env.API_BASE_URL}/testimonials`, testimonial_routes_1.default);
+app.use(`${env_1.env.API_BASE_URL}/orders`, order_routes_1.default);
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
@@ -140,16 +165,24 @@ app.use((req, res) => {
 // Error handler (must be last)
 app.use(middlewares_1.errorHandler);
 let server;
+// Middleware to ensure database connection in serverless environment
 const startServer = async () => {
     try {
         await (0, connection_1.connectDatabase)();
-        // Start server if not running on Vercel
+        // Start server only if not running on Vercel
+        // In Vercel, the app is exported and handled by the platform
         if (!process.env.VERCEL) {
             const PORT = env_1.env.PORT;
             server = app.listen(PORT, () => {
                 logger_1.logger.info(`🚀 Server running on port ${PORT}`);
                 logger_1.logger.info(`📝 Environment: ${env_1.env.NODE_ENV}`);
                 logger_1.logger.info(`📡 API available at http://localhost:${PORT}${env_1.env.API_BASE_URL}`);
+                if (env_1.env.ATTACHMENT_STORAGE === 'cloudinary' && env_1.env.CLOUDINARY_NAME) {
+                    logger_1.logger.info(`☁️ Image uploads: Cloudinary (${env_1.env.CLOUDINARY_NAME})`);
+                }
+                else {
+                    logger_1.logger.info(`📁 Image uploads: disk (set CLOUDINARY_* + ATTACHMENT_STORAGE=cloudinary for Cloudinary)`);
+                }
             });
             // Handle port already in use error
             server.on('error', (err) => {
@@ -168,10 +201,15 @@ const startServer = async () => {
     }
     catch (error) {
         logger_1.logger.error('Failed to start server:', error);
-        process.exit(1);
+        // Only exit in standard environment, not Vercel
+        if (!process.env.VERCEL) {
+            process.exit(1);
+        }
     }
 };
-startServer();
+if (!process.env.VERCEL) {
+    startServer();
+}
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
     logger_1.logger.error('UNHANDLED REJECTION! 💥');

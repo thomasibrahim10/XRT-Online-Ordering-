@@ -13,6 +13,7 @@ class BusinessSettingsRepository {
             fees: document.fees,
             taxes: document.taxes,
             orders: document.orders,
+            minimumOrderAmount: document.minimumOrderAmount,
             siteTitle: document.siteTitle,
             siteSubtitle: document.siteSubtitle,
             logo: document.logo,
@@ -32,6 +33,15 @@ class BusinessSettingsRepository {
             promoPopup: document.promoPopup,
             created_at: document.created_at,
             updated_at: document.updated_at,
+            siteLink: document.siteLink,
+            timezone: document.timezone,
+            isProductReview: document.isProductReview,
+            enableTerms: document.enableTerms,
+            enableCoupons: document.enableCoupons,
+            enableEmailForDigitalProduct: document.enableEmailForDigitalProduct,
+            enableReviewPopup: document.enableReviewPopup,
+            reviewSystem: document.reviewSystem,
+            maxShopDistance: document.maxShopDistance,
         };
     }
     async create(settingsData) {

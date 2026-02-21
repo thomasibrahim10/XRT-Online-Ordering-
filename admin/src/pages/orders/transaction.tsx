@@ -56,6 +56,7 @@ export default function TransactionsPage() {
     tracking_number: searchTerm,
     orderBy,
     sortedBy,
+    status: 'completed,canceled',
   });
   const { refetch } = useExportOrderQuery(
     {

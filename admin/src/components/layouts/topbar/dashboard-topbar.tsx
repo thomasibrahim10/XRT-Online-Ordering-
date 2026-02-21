@@ -3,7 +3,6 @@ import { useSettingsQuery } from '@/data/settings';
 import VisitStore from '@/components/layouts/topbar/visit-store';
 import SearchBar from '@/components/layouts/topbar/search-bar';
 import MessageBar from '@/components/layouts/topbar/message-bar';
-import StoreNoticeBar from '@/components/layouts/topbar/store-notice-bar';
 import RecentOrderBar from '@/components/layouts/topbar/recent-order-bar';
 import { useMeQuery } from '@/data/user';
 
@@ -26,12 +25,6 @@ const DashboardTopBar = ({}: IProps) => {
 
         {options?.pushNotification?.all?.message ? (
           <MessageBar user={data} />
-        ) : (
-          ''
-        )}
-
-        {options?.pushNotification?.all?.storeNotice ? (
-          <StoreNoticeBar user={data} />
         ) : (
           ''
         )}

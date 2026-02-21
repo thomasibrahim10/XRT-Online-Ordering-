@@ -15,9 +15,7 @@ import TextArea from '@/components/ui/text-area';
 import TooltipLabel from '@/components/ui/tooltip-label';
 import { useUpdateSettingsMutation } from '@/data/settings';
 import { socialIcon } from '@/settings/site.settings';
-import { ContactDetailsInput, Settings, UserAddress } from '@/types';
-import { useConfirmRedirectIfDirty } from '@/utils/confirmed-redirect-if-dirty';
-import { formatAddress } from '@/utils/format-address';
+import { ContactDetailsInput, Settings } from '@/types';
 import { getIcon } from '@/utils/get-icon';
 import { yupResolver } from '@hookform/resolvers/yup';
 import omit from 'lodash/omit';
@@ -28,6 +26,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import SelectInput from '@/components/ui/select-input';
 import { CURRENCY } from '@/data/currencies';
 import { CURRENCY_FORMATS } from '@/data/currency-formats';
+
 
 const DAYS = [
   'Monday',
@@ -43,6 +42,7 @@ type ShopFormValues = {
   // Business Information
   siteTitle: string;
   siteSubtitle?: string;
+  minimumOrderAmount?: number;
   timezone?: any;
   currency?: string;
   currencyOptions?: {
@@ -96,10 +96,6 @@ type ShopFormValues = {
       is_closed?: boolean;
     }[];
   };
-  // Company Information fields
-  siteLink?: string;
-  copyrightText?: string;
-  footer_text?: string;
 };
 
 export const updatedIcons = socialIcon.map((item: any) => {
@@ -137,7 +133,7 @@ export default function SettingsForm({ settings }: IProps) {
     watch,
     reset,
     getValues,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm<ShopFormValues>({
     shouldUnregister: true,
     // @ts-ignore
@@ -147,6 +143,7 @@ export default function SettingsForm({ settings }: IProps) {
       // Business Information defaults
       siteTitle: options?.siteTitle ?? '',
       siteSubtitle: options?.siteSubtitle ?? '',
+      minimumOrderAmount: options?.minimumOrderAmount ?? 0,
       timezone: options?.timezone ?? 'America/New_York',
       currency: options?.currency ?? 'USD',
       currencyOptions: {
@@ -196,10 +193,6 @@ export default function SettingsForm({ settings }: IProps) {
               is_closed: false,
             })),
       },
-      // Company Information defaults
-      siteLink: options?.siteLink ?? '',
-      copyrightText: options?.copyrightText ?? 'Powered by XRT',
-      footer_text: options?.footer_text ?? '',
     },
   });
 
@@ -210,28 +203,16 @@ export default function SettingsForm({ settings }: IProps) {
 
   const useGoogleMap = watch('useGoogleMap');
   const allowScheduleOrder = watch('orders.allowScheduleOrder');
-
   async function onSubmit(values: ShopFormValues) {
-    const {
-      contactDetails: { location, contact, website, emailAddress },
-      // ... rest of destructuring
-    } = values;
-
-    // Process contactDetails with location formatting
+    // Address/contact come from landing settings; only socials are edited here
     const contactDetails = {
-      ...values?.contactDetails,
-      location: {
-        ...values?.contactDetails?.location,
-        formattedAddress: formatAddress(
-          values?.contactDetails?.location as UserAddress,
-        ),
-      },
+      ...options?.contactDetails,
       socials: values?.contactDetails?.socials
         ? values?.contactDetails?.socials.map((social: any) => ({
             icon: social?.icon?.value ?? social?.icon,
             url: social?.url,
           }))
-        : [],
+        : options?.contactDetails?.socials ?? [],
     };
 
     const payload = {
@@ -290,8 +271,10 @@ export default function SettingsForm({ settings }: IProps) {
           maxDays: Number(values?.orders?.maxDays ?? 0),
           deliveredOrderTime: Number(values?.orders?.deliveredOrderTime ?? 0),
         },
-        footer_text: values?.footer_text,
-        copyrightText: values?.copyrightText,
+        footer_text: options?.footer_text,
+        copyrightText: options?.copyrightText,
+        siteLink: options?.siteLink,
+        minimumOrderAmount: Number(values?.minimumOrderAmount ?? 0),
       },
     };
     updateSettingsMutation(payload, {
@@ -327,7 +310,6 @@ export default function SettingsForm({ settings }: IProps) {
       },
     });
   }
-  useConfirmRedirectIfDirty({ isDirty });
   return (
     <form onSubmit={handleSubmit(onSubmit as any)}>
       {/* Business Settings Section */}
@@ -419,70 +401,16 @@ export default function SettingsForm({ settings }: IProps) {
               variant="outline"
             />
           </div>
-        </Card>
-      </div>
-      {/* Company Address Section */}
-      <div className="flex flex-wrap pb-8 my-5 border-b border-gray-300 border-dashed sm:mt-8 sm:mb-3">
-        <Description
-          title={t('form:footer-address')}
-          details={t('form:footer-address-helper-text')}
-          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-        />
 
-        <Card className="w-full sm:w-8/12 md:w-2/3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-            <Input
-              label={t('text-city')}
-              toolTipText={t('City where your business is located')}
-              {...register('contactDetails.location.city')}
-              variant="outline"
-            />
-            <Input
-              label={t('text-country')}
-              toolTipText={t('Country where your business operates')}
-              {...register('contactDetails.location.country')}
-              variant="outline"
-            />
-            <Input
-              label={t('text-state')}
-              toolTipText={t('State or province of your business')}
-              {...register('contactDetails.location.state')}
-              variant="outline"
-            />
-            <Input
-              label={t('text-zip')}
-              toolTipText={t('Postal or ZIP code')}
-              {...register('contactDetails.location.zip')}
-              variant="outline"
-            />
-            <TextArea
-              label={t('text-street-address')}
-              toolTipText={t('Full street address of your business')}
-              {...register('contactDetails.location.street_address')}
-              variant="outline"
-              className="col-span-full"
-            />
-          </div>
-          <PhoneNumberInput
-            label={t('form:form-input-label-contact')}
-            toolTipText={t('form:form-input-tip-contact')}
-            name="contactDetails.contact"
-            control={control}
-          />
           <Input
-            label={t('form:form-input-label-website')}
-            toolTipText={t('form:form-input-tip-website')}
-            {...register('contactDetails.website')}
+            label={t('Minimum Order Amount')}
+            {...register('minimumOrderAmount')}
+            type="number"
+            error={t(errors.minimumOrderAmount?.message!)}
             variant="outline"
-            className="mb-5"
+            className="mb-5 mt-5"
           />
-          <Input
-            label={t('form:form-input-label-email')}
-            toolTipText={t('form:form-input-tip-email')}
-            {...register('contactDetails.emailAddress')}
-            variant="outline"
-            className="mb-5"
-          />
+
         </Card>
       </div>
 
@@ -751,41 +679,6 @@ export default function SettingsForm({ settings }: IProps) {
               </Label>
             </div>
           </div>
-        </Card>
-      </div>
-
-      {/* Footer Information Section */}
-      <div className="flex flex-wrap pb-8 my-5 border-b border-gray-300 border-dashed sm:mt-8 sm:mb-3">
-        <Description
-          title={t('form:form-title-footer-information')}
-          details={t('form:site-info-footer-description')}
-          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-        />
-
-        <Card className="w-full sm:w-8/12 md:w-2/3">
-          <TextArea
-            label={t('Footer Description')}
-            toolTipText={t(
-              'Text displayed as a description in the website footer',
-            )}
-            {...register('footer_text')}
-            variant="outline"
-            className="mb-5"
-          />
-          <Input
-            label={t('form:input-label-site-link')}
-            toolTipText={t('form:input-tooltip-site-link')}
-            {...register('siteLink')}
-            variant="outline"
-            className="mb-5"
-          />
-          <Input
-            label={t('Copyright Text')}
-            toolTipText={t('Copyright notice displayed in footer')}
-            {...register('copyrightText')}
-            variant="outline"
-            className="mb-5"
-          />
         </Card>
       </div>
 

@@ -5,6 +5,7 @@ const CategoryController_1 = require("../controllers/CategoryController");
 const auth_1 = require("../middlewares/auth");
 const authorize_1 = require("../middlewares/authorize");
 const upload_1 = require("../middlewares/upload");
+const logger_1 = require("../../shared/utils/logger");
 const router = (0, express_1.Router)();
 const categoryController = new CategoryController_1.CategoryController();
 // All category routes require authentication
@@ -22,29 +23,36 @@ router.get('/', (0, authorize_1.requirePermission)('categories:read'), categoryC
 router.get('/:id', (0, authorize_1.requirePermission)('categories:read'), categoryController.getById);
 // Create category - requires categories:create permission
 router.post('/', (0, authorize_1.requirePermission)('categories:create'), (req, res, next) => {
-    console.log(`[Category Create] Starting upload`); // Adjusted log for POST /
+    logger_1.logger.info('Upload request: POST /categories');
+    next();
+}, (req, res, next) => {
     upload_1.uploadImage.fields([
         { name: 'image', maxCount: 1 },
         { name: 'icon', maxCount: 1 },
     ])(req, res, (err) => {
         if (err) {
-            console.error('[Category Create] Multer Error:', err); // Adjusted log for POST /
+            logger_1.logger.error('Multer upload error (categories):', err.message || err);
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({ success: false, message: 'File too large (Max 5MB)' });
             }
             return res.status(400).json({ success: false, message: err.message || 'Upload failed' });
         }
-        console.log('[Category Create] Upload completed'); // Adjusted log for POST /
+        const files = req.files;
+        logger_1.logger.info('Multer done for POST /categories, hasFiles:', !!(files && (files.image?.length || files.icon?.length)));
         next();
     });
 }, categoryController.create);
 // Update category - requires categories:update permission
 router.put('/:id', (0, authorize_1.requirePermission)('categories:update'), (req, res, next) => {
+    logger_1.logger.info('Upload request: PUT /categories/:id');
+    next();
+}, (req, res, next) => {
     upload_1.uploadImage.fields([
         { name: 'image', maxCount: 1 },
         { name: 'icon', maxCount: 1 },
     ])(req, res, (err) => {
         if (err) {
+            logger_1.logger.error('Multer upload error (categories):', err.message || err);
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({
                     success: false,
@@ -56,6 +64,8 @@ router.put('/:id', (0, authorize_1.requirePermission)('categories:update'), (req
                 message: err.message || 'Error uploading file',
             });
         }
+        const files = req.files;
+        logger_1.logger.info('Multer done for PUT /categories, hasFiles:', !!(files && (files.image?.length || files.icon?.length)));
         next();
     });
 }, categoryController.update);

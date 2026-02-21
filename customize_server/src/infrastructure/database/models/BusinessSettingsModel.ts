@@ -90,6 +90,7 @@ const BusinessSettingsSchema = new Schema<BusinessSettingsDocument>(
     enableReviewPopup: { type: Boolean, default: false },
     reviewSystem: { type: String, default: 'review_single_time' },
     maxShopDistance: { type: Number, default: 0 },
+    minimumOrderAmount: { type: Number, default: 0 },
     siteTitle: { type: String, default: '' },
     siteSubtitle: { type: String, default: '' },
     logo: {
