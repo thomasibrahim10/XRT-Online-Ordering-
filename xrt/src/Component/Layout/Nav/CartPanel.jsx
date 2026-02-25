@@ -225,7 +225,13 @@ export default function CartPanel({ open, setclosefun }) {
                 >
                   View Cart
                 </button>
-                <button className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-200 cursor-pointer text-sm tracking-wide">
+                <button
+                  onClick={() => {
+                    setclosefun();
+                    navigate('/checkout');
+                  }}
+                  className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-200 cursor-pointer text-sm tracking-wide"
+                >
                   Checkout
                 </button>
               </div>

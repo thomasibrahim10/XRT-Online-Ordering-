@@ -5,6 +5,7 @@ import { permissionRegistry } from '../../shared/permissions/PermissionRegistry'
 
 let isConnected = false;
 let retryCount = 0;
+let handlersRegistered = false;
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000;
 
@@ -112,7 +113,10 @@ export const connectDatabase = async (): Promise<void> => {
       }
     };
 
-    setupEventHandlers();
+    if (!handlersRegistered) {
+      setupEventHandlers();
+      handlersRegistered = true;
+    }
     await connectWithRetry();
   } catch (error: any) {
     logger.error(`❌ MongoDB connection error: ${error.message}`);

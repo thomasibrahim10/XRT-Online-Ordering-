@@ -12,7 +12,7 @@ export const env = {
   PUBLIC_ORIGIN: process.env.PUBLIC_ORIGIN || process.env.API_PUBLIC_ORIGIN || '',
 
   // Database
-  MONGO_URI: process.env.MONGODB_URI || process.env.MONGO_URI || '',
+  MONGO_URI: process.env.MONGODB_URI || '',
 
   // JWT
   JWT_SECRET: process.env.JWT_SECRET || '',

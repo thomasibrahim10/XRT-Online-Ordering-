@@ -4,6 +4,7 @@ import Menu from "../pages/Menu";
 import Contact from '../pages/Contact';
 import Customize from "../pages/Customize";
 import Cart from "../pages/Cart";
+import Checkout from "../pages/Checkout";
 import ProductDetails from "../pages/ProductDetails";
 
 const routes = [
@@ -26,6 +27,10 @@ const routes = [
   {
     path: "/cart",
     element: <Cart />,
+  },
+  {
+    path: "/checkout",
+    element: <Checkout />,
   },
   {
     path: "/product/:id",

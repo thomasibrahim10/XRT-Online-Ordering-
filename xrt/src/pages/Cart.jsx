@@ -2,11 +2,12 @@ import React from 'react';
 import { useCart } from '../context/CartContext';
 import { COLORS } from '../config/colors';
 import { X, ShoppingBag, ArrowLeft, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SignatureProducts from '../Component/Product/SignatureProducts';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const navigate = useNavigate();
 
   // Helper to parse price string (e.g., "£746.64" -> 746.64)
   const getPriceValue = (priceStr) => {
@@ -123,7 +124,10 @@ const Cart = () => {
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 transform hover:-translate-y-0.5 mb-4">
+              <button
+                onClick={() => navigate('/checkout')}
+                className="w-full py-4 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 transform hover:-translate-y-0.5 mb-4"
+              >
                 PROCEED TO CHECKOUT
               </button>
               
