@@ -192,13 +192,13 @@ export default function PaymentSettingsForm({ settings }: IProps) {
             control={control}
             // disabled={isNotDefaultSettingsPage}
             {...register('useEnableGateway')}
-            label={t('text-enable-gateway')}
+            label={t('common:text-enable-gateway')}
             toolTipText={t('form:input-tooltip-enable-gateway')}
           />
           {useEnableGateway ? (
             <>
               <div className="mt-5 mb-5">
-                <Label>{t('text-select-payment-gateway')}</Label>
+                <Label>{t('common:text-select-payment-gateway')}</Label>
                 <PaymentSelect
                   options={PAYMENT_GATEWAY}
                   control={control}
@@ -221,19 +221,19 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                       getOptionLabel={(option: any) => option.title}
                       getOptionValue={(option: any) => option.name}
                       options={paymentGateway ?? []}
-                      label={t('text-select-default-payment-gateway')}
+                      label={t('common:text-select-default-payment-gateway')}
                       // disabled={isNotDefaultSettingsPage}
                     />
                   </div>
                   {isNMIActive && (
                     <div className="mb-5 space-y-4">
                       <Input
-                        label={t('NMI Public API Key')}
+                        label={t('form:input-label-nmi-public-key')}
                         {...register('nmiPublicKey')}
                         variant="outline"
                       />
                       <Input
-                        label={t('NMI Private API Key')}
+                        label={t('form:input-label-nmi-private-key')}
                         {...register('nmiPrivateKey')}
                         variant="outline"
                       />
@@ -242,22 +242,22 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                   {isAuthorizeNetActive && (
                     <div className="mb-5 space-y-4">
                       <Input
-                        label={t('Authorize.Net Public Client Key')}
+                        label={t('form:input-label-authorize-net-public-client-key')}
                         {...register('authorizeNetPublicKey')}
                         variant="outline"
                       />
                       <Input
-                        label={t('Authorize.Net API Login ID')}
+                        label={t('form:input-label-authorize-net-api-login-id')}
                         {...register('authorizeNetApiLoginId')}
                         variant="outline"
                       />
                       <Input
-                        label={t('Authorize.Net Transaction Key')}
+                        label={t('form:input-label-authorize-net-transaction-key')}
                         {...register('authorizeNetTransactionKey')}
                         variant="outline"
                       />
-                      <div className="flex flex-col gap-3 pt-3">
-                        <Label>{t('Authorize.Net Environment')}</Label>
+                       <div className="flex flex-col gap-3 pt-3">
+                        <Label>{t('form:input-label-authorize-net-environment')}</Label>
                         <div className="flex items-center gap-6">
                           <label className="flex items-center gap-2 cursor-pointer text-sm text-heading font-medium">
                             <input
@@ -266,7 +266,7 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                               className="w-4 h-4 accent-accent"
                               {...register('authorizeNetEnvironment')}
                             />
-                            Sandbox (Testing)
+                            {t('form:text-sandbox-testing')}
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer text-sm text-heading font-medium">
                             <input
@@ -275,12 +275,12 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                               className="w-4 h-4 accent-accent"
                               {...register('authorizeNetEnvironment')}
                             />
-                            Production (Real Payments)
+                            {t('form:text-production-real-payments')}
                           </label>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-3 pt-3">
-                        <Label>{t('Authorize.Net Integration Mode')}</Label>
+                       <div className="flex flex-col gap-3 pt-3">
+                        <Label>{t('form:input-label-authorize-net-integration-mode')}</Label>
                         <div className="flex items-center gap-6">
                           <label className="flex items-center gap-2 cursor-pointer text-sm text-heading font-medium">
                             <input
@@ -289,7 +289,7 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                               className="w-4 h-4 accent-accent"
                               {...register('authorizeNetMode')}
                             />
-                            Standard UI (Custom Form)
+                            {t('form:text-standard-ui-custom-form')}
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer text-sm text-heading font-medium">
                             <input
@@ -298,7 +298,7 @@ export default function PaymentSettingsForm({ settings }: IProps) {
                               className="w-4 h-4 accent-accent"
                               {...register('authorizeNetMode')}
                             />
-                            Hosted IFrame (Authorize.net Form)
+                            {t('form:text-hosted-iframe-authorize-net-form')}
                           </label>
                         </div>
                       </div>
@@ -314,7 +314,7 @@ export default function PaymentSettingsForm({ settings }: IProps) {
       </div>
       <div className="flex flex-wrap pb-8 my-5 border-b border-dashed border-border-base sm:mt-8 sm:mb-3">
         <Description
-          title={t('text-currency-options')}
+          title={t('common:text-currency-options')}
           details={t('form:currency-options-info-help-text')}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pr-4 md:w-1/3 md:pr-5"
         />
