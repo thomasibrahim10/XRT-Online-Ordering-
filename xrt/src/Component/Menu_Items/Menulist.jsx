@@ -104,7 +104,7 @@ export default function Menulist({
               (variant === 'home' || variant === 'full') ? (
                 <div 
                   key={product.id}
-                  className="w-full h-full max-w-[320px] md:max-w-none mx-auto [&>div>div:first-child>img]:!h-[130px] [&>div>div:first-child>img]:!object-scale-down [&>div>div:first-child>img]:!p-2 [&>div>div:last-child]:!flex-col [&>div>div:last-child]:!gap-3 [&>div>div:last-child>div]:!w-full [&>div>div:last-child>div]:!h-auto [&>div>div:last-child>div]:!py-2 [&>div>div:last-child>div_h5]:!text-xs [&>div>div:last-child>div_svg]:!w-4"
+                  className="w-full h-full max-w-[320px] md:max-w-none mx-auto [&>div>div:first-child>img]:!h-[130px] [&>div>div:first-child>img]:!object-scale-down [&>div>div:first-child>img]:!p-2 [&>div>div:last-child]:!flex-row [&>div>div:last-child]:!gap-2 [&>div>div:last-child>div]:!flex-1 [&>div>div:last-child>div]:!h-auto [&>div>div:last-child>div]:!py-2 [&>div>div:last-child>div_h5]:!text-[10px] [&>div>div:last-child>div_svg]:!w-3.5"
                 >
                   <ItemComponent product={product} />
                 </div>

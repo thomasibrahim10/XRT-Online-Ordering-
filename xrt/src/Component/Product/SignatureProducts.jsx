@@ -26,7 +26,7 @@ const SignatureProducts = () => {
         {signatureItems.map(item => (
           <div 
             key={item.id} 
-            className="w-full max-w-[170px] mx-auto [&>div>div:first-child>img]:!h-[160px] [&>div>div:last-child]:!flex-col [&>div>div:last-child]:!gap-3 [&>div>div:last-child>div]:!w-full [&>div>div:last-child>div]:!h-auto [&>div>div:last-child>div]:!py-2 [&>div>div:last-child>div_h5]:!text-xs [&>div>div:last-child>div_svg]:!w-4"
+            className="w-full max-w-[170px] mx-auto [&>div>div:first-child>img]:!h-[160px] [&>div>div:last-child]:!flex-row [&>div>div:last-child]:!gap-2 [&>div>div:last-child>div]:!flex-1 [&>div>div:last-child>div]:!h-auto [&>div>div:last-child>div]:!py-2 [&>div>div:last-child>div_h5]:!text-[10px] [&>div>div:last-child>div_svg]:!w-3.5"
           >
             <ProductCard product={item} />
           </div>

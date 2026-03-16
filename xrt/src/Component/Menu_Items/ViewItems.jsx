@@ -67,17 +67,17 @@ export default function ViewItems({ product }) {
           </h3>
         </Link>
 
-        <div className="flex flex-col -space-y-1.5 px-4 pb-4 mx-auto w-full max-w-[200px] justify-center">
+        <div className="flex flex-row gap-2 px-4 pb-4 mx-auto w-full justify-center">
           <div 
              onClick={handleCustomize}
-             className="w-full h-[40px] border-2 border-gray-100 rounded-full flex items-center justify-center group hover:bg-[var(--primary)] duration-300 cursor-pointer">
+             className="flex-1 h-[40px] border-2 border-gray-100 rounded-full flex items-center justify-center group hover:bg-[var(--primary)] duration-300 cursor-pointer">
             <Utensils
               strokeWidth={0.8}
-              size={20}
+              size={18}
               className="text-[var(--primary)] group-hover:text-white duration-300"
             />
-            <h5 className="ml-2 text-[var(--text-gray)] text-sm font-medium group-hover:text-white duration-300 truncate">
-              Customize It
+            <h5 className="ml-1 text-[var(--text-gray)] text-[11px] font-medium group-hover:text-white duration-300 truncate">
+              Customize
             </h5>
           </div>
 
@@ -86,13 +86,13 @@ export default function ViewItems({ product }) {
                ...product,
                price: (product.basePrice * (product.sizes?.[0]?.multiplier || 1)).toFixed(2)
             })}
-            className="w-full h-[40px] border-2 border-gray-100 rounded-full flex items-center justify-center group hover:bg-[var(--primary)] duration-300 cursor-pointer">
+            className="flex-1 h-[40px] border-2 border-gray-100 rounded-full flex items-center justify-center group hover:bg-[var(--primary)] duration-300 cursor-pointer">
             <Handbag
               strokeWidth={0.8}
-              size={20}
+              size={18}
               className="text-[var(--primary)] group-hover:text-white duration-300"
             />
-            <h5 className="ml-2 text-[var(--text-gray)] text-sm font-medium group-hover:text-white duration-300 truncate">
+            <h5 className="ml-1 text-[var(--text-gray)] text-[11px] font-medium group-hover:text-white duration-300 truncate">
               Add To Cart
             </h5>
           </div>
