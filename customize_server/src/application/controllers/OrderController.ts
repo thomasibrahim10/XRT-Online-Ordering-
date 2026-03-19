@@ -173,6 +173,8 @@ export class OrderController {
     const { id: orderId } = req.params;
     const { amount } = req.body; // If empty, it means a full refund
 
+    console.log('Refund Request Received:', { orderId, amount, body: req.body });
+
     const orderRepository = new OrderRepository();
     const order = await orderRepository.findById(orderId);
 
@@ -181,6 +183,7 @@ export class OrderController {
     }
 
     if (!order.money.payment_id) {
+      console.error('Refund Error: Order has no associated payment ID', { orderId });
       return res.status(400).json({ success: false, message: 'Order has no associated payment ID to refund' });
     }
 
@@ -193,6 +196,7 @@ export class OrderController {
     }
 
     if (refundAmountRaw > rawTotalAmount) {
+      console.error('Refund Error: Amount exceeds original total', { refundAmountRaw, rawTotalAmount });
       return res.status(400).json({ success: false, message: 'Refund amount cannot exceed the original order total.' });
     }
 
@@ -211,6 +215,7 @@ export class OrderController {
     const authNetTransactionKey = settings?.authorizeNetTransactionKey;
 
     if (!authNetApiLoginId || !authNetTransactionKey) {
+      console.error('Refund Error: Authorize.Net is not configured', { businessId: order.business_id });
       return res.status(500).json({ success: false, message: 'Authorize.Net payment gateway is not configured' });
     }
 
@@ -276,12 +281,17 @@ export class OrderController {
       });
     };
 
+    let finalAuthNetTransId = '';
+
     try {
-      await executeTransaction(createRequest);
+      const response = await executeTransaction(createRequest);
+      finalAuthNetTransId = response.getTransId?.() || `refund_${Date.now()}`;
     } catch (refundError: any) {
+      console.error('Refund Error: Authorize.Net Refund processing failed', { refundError: refundError.message || refundError });
       // If refund fails, it might be because the transaction is unsettled. Attempt VOID as fallback if it's a full refund.
       if (refundError.message.toLowerCase().includes('settled') || refundError.message.toLowerCase().includes('cannot issue a credit')) {
         if (refundAmountRaw === rawTotalAmount) {
+          console.log('Refund Error Fallback: Attempting Void Transaction...');
           // Attempt VOID
           const voidTransactionRequestType = new AuthorizeNet.APIContracts.TransactionRequestType();
           voidTransactionRequestType.setTransactionType(AuthorizeNet.APIContracts.TransactionTypeEnum.VOIDTRANSACTION);
@@ -292,8 +302,10 @@ export class OrderController {
           voidRequest.setTransactionRequest(voidTransactionRequestType);
 
           try {
-            await executeTransaction(voidRequest);
+            const voidResponse = await executeTransaction(voidRequest);
+            finalAuthNetTransId = voidResponse.getTransId?.() || `void_${Date.now()}`;
           } catch (voidError: any) {
+             console.error('Refund Error Fallback: Void failed', { voidError: voidError.message || voidError });
              return res.status(400).json({ success: false, message: `Refund failed (Unsettled). Void attempt also failed: ${voidError.message}` });
           }
         } else {
@@ -313,9 +325,25 @@ export class OrderController {
     const updatedOrder = await OrderModel.findByIdAndUpdate(orderId, {
       $set: {
         'money.payment_status': newStatus,
-        'order_status': newStatus === 'refunded' ? 'cancelled' : order.status,
+        'payment_status': newStatus,
+        status: newStatus === 'refunded' ? 'canceled' : order.status,
       }
     }, { new: true });
+
+    // 3. Create a Refund Transaction log so the front-end sees it
+    const { TransactionModel } = await import('../../infrastructure/database/models/TransactionModel');
+    await TransactionModel.create({
+      order_id: orderId,
+      customer_id: order.customer_id,
+      transaction_id: finalAuthNetTransId,
+      amount: -refundAmountRaw, // Negative for refund
+      currency: 'USD',
+      gateway: 'authorize_net',
+      status: 'refunded',
+      payment_method: 'credit_card',
+      card_type: order.money.card_type || 'Unknown',
+      last_4: last4,
+    });
     
     return sendSuccess(res, `Order successfully ${newStatus}`, updatedOrder);
   });

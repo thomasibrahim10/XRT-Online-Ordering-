@@ -251,6 +251,8 @@ function renderModal(view: MODAL_VIEWS | undefined, data: any) {
       return <ItemPreviewView />;
     case 'DELETE_USER':
       return <UserDeleteView />;
+    case 'REFUND_ORDER':
+      return <RefundModal />;
 
     case 'DELETE_TAG':
       return <TagDeleteView />;
