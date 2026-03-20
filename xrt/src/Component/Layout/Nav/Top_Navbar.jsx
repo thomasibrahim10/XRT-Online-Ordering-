@@ -21,9 +21,9 @@ export default function Top_Navbar(props) {
           </div>
         </div>
 
-        <a href={`tel:${props.phone}`}>
+        <a href={`tel:${props.phone}`} className='block md:hidden'>
           <div className="right_side flex items-center cursor-pointer group">
-            <div className=" mr-[8px] mt-[4px] w-[28px] md:w-[32px] lg:w-[35px] h-[28px] md:h-[32px] lg:h-[35px] background_icon">
+            <div className=" mr-[8px]  mt-[4px] w-[28px] md:w-[32px] lg:w-[35px] h-[28px] md:h-[32px] lg:h-[35px] background_icon ">
               <Phone strokeWidth={3} className="text-green-500" size={16} />
             </div>
             <h5 className='text-gray-500 font-normal lg:text-[14px] md:text-[12px] text-[9px] duration-500 group-hover:text-[#58d793]'>{formatPhone(props.phone)}</h5>

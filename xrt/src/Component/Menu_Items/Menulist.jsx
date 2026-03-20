@@ -75,12 +75,13 @@ export default function Menulist({
       </div>
 
       {!hideFilter && (
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-6 md:mb-8 pb-2">
+        // <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-6 md:mb-8 pb-2">
+        <div className="flex flex-wrap items-center justify-start md:justify-center gap-4 md:gap-6 mb-6 md:mb-8 pb-2">
           <div className="relative flex-1 min-w-[100px] h-[2px] bg-gray-200 hidden md:block">
             <div className="absolute left-0 top-0 h-full w-16 bg-[var(--primary)]" />
           </div>
-
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3 w-full md:w-auto px-4 md:px-0 mx-auto max-w-[400px] md:max-w-none">
+          {/* <div className="flex flex-wrap justify-center gap-2 md:gap-3 w-full md:w-auto px-4 md:px-0 mx-auto max-w-[400px] md:max-w-none"> */}
+          <div className="flex flex-wrap justify-start md:justify-center gap-2 md:gap-3 w-full md:w-auto px-4 md:px-0 md:mx-auto md:max-w-none">
             {categories.map((item, index) => (
               <ViewMenuList
                 key={index}
