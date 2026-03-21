@@ -44,24 +44,11 @@ const RefundModal = () => {
       </div>
 
       <div className="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded text-sm leading-relaxed">
-        <p className="font-bold mb-1">Authorize.Net (refund / void)</p>
-        <p>
-          Credits (<strong>refunds</strong>) apply to <strong>settled</strong> captures only. Unsettled charges are reversed with a <strong>void</strong> instead.
-        </p>
-        <p className="mt-2">
-          A <strong>full</strong> refund of the <em>remaining</em> balance will try <strong>refund</strong> first; if the batch is not settled yet, the server attempts a <strong>full void</strong>. <strong>Partial</strong> refunds need a settled transaction.
-        </p>
+        <p className="font-bold mb-1">{t('text-important-refund-info')}</p>
+        <p dangerouslySetInnerHTML={{ __html: t('text-refund-full-desc') as string }} />
+        <p className="mt-2" dangerouslySetInnerHTML={{ __html: t('text-refund-partial-desc') as string }} />
         <p className="mt-2 text-xs opacity-90">
-          The gateway needs the card last-4 stored on the order at checkout. Multiple partial refunds are supported up to the original total. See{' '}
-          <a
-            href="https://developer.authorize.net/api/reference/index.html#transaction-refund-a-transaction"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline font-medium"
-          >
-            Authorize.Net: refund a transaction
-          </a>
-          .
+          {t('text-refund-credit-desc')}
         </p>
       </div>
 
@@ -109,7 +96,7 @@ const RefundModal = () => {
             Order total (reference):{' '}
             <span className="font-bold">${data?.totalAmount ?? '—'}</span>
             <span className="block mt-1">
-              The server refunds only up to the <strong>remaining</strong> captured balance (after any prior refunds).
+              {t('text-refund-limit-desc')}
             </span>
           </p>
         </div>
