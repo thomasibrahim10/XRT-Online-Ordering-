@@ -210,6 +210,9 @@ const OrderTransactionList = ({
 
         const actualOrderId =
           record?.order_id?.id || record?.order_id?._id || record?.order_id || record?.id;
+        
+        const actualTrackingNumber =
+          record?.order_id?.tracking_number || record?.tracking_number;
 
         return (
           <div className="flex flex-col items-end gap-1">
@@ -226,7 +229,7 @@ const OrderTransactionList = ({
                   title={tCommon('text-tooltip-refund')}
                   aria-label={tCommon('text-tooltip-refund')}
                   onClick={() =>
-                    openModal('REFUND_ORDER', { orderId: actualOrderId, totalAmount })
+                    openModal('REFUND_ORDER', { orderId: actualOrderId, totalAmount, trackingNumber: actualTrackingNumber })
                   }
                 >
                   <RefundStrokeIcon className="h-4 w-4" />

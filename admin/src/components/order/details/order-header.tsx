@@ -25,6 +25,7 @@ export default function OrderHeader({
     openModal('REFUND_ORDER', {
       orderId: order?.id,
       totalAmount: order?.total,
+      trackingNumber: order?.tracking_number,
     });
   };
 
