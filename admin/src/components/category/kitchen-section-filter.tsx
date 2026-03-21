@@ -19,7 +19,7 @@ export default function KitchenSectionFilter({ onKitchenSectionFilter, className
     };
 
     const { data } = useKitchenSectionsQuery();
-    const sections = (Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []) as { id: string; name: string }[];
+    const sections = (Array.isArray(data) ? data : []) as { id: string; name: string }[];
 
     const kitchenSectionOptions = sections.map((s) => ({
         label: s.name,
