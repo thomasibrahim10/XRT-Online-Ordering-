@@ -212,7 +212,7 @@ const OrderTransactionList = ({
           record?.order_id?.id || record?.order_id?._id || record?.order_id || record?.id;
         
         const actualTrackingNumber =
-          record?.order_id?.tracking_number || record?.tracking_number;
+          record?.order_id?.order_number || record?.order_number || record?.order_id?.tracking_number || record?.tracking_number;
 
         return (
           <div className="flex flex-col items-end gap-1">

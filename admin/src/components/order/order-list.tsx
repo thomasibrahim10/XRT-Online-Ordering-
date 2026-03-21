@@ -233,7 +233,7 @@ const OrderList = ({
               data={{
                   payment_status: order?.payment_status ?? '',
                   total_amount: order?.total ?? 0,
-                  tracking_number: order?.tracking_number ?? '',
+                  tracking_number: (order as any)?.order_number || order?.tracking_number || '',
               }}
             />
           </>
